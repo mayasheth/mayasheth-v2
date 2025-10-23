@@ -1,0 +1,223 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+const titleShort = "quotes";
+const titleFull = "words that resonate";
+
+//import type { QuoteItem } from '@/types/collections';
+//import quotesRaw from '@/data/quotes.json';
+//const quotes = quotesRaw as unknown as QuoteItem[];
+
+import { getCollection } from 'astro:content';
+const quotes = await getCollection('quotes');
+const quoteItems = quotes.map(q => q.data);
+
+// Extract unique tags from all quotes
+const allTags = [...new Set(quoteItems.flatMap(q => q.tags || []).map(formatTag))].sort();
+
+function formatTag(tag: string): string {
+  if (!tag) return '';
+  const cleaned = tag.replace(/\/$/, '');
+  const parts = cleaned.split('/');
+  const lastPart = parts[parts.length - 1];
+  return lastPart || tag;
+}
+---
+
+<BaseLayout titleShort={titleShort} titleFull={titleFull}>
+  <div class="container mx-auto px-4 py-6">
+    <!-- Sort controls -->
+    <div class="pb-6 flex justify-center items-center gap-3 flex-wrap text-base">
+      <span class="font-base font-semibold text-content-0">sort by</span>
+      {['random', 'newest', 'oldest'].map((sort) => (
+        <a 
+          href={`?sort=${sort}`}
+          data-sort={sort}
+          class="sort-button px-4 py-2 rounded-full font-base font-light soft-transition focus-outline  "
+        >
+          {sort}
+        </a>
+      ))}
+    </div>
+
+    <!-- Filter controls -->
+    <div class="pb-6 flex justify-center items-center gap-3 flex-wrap text-base">
+      <span class="font-base font-semibold text-content-0">filter to</span>
+        {allTags.map((tag) => (
+          <button
+            class="filter-button px-3 py-2 rounded-full font-base font-light lowercase soft-transition focus-outline"
+            data-tag={tag}
+          >
+            {tag}
+          </button>
+        ))}
+    </div>
+
+    <!-- Quotes Container -->
+    <div id="quotes-container" class="py-3 columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+      <!-- Quotes will be inserted here by JavaScript -->
+    </div>
+  </div>
+
+  <script define:vars={{quoteItems, allTags}}>
+    // Get URL parameters
+    const urlSearchParams = new URLSearchParams(window.location.search);
+    const params = Object.fromEntries(urlSearchParams.entries());
+
+    let activeFilters = new Set();
+
+    // Sort function
+    function sortQuotes(quoteItems, sortParam) {
+      let sortedQuotes = [...quoteItems];
+      if (sortParam === 'random') {
+        sortedQuotes.sort(() => Math.random() - 0.5);
+      } else if (sortParam === 'newest') {
+        sortedQuotes.sort((a, b) =>
+          new Date(b.last_modified ?? b.created).getTime() - new Date(a.last_modified ?? a.created).getTime()
+        );
+      } else if (sortParam === 'oldest') {
+        sortedQuotes.sort((a, b) =>
+          new Date(a.last_modified ?? a.created).getTime() - new Date(b.last_modified ?? b.created).getTime()
+        );
+      }
+      return sortedQuotes;
+    }
+
+    // Filter function
+    function filterQuotes(quoteItems, filters) {
+      if (filters.size === 0) return quoteItems;
+      return quoteItems.filter(q => 
+        Array.from(filters).every(filter => 
+          q.tags && q.tags.some(tag => formatTag(tag) === filter)
+        )
+      );
+    }
+
+    // Render quotes
+    function renderQuotes(quoteItems) {
+      const container = document.getElementById('quotes-container');
+      container.innerHTML = quoteItems.map(q => `
+        <article class="break-inside-avoid mb-6 rounded-2xl p-6 bg-surface-1">
+          <blockquote>
+            <p class="${getQuoteClass(q.words)} lowercase">
+              ${q.words}
+            </p>
+          </blockquote>
+          <span class="mt-8 text-right">
+            ${q.primary_source ? `
+              <div class="text-content-0 font-base text-base font-semibold lowercase">
+                ${q.primary_source}
+              </div>
+            ` : ''}
+            ${q.secondary_source ? `
+              <div class="text-content-1 font-base text-sm font-light italic lowercase mt-1">
+                via ${q.secondary_source}
+              </div>
+            ` : ''}
+          </span>
+          ${q.tags && q.tags.length ? `
+            <div class="mt-4 flex flex-wrap gap-2 justify-center">
+              ${q.tags.map(t => `
+                <span class="rounded-full bg-surface-2 hover:bg-surface-3 px-2 py-1 font-base text-sm text-content-3 hover:text-content-2 soft-transition uppercase">
+                  ${formatTag(t)}
+                </span>
+              `).join('')}
+            </div>
+          ` : ''}
+          ${q.commentary ? `
+            <p class="mt-4 text-sm font-base font-light text-content-4 text-center lowercase">
+              ${q.commentary}
+            </p>
+          ` : ''}
+        </article>
+      `).join('');
+    }
+
+    // Update sort buttons
+    function updateSortButtons(currentSort) {
+      document.querySelectorAll('.sort-button').forEach(button => {
+        if (button.getAttribute('data-sort') === currentSort) {
+          button.classList.add('bg-surface-3', 'hover:bg-surface-4', 'text-content-1');
+          button.classList.remove('bg-surface-1', 'hover:bg-surface-2', 'text-content-2');
+        } else {
+          button.classList.add('bg-surface-1', 'hover:bg-surface-2', 'text-content-2');
+          button.classList.remove('bg-surface-3', 'hover:bg-surface-4', 'text-content-1');
+        }
+      });
+    }
+
+    // Update filter buttons
+    function updateFilterButtons() {
+      document.querySelectorAll('.filter-button').forEach(button => {
+        const tag = button.getAttribute('data-tag');
+        if (activeFilters.has(tag)) {
+          button.classList.add('bg-surface-3', 'hover:bg-surface-4', 'text-content-1');
+          button.classList.remove('bg-surface-1', 'hover:bg-surface-2', 'text-content-2');
+        } else {
+          button.classList.add('bg-surface-1', 'hover:bg-surface-2', 'text-content-2');
+          button.classList.remove('bg-surface-3', 'hover:bg-surface-4', 'text-content-1');
+        }
+      });
+    }
+
+    // Apply sort and filter
+    function applySortAndFilter() {
+      const sortParam = params.sort || 'random';
+      let filteredAndSortedQuotes = filterQuotes(quoteItems, activeFilters);
+      filteredAndSortedQuotes = sortQuotes(filteredAndSortedQuotes, sortParam);
+      renderQuotes(filteredAndSortedQuotes);
+      updateSortButtons(sortParam);
+      updateFilterButtons();
+    }
+
+    // Initial render
+    applySortAndFilter();
+
+    // Add click event listeners to sort buttons
+    document.querySelectorAll('.sort-button').forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        const newSort = button.getAttribute('data-sort');
+        history.pushState(null, '', `?sort=${newSort}`);
+        params.sort = newSort;
+        applySortAndFilter();
+      });
+    });
+
+    // Add click event listeners to filter buttons
+    document.querySelectorAll('.filter-button').forEach(button => {
+      button.addEventListener('click', () => {
+        const tag = button.getAttribute('data-tag');
+        if (activeFilters.has(tag)) {
+          activeFilters.delete(tag);
+        } else {
+          activeFilters.add(tag);
+        }
+        applySortAndFilter();
+      });
+    });
+
+    // Handle browser back/forward
+    window.addEventListener('popstate', () => {
+      const newParams = new URLSearchParams(window.location.search);
+      params.sort = newParams.get('sort') || 'random';
+      applySortAndFilter();
+    });
+
+    // Helper functions
+    function getQuoteClass(text) {
+      const length = text.length;
+      if (length < 60) return 'font-serif text-2xl font-extrabold text-content-4 leading-tight';
+      if (length < 100) return 'font-serif text-xl font-bold text-content-3 leading-tight';
+      if (length < 140) return 'font-base text-lg font-medium text-content-2';
+      return 'font-base text-base font-light text-content-1';
+    }
+
+    function formatTag(tag) {
+      if (!tag) return '';
+      const cleaned = tag.replace(/\/$/, '');
+      const parts = cleaned.split('/');
+      const lastPart = parts[parts.length - 1];
+      return lastPart || tag;
+    }
+  </script>
+</BaseLayout>

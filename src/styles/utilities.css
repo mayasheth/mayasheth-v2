@@ -1,0 +1,55 @@
+@layer utilities {
+  .soft-transition {
+    @apply transition-all duration-400
+  }
+
+  .focus-outline {
+    @apply focus-visible:ring-[3px] focus-visible:ring-content-3 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-1 focus-visible:outline-none;
+  }
+
+  .focus-outline-rounded {
+    @apply focus-visible:ring-[3px] focus-visible:ring-content-3 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-1 focus-visible:outline-none rounded-md;
+  }
+
+  .focus-border {
+    @apply focus-visible:border-[1.5px] focus-visible:border-content-3 focus-visible:outline-none transition-all duration-200;
+  }
+
+  .min-size-mobile {
+    @apply min-w-[44px] min-h-[44px];
+  }
+
+  .markdown-content a {
+    @apply font-semibold text-content-2 hover:text-content-3 hover:scale-103;
+    @apply focus-visible:ring-[3px] focus-visible:ring-content-3 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-1 focus-visible:outline-none rounded-md;
+    @apply transition-all duration-400
+  }
+
+  .markdown-content h2 {
+    @apply mt-4 mb-2
+  }
+
+  .markdown-content h3 {
+    @apply mt-4 mb-2
+  }
+
+  .markdown-content  ul {
+    @apply list-outside list-disc;
+  }
+
+  .markdown-content ol {
+    @apply list-inside list-decimal;
+  }
+
+  .markdown-content blockquote {
+    @apply font-base text-base font-light text-content-2 italic;
+    @apply border-l-4 border-surface-4 pl-4
+  }
+
+  .toc-active {
+    @apply text-content-2
+  }
+
+  
+
+}

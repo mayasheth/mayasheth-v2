@@ -1,16 +1,19 @@
 ---
+import BaseLayout from '@/layouts/BaseLayout.astro';
 
+const title = "hello";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout titleShort={title} titleFull={title}>
+	<section class="markdown-content text-center">
+	<h3> who i am </h3>
+		<p> 28 year old human </p>
+		<p> asker of many questions (very skeptical) </p>
+		<p> big fan of dogs, the ocean, sunshine, & coffee </p>
+		<p> also, science </p>
+		<p>  </p>
+		<p> current hyperfixations: nhl hockey, aviation + air traffic control </p>
+		<p><a href="/quotes"> words that resonate </a></p>
+		<p><a href="/gratitudes"> smile-inducing, gratitude-provoking, and otherwise noteworthy moments </a></p>
+	</section>
+</BaseLayout>

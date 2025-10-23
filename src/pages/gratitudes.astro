@@ -1,0 +1,55 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { Image } from 'astro:assets';
+import { getCollection, z } from 'astro:content';
+
+const titleShort = ":)";
+const titleFull = "thank you, world";
+
+const gratitudes = await getCollection('gratitudes');
+const gratitudeItems = gratitudes.map(g => g.data);
+
+// Sort newest relevant_date
+gratitudeItems.sort((a, b) =>
+  (new Date(b.relevant_date) > new Date(a.relevant_date) ? 1 : -1)
+);
+
+function formatDate(date: Date): string {
+  const newDate = new Date(date);
+  const year = newDate.getFullYear();
+  const month = String(newDate.getMonth() + 1).padStart(2, '0');
+  const day = String(newDate.getDate()).padStart(2, '0');
+  return `${year}/${month}/${day}`;
+}
+---
+
+<BaseLayout titleShort={titleShort} titleFull={titleFull}>
+  <p class="pb-6 text-content-1">(smile-inducing, gratitude-provoking, and otherwise noteworthy moments)</p>
+
+  <div class="grid max-w-9/10 grid-cols-2 gap-4 md:max-w-3/4 md:grid-cols-3 lg:grid-cols-4">
+    {gratitudeItems.map((item) => (
+      <div class={`overflow-hidden rounded-xl ${item.image 
+        ? 'row-span-2 max-h-80' 
+        : 'flex flex-col justify-between bg-surface-2 hover:bg-surface-3 transition-colors duration-300'}`}>
+        {item.image ? (
+          <div class="relative h-full group">
+            <img src={item.image} alt={item.redacted_content} class="object-cover w-full h-full" />
+            <div class="absolute inset-0 flex items-center justify-center bg-content-0 opacity-0 hover:opacity-80 soft-transition">
+              <p class="p-4 text-base font-semibold text-center text-content-4 opacity-0 group-hover:opacity-100 soft-transition lowercase text-ellipsis">{item.redacted_content}</p>
+            </div>
+            <p class="absolute bottom-2 right-2 px-2 py-1 text-base font-mono font-semibold text-content-1">
+              {formatDate(item.relevant_date)}
+            </p>
+          </div>
+        ) : (
+          <div class="flex items-center justify-center flex-grow p-4">
+            <p class="text-base font-light text-center text-content-2 group-hover:text-content-0 soft-transition text-ellipsis lowercase">{item.redacted_content}</p>
+          </div>
+        )}
+        <p class="px-2 py-2 text-base text-right font-mono font-semibold text-content-3">
+          {formatDate(item.relevant_date)}
+        </p>
+      </div>
+    ))}
+  </div>
+</BaseLayout>

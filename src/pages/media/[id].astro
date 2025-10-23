@@ -1,0 +1,124 @@
+---
+// pages/media/[id].astro
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import  { type HeadingHierarchy } from "@/components/TOCHeading.astro";
+import TOCHeading from "@/components/TOCHeading.astro"
+import MediaInfo from "@/components/MediaInfo.astro"
+import type { MarkdownHeading } from "astro";
+
+export const prerender = true;
+
+// 1. Generate a new path for every collection entry
+export async function getStaticPaths() {
+  const media = await getCollection('media');
+
+  return media.map(mediaEntry => ({
+    params: { id: mediaEntry.id },
+    props: { mediaEntry },
+  }));
+}
+
+// 2. Get the entry directly from the prop
+const { mediaEntry } = Astro.props;
+const { Content, headings } = await render(mediaEntry);
+
+type Props = {
+  mediaEntry: CollectionEntry<'media'>;
+}
+
+// 3. Set up TOC
+function createHeadingHierarchy(headings: MarkdownHeading[]): HeadingHierarchy[] {
+  if (headings.length === 0) return [];
+  
+  const hierarchy: HeadingHierarchy[] = [];
+  const stack: HeadingHierarchy[] = [];
+  
+  headings.forEach(heading => {
+    if (heading.depth > 4) throw Error(`Depths greater than 4 not allowed:\n${JSON.stringify(heading, null, 2)}`);
+
+    const node: HeadingHierarchy = {...heading, subheadings: []};
+
+    // Pop until we find a heading of lower depth (parent)
+    while (stack.length && stack[stack.length - 1].depth >= node.depth) {
+      stack.pop();
+    }
+    if (stack.length === 0) {
+      // Top-most heading at this point
+      hierarchy.push(node);
+    } else {
+      // Add as child to parent in stack
+      stack[stack.length - 1].subheadings.push(node);
+    }
+    stack.push(node);
+  });
+
+  return hierarchy;
+}
+
+const toc: HeadingHierarchy[] = createHeadingHierarchy(headings ?? []);
+const hasToC = toc.length > 1;
+
+---
+
+<BaseLayout titleShort={mediaEntry.data.title}>
+
+  <section class={`md:grid md:grid-cols-4 ${hasToC ? "mx-auto max-w-7xl" : ""}`}>
+    {hasToC && (
+      <div class="relative mx-auto px-4 xl:pt-10 2xl:px-0">
+        <nav class="md:sticky md:top-20">
+          <ul>
+            {toc.map((heading) => (
+              <TOCHeading heading={heading} />
+            ))}
+          </ul>
+        </nav>
+      </div>
+    )}
+    
+    <article class={`mx-auto py-10 items-center ${hasToC ? "md:col-span-3" : "md:col-span-4 max-w-6/7"}`}>
+     
+      <div class=`justify-center mb-10 flex ${hasToC ? "w-full" : ""}`>
+        <MediaInfo mediaEntry={mediaEntry} context="page"/>
+      </div>
+
+      <div class="markdown-content px-8 md:px-4">
+        <Content />
+      </div>
+
+    </article>
+  </section>
+</BaseLayout>
+
+
+<script>
+  // Array of heading IDs in order (slugs from your headings)
+  const headingIds = [...document.querySelectorAll('.markdown-content h2, .markdown-content h3, .markdown-content h4')].map(e => e.id);
+
+  function highlightClosestHeading() {
+    // Find which heading is nearest to the top of viewport
+    let closest;
+    let min = Infinity;
+    headingIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        if (rect.top >= 0 && rect.top < min) {
+          min = rect.top;
+          closest = id;
+        }
+      }
+    });
+    // Remove active from all
+    document.querySelectorAll('.toc-active').forEach(el => el.classList.remove('toc-active'));
+    // Add active to closest
+    if (closest) {
+      const activeLink = document.getElementById(`toc-link-${closest}`);
+      if (activeLink) {
+        activeLink.classList.add('toc-active');
+      }
+    }
+  }
+  window.addEventListener('scroll', highlightClosestHeading, { passive: true });
+  window.addEventListener('DOMContentLoaded', highlightClosestHeading);
+</script>

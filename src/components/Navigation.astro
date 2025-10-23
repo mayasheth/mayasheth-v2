@@ -1,0 +1,142 @@
+---
+import { Icon } from 'astro-icon/components'
+
+const navbarClasses = "flex items-center soft-transition group-hover:font-semibold group-hover:text-content-2 focus-outline-rounded"
+const dropdownClasses = "block px-4 py-1 font-header soft-transition hover:font-semibold hover:text-content-2 focus-outline"
+const mobileClasses = "block font-header text-base font-light text-content-3 soft-transition hover:font-semibold hover:text-content-2"
+
+---
+
+<header class="sticky top-0 z-50 bg-surface-1 p-3">
+  <div class="mx-auto flex max-w-6xl items-center justify-between">
+    <div class="flex items-end justify-center">
+      <img class="-mb-0.5 h-auto w-8" src="/tricolor-paw.svg" alt="paw-logo">
+      <a href="/" class="ml-2 font-serif text-xl font-bold text-content-3 soft-transition hover:text-content-2 focus-outline-rounded">maya sheth</a>
+    </div>
+    
+    <!-- Desktop menu -->
+    <nav class="hidden items-center space-x-6 font-header text-base font-light tracking-wide text-content-3 md:flex">
+      <!-- Collections-->
+      <div class="group relative">
+        <button class={navbarClasses}>
+          collections <Icon name="mdi--chevron-down" class="ml-1 h-4 w-4 soft-transition group-hover:-scale-100" />
+        </button>
+        <div class="absolute left-1/2 my-2 hidden w-auto -translate-x-1/2 rounded-md bg-surface-2 py-1 text-center before:absolute before:inset-x-0 before:-top-2 before:h-2 before:content-[''] group-hover:block">
+          <a href="/quotes" class={dropdownClasses}>quotes</a>
+          <a href="/gratitudes" class={dropdownClasses}>gratitudes</a>
+          <a href="/media" class={dropdownClasses}>media</a>
+        </div>
+      </div>
+
+      <!-- Portfolio -->
+      <div class="group relative">
+        <button class={navbarClasses}>
+          portfolio <Icon name="mdi--chevron-down" class="ml-1 h-4 w-4 soft-transition group-hover:-scale-100" />
+        </button>
+        <div class="absolute left-1/2 my-2 hidden w-auto -translate-x-1/2 rounded-md bg-surface-2 py-1 text-center before:absolute before:inset-x-0 before:-top-2 before:h-2 before:content-[''] group-hover:block">
+          <a href="/research" class={dropdownClasses}>research</a>
+          <a href="/art" class={dropdownClasses}>artwork</a>
+          <a href="/design" class={dropdownClasses}>design</a>
+        </div>
+      </div>
+
+      <!-- Projects -->
+      <div class="group relative">
+        <button class={navbarClasses}>
+          etc. <Icon name="mdi--chevron-down" class="ml-1 h-4 w-4 soft-transition group-hover:-scale-100" />
+        </button>
+        <div class="absolute left-1/2 my-2 hidden w-auto -translate-x-1/2 rounded-md bg-surface-2 py-1 text-center before:absolute before:inset-x-0 before:-top-2 before:h-2 before:content-[''] group-hover:block">
+          <a href="/musings" class={dropdownClasses}>musings</a>
+          <a href="https://chill-atc-react.vercel.app/" class={dropdownClasses}>chill atc</a>
+        </div>
+      </div>
+
+      <!-- Other menu items-->
+      
+      <!-- Search bar (always visible on desktop) -->
+      <div class="group relative">
+        <Icon name="mdi--magnify" class="absolute left-2 top-1/2 h-5 w-5 -translate-y-1/2 text-content-3 transition-colors group-has-[:focus]:text-content-2" />
+        <input type="text" placeholder="search!" class="w-48 rounded border border-content-3 py-1.5 pl-9 pr-3 font-base text-sm font-light text-content-1 focus-border lg:w-56">
+      </div>
+    </nav>
+
+    <!-- Mobile header items -->
+    <div class="flex items-center gap-3 md:hidden">
+      <!-- Mobile search bar (always visible) -->
+      <div class="group relative">
+        <Icon name="mdi--magnify" class="absolute left-2 top-1/2 h-5 w-5 -translate-y-1/2 text-content-3 transition-colors group-has-[:focus]:text-content-2" />
+        <input type="text" placeholder="search!" class="w-32 rounded border border-content-3 py-1.5 pl-9 pr-3 font-base text-sm font-light text-content-1 focus-border">
+      </div>
+      
+      <button class="focus-outline-rounded" id="mobile-menu-toggle">
+        <Icon name="mdi--menu" class="h-6 w-6 text-content-3 soft-transition hover:text-content-2" id="mobile-menu-icon" />
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile dropdown menu (compact, below header) -->
+  <div id="mobile-menu" class="max-h-0 opacity-0 translate-y-3 overflow-hidden bg-surface-1 transition-all duration-600 ease-in-out md:hidden">    
+    <nav class="w-full border-t-1 border-content-4 py-4">
+      <ul class="grid grid-cols-3 gap-x-8 gap-y-4 text-center">
+        <!-- Collections section -->
+        <li class="space-y-2">
+          <div class="font-header text-base font-semibold tracking-wide text-content-2">collections</div>
+          <ul class="space-y-1.5">
+            <li><a href="/quotes" class={mobileClasses}>quotes</a></li>
+            <li><a href="/gratitudes" class={mobileClasses}>gratitudes</a></li>
+            <li><a href="/media" class={mobileClasses}>media</a></li>
+          </ul>
+        </li>
+        
+        <!-- Portfolio section -->
+        <li class="space-y-2">
+          <div class="font-header text-base font-semibold tracking-wide text-content-2">portfolio</div>
+          <ul class="space-y-1.5">
+            <li><a href="/research" class={mobileClasses}>research</a></li>
+            <li><a href="/art" class={mobileClasses}>artwork</a></li>
+            <li><a href="/design" class={mobileClasses}>design</a></li>
+          </ul>
+        </li>
+        
+        <!-- Other -->
+        <li class="space-y-2">
+          <div class="font-header text-base font-semibold tracking-wide text-content-2">&</div>
+          <ul class="space-y-1.5">
+            <li><a href="/musings" class={mobileClasses}>musings</a></li>
+            <li><a href="https://chill-atc-react.vercel.app/" class={mobileClasses}>chill atc</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const mobileMenuIcon = document.getElementById('mobile-menu-icon');
+
+  mobileMenuToggle?.addEventListener('click', () => {
+    mobileMenu?.classList.toggle('max-h-0');
+    mobileMenu?.classList.toggle('max-h-[1000px]'); // Adjust this value based on your menu's maximum height
+    mobileMenu?.classList.toggle('opacity-0');
+    mobileMenu?.classList.toggle('opacity-100');
+    
+    // Change icon between menu and close
+    const isOpen = mobileMenu?.classList.contains('max-h-[1000px]');
+    if (mobileMenuIcon) {
+      mobileMenuIcon.setAttribute('name', isOpen ? 'mdi--close' : 'mdi--menu');
+    }
+  });
+
+  // Close mobile menu when screen size changes to desktop
+  window.addEventListener('resize', () => {
+    if (window.innerWidth >= 768) {
+      mobileMenu?.classList.add('max-h-0', 'opacity-0');
+      mobileMenu?.classList.remove('max-h-[1000px]', 'opacity-100');
+      if (mobileMenuIcon) {
+        mobileMenuIcon.setAttribute('name', 'mdi--menu');
+      }
+    }
+  });
+</script>
