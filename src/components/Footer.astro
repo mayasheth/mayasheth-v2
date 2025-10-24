@@ -1,19 +1,6 @@
 ---
 import { socials } from '../data/socials';
 import { Icon } from 'astro-icon/components';
-import pageBytesJson from '@/data/page-bytes.json'
-
-const pageBytes = pageBytesJson as Record<string, number>;
-const route = Astro.url.pathname.replace(/\/$/, '') || '/'; // remove trailing slash except root
-const bytes = pageBytes[route] ?? 0;
-const green = 0;
-
-let grams = '--';
-if (bytes > 0) {
-  const res = await fetch(`https://api.websitecarbon.com/data?bytes=${bytes}&green=${green}`);
-  const json = await res.json();
-  grams = json?.gco2e?.toFixed(2) ?? '--';
-}
 
 const navbarClasses = "soft-transition hover:font-semibold hover:text-content-2 focus-outline-rounded"
 
@@ -38,8 +25,8 @@ const navbarClasses = "soft-transition hover:font-semibold hover:text-content-2 
       carbon-badge flex justify-center items-center gap-2
       ">
       <Icon name="mdi--foot-print" class="w-auto h-7 text-content-4" />
-      <p class="font-mono text-content-2 text-lg"> {grams} </p>
-      <span class="font-header text-sm md:text-base tracking-wide text-content-3 font-light">g co₂e/view</span>
+      <p id="carbon-value" class="font-mono text-content-2 text-lg"> ... </p>
+      <span class="font-header text-sm md:text-base tracking-wide text-content-3 font-light">g CO₂e/view</span>
       <Icon name="mdi--foot-print" class="w-auto h-7 text-content-4 -scale-x-100" />
     </div>
     <!-- Right -->
@@ -62,4 +49,37 @@ const navbarClasses = "soft-transition hover:font-semibold hover:text-content-2 
       ))}
     </div>
   </div>
+
+
+
+<script>
+(async () => {
+  // Get the current route
+  const route = window.location.pathname;
+  // Fetch the page-bytes.json
+  const res = await fetch('/page-bytes.json');
+  const pageBytes = await res.json();
+  const bytes = pageBytes[route] ?? 0;
+  const green = 0;
+
+  // Fetch WebsiteCarbon API for carbon estimate
+  let label = '--';
+  if (bytes > 0) {
+    try {
+      const apiRes = await fetch(`https://api.websitecarbon.com/data?bytes=${bytes}&green=${green}`);
+      const apiJson = await apiRes.json();
+      label = apiJson?.statistics?.co2?.grid?.grams?.toFixed(2) ?? '--';
+    } catch (err) {
+      label = '--';
+    }
+  }
+  
+  const el = document.getElementById('carbon-value');
+  if (el) {
+    el.textContent = label;
+  }
+
+})();
+</script>
+
 </footer>
