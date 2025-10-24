@@ -1,0 +1,52 @@
+---
+import { socials } from '../data/socials';
+import { Icon } from 'astro-icon/components';
+import { CarbonBadgeValue } from './CarbonBadgeValue';
+
+const navbarClasses = "soft-transition hover:font-semibold hover:text-content-2 focus-outline-rounded"
+---
+
+<footer class="md:sticky md:bottom md:z-50 bg-surface-1 text-content-2 p-3">
+  <div class="
+    mx-auto max-w-6xl w-full
+    flex flex-col gap-4
+    md:grid md:grid-cols-3 md:items-center md:gap-6
+  ">
+    <!-- Left Group -->
+    <div class="
+      flex gap-3 justify-center md:justify-start items-center
+      font-header text-base font-light tracking-wide text-content-3
+      ">
+      <a href="/colophon" class={navbarClasses}>colophon</a>
+      <a href="https://github.com/mayasheth/mayasheth-v2" target="_blank" rel="noopener" class={navbarClasses}>source</a>
+    </div>
+    <!-- Center Group -->
+    <div class="
+      carbon-badge flex justify-center items-center gap-2
+      ">
+      <Icon name="mdi--foot-print" class="w-auto h-7 text-content-4" />
+      <CarbonBadgeValue />
+      <span class="font-header text-sm md:text-base tracking-wide text-content-3 font-light">g co₂/view</span>
+      <Icon name="mdi--foot-print" class="w-auto h-7 text-content-4 -scale-x-100" />
+    </div>
+    <!-- Right Group -->
+    <div class="
+      socials flex flex-wrap justify-center md:justify-end gap-1.5 md:gap-3 items-center
+     ">
+      <span class="font-header text-base tracking-wide text-content-4 font-semibold">connect</span>
+      {socials.map(social => (
+        <a
+          href={social.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={social.name}
+          class="hover:text-content-1 transition"
+        >
+          <Icon
+            name={social.icon}
+            class="w-4 h-4 md:w-6 md:h-6 text-content-3 hover:text-content-2 hover:scale-105 soft-transition" />
+        </a>
+      ))}
+    </div>
+  </div>
+</footer>

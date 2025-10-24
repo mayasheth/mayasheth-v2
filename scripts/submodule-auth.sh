@@ -11,8 +11,5 @@ ssh-add /tmp/submodule_deploy.key
 export GIT_SSH_COMMAND="ssh -v -i /tmp/submodule_deploy.key -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
 git submodule update --init --recursive
 
-echo "Listing vault-content directory contents:"
-ls -al src/vault-content
-
 
 

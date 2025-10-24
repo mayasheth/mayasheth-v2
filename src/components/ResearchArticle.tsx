@@ -138,7 +138,7 @@ const ArticleEntry: React.FC<Props> = ({ article }) => {
         )}
       </span>
       <span className="font-base text-base font-light text-content-4">
-        <span className="italic mr-1"> {article.journal} </span>
+        <span className="italic mr-1"> {article.journal}. </span>
         {formatDate(article.date_published)}
       </span>
 
