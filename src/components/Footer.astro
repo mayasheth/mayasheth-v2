@@ -1,9 +1,22 @@
 ---
 import { socials } from '../data/socials';
 import { Icon } from 'astro-icon/components';
-import { CarbonBadgeValue } from './CarbonBadgeValue';
+import pageBytesJson from '@/data/page-bytes.json'
+
+const pageBytes = pageBytesJson as Record<string, number>;
+const route = Astro.url.pathname.replace(/\/$/, '') || '/'; // remove trailing slash except root
+const bytes = pageBytes[route] ?? 0;
+const green = 0;
+
+let grams = '--';
+if (bytes > 0) {
+  const res = await fetch(`https://api.websitecarbon.com/data?bytes=${bytes}&green=${green}`);
+  const json = await res.json();
+  grams = json?.gco2e?.toFixed(2) ?? '--';
+}
 
 const navbarClasses = "soft-transition hover:font-semibold hover:text-content-2 focus-outline-rounded"
+
 ---
 
 <footer class="md:sticky md:bottom md:z-50 bg-surface-1 text-content-2 p-3">
@@ -12,7 +25,7 @@ const navbarClasses = "soft-transition hover:font-semibold hover:text-content-2 
     flex flex-col gap-4
     md:grid md:grid-cols-3 md:items-center md:gap-6
   ">
-    <!-- Left Group -->
+    <!-- Left -->
     <div class="
       flex gap-3 justify-center md:justify-start items-center
       font-header text-base font-light tracking-wide text-content-3
@@ -20,16 +33,16 @@ const navbarClasses = "soft-transition hover:font-semibold hover:text-content-2 
       <a href="/colophon" class={navbarClasses}>colophon</a>
       <a href="https://github.com/mayasheth/mayasheth-v2" target="_blank" rel="noopener" class={navbarClasses}>source</a>
     </div>
-    <!-- Center Group -->
+    <!-- Center -->
     <div class="
       carbon-badge flex justify-center items-center gap-2
       ">
       <Icon name="mdi--foot-print" class="w-auto h-7 text-content-4" />
-      <CarbonBadgeValue />
-      <span class="font-header text-sm md:text-base tracking-wide text-content-3 font-light">g co₂/view</span>
+      <p class="font-mono text-content-2 text-lg"> {grams} </p>
+      <span class="font-header text-sm md:text-base tracking-wide text-content-3 font-light">g co₂e/view</span>
       <Icon name="mdi--foot-print" class="w-auto h-7 text-content-4 -scale-x-100" />
     </div>
-    <!-- Right Group -->
+    <!-- Right -->
     <div class="
       socials flex flex-wrap justify-center md:justify-end gap-1.5 md:gap-3 items-center
      ">
