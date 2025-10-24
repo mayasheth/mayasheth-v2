@@ -1,5 +1,5 @@
 #!/bin/sh
-set -e
+set -ex
 
 # Start ssh-agent and add the key
 echo "$SUBMODULE_DEPLOY_KEY" > /tmp/submodule_deploy.key
@@ -11,5 +11,9 @@ ssh-add /tmp/submodule_deploy.key
 export GIT_SSH_COMMAND="ssh -v -i /tmp/submodule_deploy.key -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
 git submodule update --init --recursive
 
-
-
+# Fetch latest main branch from remote for your submodule
+cd src/vault-content
+git fetch origin main
+git checkout main
+git pull origin main
+cd ../..
