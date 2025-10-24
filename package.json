@@ -7,8 +7,7 @@
     "prebuild": "./scripts/submodule-auth.sh && npm run sync",
     "build": "npm run prebuild && astro build",
     "preview": "astro preview",
-    "astro": "astro",
-    "postinstall": "git submodule update --init --recursive"
+    "astro": "astro"
   },
   "dependencies": {
     "@astrojs/react": "^4.4.0",
