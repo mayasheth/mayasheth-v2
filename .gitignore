@@ -22,7 +22,7 @@ pnpm-debug.log*
 .idea/
 
 # Ignore the content of the submodule so it doesn't clutter status
-src/vault-content
+src/vault-content/
 
 # Ignore generated content (if you sync submodule contents to Astro's /src/content)
 src/content/300-collections
