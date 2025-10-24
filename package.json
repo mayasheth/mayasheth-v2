@@ -3,9 +3,9 @@
   "scripts": {
     "sync": "node scripts/sync-collections.js",
     "predev": "git submodule update --init --remote && npm run sync",
-    "dev": "astro dev && node scripts/generate-page-bytes.js",
+    "dev": "astro dev && node scripts/generate-page-carbon.js",
     "prebuild": "scripts/submodule-auth.sh && npm run sync",
-    "build": "npm run prebuild && astro build && node scripts/generate-page-bytes.js",
+    "build": "npm run prebuild && astro build && node scripts/generate-page-carbon.js",
     "preview": "astro preview",
     "astro": "astro"
   },
