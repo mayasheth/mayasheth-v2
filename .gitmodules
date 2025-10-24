@@ -1,0 +1,3 @@
+[submodule "src/vault-content"]
+	path = src/vault-content
+	url = git@github.com:mayasheth/vault-content.git

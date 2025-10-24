@@ -1,18 +1,28 @@
 {
   "extends": "astro/tsconfigs/strict",
-  "include": [".astro/types.d.ts", "**/*"],
-  "exclude": ["dist"],
-
+  "include": [
+    ".astro/types.d.ts",
+    "**/*"
+  ],
+  "exclude": [
+    "dist"
+  ],
   "compilerOptions": {
     "allowJs": true,
     "resolveJsonModule": true,
     "moduleResolution": "bundler",
-    "verbatimModuleSyntax": true, 
+    "verbatimModuleSyntax": true,
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@collections/*": ["src/content/300-collections/*"]
-    }
+      "@/*": [
+        "src/*"
+      ],
+      "@collections/*": [
+        "src/content/300-collections/*"
+      ]
+    },
+    "jsx": "react-jsx",
+    "jsxImportSource": "react"
   }
 }

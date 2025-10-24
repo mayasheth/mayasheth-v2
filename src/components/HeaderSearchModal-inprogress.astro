@@ -1,0 +1,128 @@
+---
+// HeaderSearchModal.astro
+---
+
+<div class="search-trigger">
+  <button id="search-button" aria-label="Search">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+      <path d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/>
+    </svg>
+    <span>Search</span>
+    <kbd>⌘K</kbd>
+  </button>
+</div>
+
+<div id="search-modal" class="modal" hidden>
+  <div class="modal-overlay" id="modal-overlay"></div>
+  <div class="modal-content">
+    <div id="search"></div>
+  </div>
+</div>
+
+<script>
+  const modal = document.getElementById('search-modal');
+  const searchButton = document.getElementById('search-button');
+  const overlay = document.getElementById('modal-overlay');
+
+  // Open modal
+  const openModal = () => {
+    modal?.removeAttribute('hidden');
+    setTimeout(() => {
+      const input = document.querySelector<HTMLInputElement>('.pagefind-ui__search-input');
+      input?.focus();
+    }, 100);
+  };
+
+  // Close modal
+  const closeModal = () => {
+    modal?.setAttribute('hidden', '');
+  };
+
+  // Button click
+  searchButton?.addEventListener('click', openModal);
+
+  // Click outside
+  overlay?.addEventListener('click', closeModal);
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', (e) => {
+    // Cmd+K or Ctrl+K
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      openModal();
+    }
+    // Escape to close
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+
+  // Load Pagefind
+  const loadPagefind = async () => {
+    const { PagefindUI } = await import('/@pagefind/pagefind-ui.js');
+    new PagefindUI({
+      element: '#search',
+      showSubResults: true,
+    });
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadPagefind);
+  } else {
+    loadPagefind();
+  }
+</script>
+
+<style>
+  .search-trigger button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .search-trigger button:hover {
+    border-color: #999;
+  }
+
+  kbd {
+    padding: 2px 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 12px;
+    background: #f5f5f5;
+  }
+
+  .modal[hidden] {
+    display: none;
+  }
+
+  .modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+  }
+
+  .modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .modal-content {
+    position: relative;
+    max-width: 600px;
+    margin: 10vh auto;
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  }
+</style>
+
+<link href="/@pagefind/pagefind-ui.css" rel="stylesheet">

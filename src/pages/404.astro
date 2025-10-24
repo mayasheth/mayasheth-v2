@@ -1,0 +1,19 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const title = "404";
+---
+
+<BaseLayout titleShort={title}>
+	<section class="rounded-4xl p-1 m-4 mt-16 md:mt-24 lg:mt-40 text-center flex flex-col bg-surface-4">
+		<section class="rounded-4xl  p-1 m-4 text-center flex flex-col bg-surface-3">
+			<section class="rounded-4xl p-1 m-4 text-center flex flex-col bg-surface-2">
+				<section class="rounded-4xl p-8 m-4 text-center flex flex-col bg-surface-1">
+						<span class="font-serif text-8xl leading-none font-bold text-content-4 mb-2 -mt-6"> 404 </span>
+						<h2 class="text-content-2 mb-2"> page not found </h2>
+						<p class="text-content-1"> the page you're looking for does not exist! </p>
+				</section>
+			</section>
+		</section>
+	</section>
+</BaseLayout>

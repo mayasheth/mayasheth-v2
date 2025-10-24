@@ -52,11 +52,20 @@ const format = Array.isArray(mediaEntry.data.format)
   ? mediaEntry.data.format[0]
   : mediaEntry.data.format;
 const formatIcon = getFormatIcon(format);
+
+function formatDate(date: Date): string {
+  const newDate = new Date(date);
+  const year = newDate.getFullYear();
+  const month = String(newDate.getMonth() + 1).padStart(2, '0');
+  const day = String(newDate.getDate()).padStart(2, '0');
+  return `${year}/${month}/${day}`;
+}
 ---
 
 <!-- Container: flex-row on md+, flex-col on small screens, rounded, shadow, etc -->
-<div class="media-info rounded-xl bg-surface-1 px-6 py-4 max-w-4/5 mx-auto
-            flex flex-col md:flex-row gap-4 md:gap-8 items-stretch">
+<div class={`media-info rounded-xl bg-surface-1 px-6 py-4  mx-auto
+            flex flex-col md:flex-row items-stretch
+            ${context==="page" ? "max-w-7/8 gap-4 md:gap-8" : "w-full gap-2 md:gap-4"}`}>
 
   <!-- TOP ROW: left column, image, always vertically centered in its flex spot -->
   <div class="flex justify-center md:items-center md:h-auto sm:min-h-[120px] ">
@@ -90,7 +99,7 @@ const formatIcon = getFormatIcon(format);
   <!-- Info box: right side for desktop, below image for mobile -->
   <section class="flex flex-col justify-center w-full">
       <div class="flex flex-col justify-center">
-         {mediaEntry.data.year_published ?
+         {mediaEntry.data.year_published && context==="page" ?
           <p class={`font-heading text-content-1 text-center ${context==="page" ? "text-lg font-semibold" : "text-base font-light"}`}>
             <span class="italic">{mediaEntry.data.title}</span> ({mediaEntry.data.year_published})
           </p>
@@ -104,7 +113,7 @@ const formatIcon = getFormatIcon(format);
             {mediaEntry.data.subtitle}
           </p>
         ) : null}
-        <p class={`font-base text-base text-content-3 text-center ${context==="page" ? "font-semibold" : "font-light"}`}>
+        <p class={`font-base text-content-3 text-center ${context==="page" ? "font-semibold text-base" : "font-light text-sm"}`}>
           {mediaEntry.data.author}
         </p>
 
@@ -115,7 +124,7 @@ const formatIcon = getFormatIcon(format);
           class="inline-flex items-center justify-center rounded-full p-2 focus-outline-rounded"
           aria-label={`source for ${mediaEntry.data.title}`}
         >
-          <Icon name="mdi--more-circle-outline" class="w-6 md:w-8 h-auto text-content-3 hover:text-content-2 soft-transition" />
+          <Icon name="mdi--more-circle-outline" class="w-4 md:w-6 h-auto text-content-4 hover:text-content-2 soft-transition" />
         </a>)}
       </div>  
 
@@ -126,27 +135,27 @@ const formatIcon = getFormatIcon(format);
             flex-row md:flex-col md:items-center md:gap-3"
     >
       <div>
-        <span class="font-header font-semibold text-sm text-content-4 py-1">rating</span>
-        <span class="rounded-full bg-surface-2 hover:bg-surface-3 px-2 py-1 font-base text-sm text-content-3 hover:text-content-2 soft-transition uppercase">
+        <span class="font-header font-semibold text-sm text-content-4 py-1"> rating</span>
+        <span class="rounded-full bg-surface-2 hover:bg-surface-3 px-2 py-1 mx-1 font-base text-sm text-content-3 hover:text-content-2 soft-transition uppercase">
           {mediaEntry.data.rating}
         </span>
       </div>
       <div>
         <span class="font-header font-semibold text-sm text-content-4 py-1">type</span>
         {otherTags.map(t => (
-          <span class="rounded-full bg-surface-2 hover:bg-surface-3 px-2 py-1 font-base text-sm text-content-3 hover:text-content-2 soft-transition uppercase">
+          <span class="rounded-full bg-surface-2 hover:bg-surface-3 px-2 py-1 mx-1 font-base text-sm text-content-3 hover:text-content-2 soft-transition uppercase">
             {t}
           </span>
         ))}
       </div>
-      <div>
+      {conceptTags.length > 0 && (<div>
         <span class="font-header font-semibold text-sm text-content-4 py-1">concepts</span>
         {conceptTags.map(t => (
-          <span class="rounded-full bg-surface-2 hover:bg-surface-3 px-2 py-1 font-base text-sm text-content-3 hover:text-content-2 soft-transition uppercase">
+          <span class="rounded-full bg-surface-2 hover:bg-surface-3 px-2 py-1 mx-1 font-base text-sm text-content-3 hover:text-content-2 soft-transition uppercase">
             {t}
           </span>
         ))}
-      </div>
+      </div>)}
     </div>)}
 
     <!-- Commentary: full width on small screens below, inside section on md+ -->
@@ -156,6 +165,7 @@ const formatIcon = getFormatIcon(format);
           class="text-content-1 font-base text-sm font-light mt-4 p-4 rounded-lg bg-surface-2 overflow-y-auto overscroll-auto
           max-h-32 md:max-h-60"
         >
+          <span class="font-semibold font-mono text-content-3 pr-2">{formatDate(mediaEntry.data.relevant_date)}</span>
           {mediaEntry.data.commentary}
         </div>
       )}

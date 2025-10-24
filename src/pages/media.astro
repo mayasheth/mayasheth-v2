@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { getCollection, z } from 'astro:content';
+import { getCollection, type CollectionEntry } from 'astro:content';
 import MediaInfo from "@/components/MediaInfo.astro"
 
 const titleShort = "media";
@@ -17,21 +17,43 @@ const media = (await getCollection('media')).sort((a, b) => {
   return (new Date(b.data.relevant_date) > new Date(a.data.relevant_date) ? 1 : -1)
 });
 
-function formatDate(date: Date): string {
-  const newDate = new Date(date);
-  const year = newDate.getFullYear();
-  const month = String(newDate.getMonth() + 1).padStart(2, '0');
-  const day = String(newDate.getDate()).padStart(2, '0');
-  return `${year}/${month}/${day}`;
+const groupedMedia: Record<string, CollectionEntry<'media'>[]> = ratings.reduce(
+  (acc: Record<string, CollectionEntry<'media'>[]>, rating: string) => {
+    acc[rating] = [];
+    return acc;
+  },
+  {}
+);
+
+for (const entry of media) {
+  const rating = entry.data.rating;
+  if (groupedMedia[rating]) {
+    groupedMedia[rating].push(entry);
+  }
 }
+
+const ratingHeadings: Record<string, string> = {
+  "all-time-influential": "all-time influential",
+  "fantastic": "fantastic",
+  "good": "good",
+  "okay": "okay",
+  "not-good": "not so good",
+};
 ---
 
 <BaseLayout titleShort={titleShort} titleFull={titleFull}>
   <p class="pb-6 text-content-1">(books, podcasts, articles, & the rest)</p>
 
-  <div class="grid max-w-9/10 grid-cols-2 gap-4 md:max-w-4/5 md:grid-cols-3">
-    {media.map(media => (
-        <MediaInfo mediaEntry={media} context="gallery" />
-      ))}
-  </div>
+  {ratings.slice().reverse().map(rating => (
+    groupedMedia[rating].length > 0 && (
+      <section class="mb-6" id={rating}>
+        <h2 class="mb-2">{ratingHeadings[rating]}</h2>
+        <div class="grid max-w-9/10 mx-auto grid-cols-2 gap-2 md:gap-4 md:max-w-4/5 md:grid-cols-3 xl:grid-cols-4">
+          {groupedMedia[rating].map(media => (
+            <MediaInfo mediaEntry={media} context="gallery" />
+          ))}
+        </div>
+      </section>
+    )
+  ))}
 </BaseLayout>
