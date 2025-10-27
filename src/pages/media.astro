@@ -9,7 +9,7 @@ const titleFull = "media";
 const ratings = ['not-good', 'okay', 'good', 'fantastic', 'all-time-influential'];
 const ratingValue = (rating: string): number => ratings.indexOf(rating);
 
-// load media collection and sort by rating and then
+// load media collection and sort by rating and then date 
 const media = (await getCollection('media')).sort((a, b) => {
   const ratingDiff = ratingValue(b.data.rating) - ratingValue(a.data.rating);
   if (ratingDiff !== 0) { return ratingDiff; }

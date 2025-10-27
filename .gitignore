@@ -27,5 +27,7 @@ src/vault-content/
 # Ignore generated content (if you sync submodule contents to Astro's /src/content)
 src/content/300-collections
 public/collections
-src/data/
+src/data/gratitudes.json
+src/data/quotes.json
+src/data/artwork.json
 page-carbon.json

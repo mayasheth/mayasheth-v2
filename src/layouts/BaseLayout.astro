@@ -30,11 +30,11 @@ const { titleShort, titleFull }: Props = Astro.props;
   </head>
 
   <body>
-    <Navigation /> {/* reusable header component */}
-    <div class="flex min-h-dvh flex-col items-center bg-surface-0">
+    <Navigation />
+    <div class="flex min-h-dvh flex-col items-center bg-surface-0 pb-4">
       {titleFull && <h1 class="pt-6"> {titleFull} </h1>}
       <slot /> {/* page-specific content goes */}
     </div>
-    <Footer /> {/* reusable footer component */}
+    <Footer />
   </body>
 </html>

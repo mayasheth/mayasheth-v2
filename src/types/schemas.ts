@@ -48,6 +48,7 @@ export const researchSchema = baseItemSchema.extend({
   journal: z.coerce.string(),
   language: z.literal('en'),
   pmid: z.coerce.number().nullish(),
+  selected: z.coerce.boolean(),
   title: z.coerce.string(),
   url: z.coerce.string()
 })
