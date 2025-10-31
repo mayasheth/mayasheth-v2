@@ -52,14 +52,17 @@ const navbarClasses = "soft-transition hover:font-semibold hover:text-content-2 
 
 
   <script>
-  (async () => {
-    const route = window.location.pathname || '/';
-    const res = await fetch('/page-carbon.json');
-    const pageCarbon = await res.json();
-    const value = pageCarbon[route];
-    const label = Number.isFinite(value) ? value.toFixed(3) : '--'; 
-    const el = document.getElementById('carbon-value');
-    if (el) el.textContent = label;
-  })();
+    (async () => {
+      const route = window.location.pathname || '/';
+      const res = await fetch('/page-carbon.json');
+      const pageCarbon = await res.json();
+
+      // Ensure trailing slash for all lookup
+      const normalized = route.endsWith('/') ? route : route + '/';
+      const value = pageCarbon[normalized];
+      const label = Number.isFinite(value) ? value.toFixed(3) : '--';
+      const el = document.getElementById('carbon-value');
+      if (el) el.textContent = label;
+    })();
   </script>
 </footer>
