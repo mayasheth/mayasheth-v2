@@ -48,12 +48,12 @@ const wideItems = designItemsWithImports.filter(item => item.image_size === "wid
 <BaseLayout titleShort={titleShort} titleFull={titleFull}>
   <p class="pb-6 text-content-1 text-center">(assorted graphic design + branding projects, completed for fun / friends / work)</p>
 
-  <div class="container mx-auto px-4 pb-6 md:max-w-2/3 lg: max-w-3/5">
+  <div class="container mx-auto px-4 pb-6 w-full md:max-w-4/5 lg:max-w-3/5">
 
     {/* wide items */}
     <div class="flex flex-col gap-6 mx-auto mb-6 items-center">
       {wideItems.map((item) => (
-        <div class="flex flex-col bg-surface-1 rounded-xl px-4 lg:px-6 py-4 md:py-6 lg:py-8 items-center text-center md:max-w-4/5 lg:max-w-2/3">
+        <div class="flex flex-col bg-surface-1 rounded-xl px-4 lg:px-6 py-4 md:py-6 lg:py-8 items-center text-center md:max-w-9/10 lg:max-w-2/3">
           <span class="font-header font-semibold text-xl text-content-1 text-center tracking-wide lowercase">
             {item.title} ({item.created.getFullYear()})
           </span>
@@ -63,7 +63,7 @@ const wideItems = designItemsWithImports.filter(item => item.image_size === "wid
             href={item.link_to_more} target="_blank">see more</a>
           )}
 
-          <div class="flex flex-col bg-surface-3 p-4 mt-4 rounded-xl gap-4 overflow-y-auto max-w-full md:max-w-8/10 max-h-[16rem]">
+          <div class="flex flex-col bg-surface-3 p-2 md:p-4 mt-4 rounded-xl gap-4 overflow-y-auto max-w-full md:max-w-8/10 max-h-[16rem]">
             {item.imgDataArr.map((imgData, idx) => (
               imgData && (
                 <Image
@@ -95,7 +95,7 @@ const wideItems = designItemsWithImports.filter(item => item.image_size === "wid
             href={item.link_to_more} target="_blank">see more</a>
           )}
 
-          <div class="flex flex-col bg-surface-3 p-6 mt-4 rounded-xl gap-4 overflow-y-auto md:max-w-4/5 max-h-[16rem]">
+          <div class="flex flex-col bg-surface-3 p-6 mt-4 rounded-xl gap-4 overflow-y-auto max-w-2/5 md:max-w-4/5 max-h-[16rem]">
             {item.imgDataArr.map((imgData, idx) => (
               imgData && (
                 <Image
