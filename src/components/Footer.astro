@@ -53,10 +53,11 @@ const navbarClasses = "soft-transition hover:font-semibold hover:text-content-2 
 
   <script>
   (async () => {
-    const route = window.location.pathname.replace(/\/$/, '') || '/';
+    const route = window.location.pathname || '/';
     const res = await fetch('/page-carbon.json');
     const pageCarbon = await res.json();
-    const label = pageCarbon[route].toFixed(3) ?? '--';
+    const value = pageCarbon[route];
+    const label = Number.isFinite(value) ? value.toFixed(3) : '--'; 
     const el = document.getElementById('carbon-value');
     if (el) el.textContent = label;
   })();

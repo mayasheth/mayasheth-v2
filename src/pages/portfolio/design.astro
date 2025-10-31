@@ -1,0 +1,117 @@
+---
+// Fetch and prepare all data as before
+import { Image } from "astro:assets";
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import type { ImageMetadata } from 'astro';
+
+const titleShort = "design";
+const titleFull = "design";
+
+// import collection and sort by date
+const design = await getCollection('design');
+const designItems = design.map(item => item.data);
+// Sort newest relevant_date
+designItems.sort((a, b) =>
+  (new Date(b.created) > new Date(a.created) ? 1 : -1)
+);
+
+const imageImports = import.meta.glob<{ default: ImageMetadata }>("../../content/300-collections/portfolio/images/*");
+
+const designItemsWithImports = await Promise.all(
+  designItems.map(async item => {
+    // Resolve images and filter out any that weren't found (nulls)
+    const imgDataArr = (
+      await Promise.all(
+        (item.images || []).map(async imagePath => {
+          const imageFileName = imagePath.replace(/^.*images\//, '');
+          const globKey = `../../content/300-collections/portfolio/images/${imageFileName}`;
+          if (imageImports[globKey]) {
+            return (await imageImports[globKey]()).default;
+          } else {
+            console.warn('Image not found via import.meta.glob mapping:', globKey);
+            return null;
+          }
+        })
+      )
+    ).filter(Boolean); // <-- filters out nulls and undefined
+
+    return { ...item, imgDataArr };  // Array of ImageMetadata only
+  })
+);
+
+const narrowItems = designItemsWithImports.filter(item => item.image_size === "narrow");
+const wideItems = designItemsWithImports.filter(item => item.image_size === "wide");
+
+---
+
+<BaseLayout titleShort={titleShort} titleFull={titleFull}>
+  <p class="pb-6 text-content-1 text-center">(assorted graphic design + branding projects, completed for fun / friends / work)</p>
+
+  <div class="container mx-auto px-4 pb-6 md:max-w-2/3 lg: max-w-3/5">
+
+    {/* wide items */}
+    <div class="flex flex-col gap-6 mx-auto mb-6 items-center">
+      {wideItems.map((item) => (
+        <div class="flex flex-col bg-surface-1 rounded-xl px-4 lg:px-6 py-4 md:py-6 lg:py-8 items-center text-center md:max-w-4/5 lg:max-w-2/3">
+          <span class="font-header font-semibold text-xl text-content-1 text-center tracking-wide lowercase">
+            {item.title} ({item.created.getFullYear()})
+          </span>
+          <p class="text-content-2 leading-tight mt-2 lowercase">{item.description}</p>
+          {item.link_to_more && (
+            <a class="font-base font-semibold text-base mt-2 text-content-3 hover:text-content-4 soft-transition focus-outline-rounded"
+            href={item.link_to_more} target="_blank">see more</a>
+          )}
+
+          <div class="flex flex-col bg-surface-3 p-4 mt-4 rounded-xl gap-4 overflow-y-auto max-w-full md:max-w-8/10 max-h-[16rem]">
+            {item.imgDataArr.map((imgData, idx) => (
+              imgData && (
+                <Image
+                  src={imgData}
+                  alt={item.description ?? item.title ?? "design"}
+                  loading="eager"
+                  width={1200}
+                  height={800}
+                  sizes="(max-width: 800px) 100vw, (max-width: 1200px) 33vw, 25vw"
+                  style="width:100%; height:auto;"
+                />
+              )
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {/* narrow items */}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mx-auto mb-6">
+      {narrowItems.map((item) => (
+        <div class="flex flex-col bg-surface-1 rounded-xl px-4 py-6 items-center text-center w-full">
+          <span class="font-header font-semibold text-xl text-content-1 text-center tracking-wide lowercase">
+            {item.title} ({item.created.getFullYear()})
+          </span>
+          <p class="text-content-2 leading-tight mt-2 lowercase">{item.description}</p>
+          {item.link_to_more && (
+            <a class="font-base font-semibold text-base mt-2 text-content-3 hover:text-content-4 soft-transition focus-outline-rounded"
+            href={item.link_to_more} target="_blank">see more</a>
+          )}
+
+          <div class="flex flex-col bg-surface-3 p-6 mt-4 rounded-xl gap-4 overflow-y-auto md:max-w-4/5 max-h-[16rem]">
+            {item.imgDataArr.map((imgData, idx) => (
+              imgData && (
+                <Image
+                  src={imgData}
+                  alt={item.description ?? item.title ?? "design"}
+                  loading="eager"
+                  width={600}
+                  height={400}
+                  sizes="(max-width: 800px) 100vw, (max-width: 1200px) 33vw, 25vw"
+                  style="width:100%; height:auto;"
+                />
+              )
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</BaseLayout>

@@ -21,6 +21,9 @@ const DATA_DST    = join(__dirname, '../src/data');                           //
 const PUBLIC_DST  = join(__dirname, '../public/collections/300-collections'); // public images for aggregated
 const CACHE_FILE  = join(__dirname, '../.sync-cache.json');
 
+// These use Astro <Image /> (images in src/content for import)
+const CONTENT_IMAGE_COLLECTIONS = ['gratitudes', 'portfolio']; // <-- edit as needed
+
 // Collections to aggregate (JSON only)
 const AGGREGATE_COLLECTIONS = ['gratitudes', 'quotes'];
 
@@ -51,6 +54,28 @@ async function walk(dir, base, out = []) {
 
 async function ensureDir(p) { await mkdir(dirname(p), { recursive: true }); }
 
+// Copy images for Astro content (<Image />) collections
+async function copyToContent(absSrc, collectionName) {
+  const relWithinCollection = relative(join(SRC_FROM, collectionName), absSrc).replace(/\\/g, '/');
+  const dstAbs = join(CONTENT_DST, collectionName, relWithinCollection);
+  await ensureDir(dstAbs);
+  await cp(absSrc, dstAbs, { force: true });
+  return `../${relWithinCollection}`;  // Update returned path accordingly
+}
+
+async function copyCollectionImagesContent(collection) {
+  const srcDir = join(SRC_FROM, collection, 'images');
+  if (!existsSync(srcDir)) return 0;
+  const files = await walk(srcDir, srcDir);
+  let copied = 0;
+  for (const { abs } of files) {
+    if (!isImg(abs)) continue;
+    await copyToContent(abs, collection);
+    copied++;
+  }
+  return copied;
+}
+
 // ---- /public helpers (aggregated images) ----
 async function copyToPublic(absSrc, collectionName) {
   const relWithinCollection = relative(join(SRC_FROM, collectionName), absSrc).replace(/\\/g, '/');
@@ -73,13 +98,19 @@ async function copyCollectionImagesPublic(collection) {
 }
 
 // Rewrite frontmatter fields that may contain relative image paths (aggregated only)
-async function rewriteFmValue(fromFileAbs, value, collectionName) {
+async function rewriteFmValue(fromFileAbs, value, collectionName, target) {
   const transform = async (v) => {
     if (typeof v !== 'string') return v;
     if (isHttp(v) || isAbs(v)) return v;
     const abs = resolve(dirname(fromFileAbs), v);
     if (!abs.startsWith(SRC_FROM) || !isImg(abs)) return v;
-    return copyToPublic(abs, collectionName);
+    if (target === 'content') {
+      // Rewrite to relative path expected by Astro import (relative to the .astro file)
+      return await copyToContent(abs, collectionName);
+    } else {
+      // Rewrite to /public URL for markdown use
+      return await copyToPublic(abs, collectionName);
+    }
   };
   if (Array.isArray(value)) {
     const out = [];
@@ -95,11 +126,12 @@ async function aggregateCollection(collection) {
   const srcDir  = join(SRC_FROM, collection);
   const jsonOut = join(DATA_DST, `${collection}.json`);
 
+  const target = CONTENT_IMAGE_COLLECTIONS.includes(collection) ? 'content' : 'public';
+
   // Gather ALL md files every run to avoid empty JSON on "no changes"
   const files = (await walk(srcDir, srcDir)).filter(({ abs }) => isMd(abs));
 
   if (files.length === 0) {
-    // No files at all → write empty array (or skip writing, your choice)
     await ensureDir(jsonOut);
     await writeFile(jsonOut, '[]\n', 'utf8');
     console.log(`📦 aggregated ${collection}: 0 items (no .md files found) → ${jsonOut}`);
@@ -111,23 +143,17 @@ async function aggregateCollection(collection) {
     const raw = await readFile(abs, 'utf8');
     const fm  = matter(raw);
 
-    // Keep ALL frontmatter keys
     const data = { ...fm.data };
 
-    // Skip unpublished explicitly set to false
     if (data.publish === false) continue;
-
-    // filename → slug (index/readme → parent folder)
     const name = basename(rel, extname(rel));
     const slug = /^(index|readme)$/i.test(name) ? basename(dirname(rel)) || name : name;
 
-    // Rewrite image-like fields to /public URLs
     for (const k of LINKISH_FIELDS) {
       if (data[k] !== undefined) {
-        data[k] = await rewriteFmValue(abs, data[k], collection);
+        data[k] = await rewriteFmValue(abs, data[k], collection, target); // <-- add target param
       }
     }
-
     items.push({
       id: rel.replace(/\\/g, '/'),
       slug,
@@ -136,10 +162,14 @@ async function aggregateCollection(collection) {
     });
   }
 
-  // Copy ALL images for the aggregated collection to /public (idempotent)
-  const imgCount = await copyCollectionImagesPublic(collection);
+  // Copy ALL images for the aggregated collection to src/content OR public
+  let imgCount;
+  if (target === 'content') {
+    imgCount = await copyCollectionImagesContent(collection);
+  } else {
+    imgCount = await copyCollectionImagesPublic(collection);
+  }
 
-  // Sort newest first by created then last_modified if present
   items.sort((a, b) =>
     String(b.created ?? '').localeCompare(String(a.created ?? '')) ||
     String(b.last_modified ?? '').localeCompare(String(a.last_modified ?? ''))
@@ -185,6 +215,12 @@ async function mirrorCollection(collection) {
       await rm(join(dstDir, rel), { force: true });
       removed++;
     }
+  }
+
+  // Copy images to public for non-aggregated collections not specified for content images ***
+  if (!CONTENT_IMAGE_COLLECTIONS.includes(collection)) {
+    const imgCount = await copyCollectionImagesPublic(collection);
+    console.log(`🖼️  copied ${imgCount} images from ${collection} to public`);
   }
 
   await saveCache(cache);

@@ -1,0 +1,78 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
+
+const titleShort = "notebook";
+const titleFull = "notebook";
+
+// load collection and sort by date 
+const notebook = (await getCollection('notebook')).sort((a, b) => {
+  return (new Date(b.data.created) > new Date(a.data.created) ? 1 : -1)
+});
+
+// filter to not musings
+const notebookFiltered = notebook.filter(item => 
+  !('musings_edition' in item.data) || item.data.musings_edition === null
+);
+
+// format and organize tags:
+function removePrefix(tag: string, prefix: string): string {
+  if (!tag) return '';
+  if (tag.startsWith(prefix + '/')) {
+    return tag.substring(prefix.length + 1);
+  }
+  return tag;
+}
+
+const tagsToRemove: string[] = []; // Add tags to remove if needed
+
+const notebookProcessed = notebookFiltered.map(item => {
+  const tags: string[] = item.data.tags ?? [];
+  const typeTags: string[] = [];
+  const contentTags: string[] = [];
+
+  for (const tag of tags) {
+    // skip tags to remove
+    if (tagsToRemove.includes(tag)) continue;
+
+    if (tag.startsWith('journal/')) {
+      typeTags.push(removePrefix(tag, 'journal'));
+    } else if (tag.startsWith('media/')) {
+      typeTags.push(removePrefix(tag, 'media'));
+    } else if (tag.startsWith('value/')) {
+      contentTags.push(removePrefix(tag, 'value'));
+    } else if (tag.startsWith('concept/')) {
+      contentTags.push(removePrefix(tag, 'concept'));
+    }
+  }
+  return{ ...item, typeTags, contentTags }
+});
+
+function formatDate(date: Date): string {
+  const newDate = new Date(date);
+  const year = newDate.getFullYear();
+  const month = String(newDate.getMonth() + 1).padStart(2, '0');
+  const day = String(newDate.getDate()).padStart(2, '0');
+  return `${year}/${month}/${day}`;
+}
+
+---
+
+<BaseLayout titleShort={titleShort} titleFull={titleFull}>
+  <p class="pb-6 text-content-1"> (structured + freeform thoughts, questions, & common themes) </p>
+
+    {notebookProcessed.map(item => (
+    <span class="inline-flex align-baseline">
+      <a
+        href={`/notebook/${item.id}`}
+        rel="noopener"
+        class="inline-flex items-center justify-center font-base font-light lowercase text-content-3 hover:text-content-2 hover:font-semibold soft-transition focus-outline-rounded"
+        aria-label={`source for ${item.data.title}`}
+      >
+        {item.data.title}
+      </a>
+      <p class="font-mono text-sm my-auto text-content-4 pl-4 font-semibold">{formatDate(item.data.created)}</p>
+    </span>
+  ))}
+
+</BaseLayout>

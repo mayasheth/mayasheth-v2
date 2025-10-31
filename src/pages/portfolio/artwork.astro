@@ -1,0 +1,135 @@
+---
+// Fetch and prepare all data as before
+import { Image } from "astro:assets";
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import type { ImageMetadata } from 'astro';
+
+const titleShort = "art";
+const titleFull = "artwork";
+
+// import collection and sort by date
+const artwork = await getCollection('artwork');
+const artworkItems = artwork.map(item => item.data);
+// Sort newest relevant_date
+artworkItems.sort((a, b) =>
+  (new Date(b.created) > new Date(a.created) ? 1 : -1)
+);
+
+const allTags = [...new Set(artworkItems.flatMap(a => a.art_tags ?? []))].map(formatTag).sort();
+
+function formatTag(tag: string): string {
+  if (!tag) return '';
+  const formatted = tag.replace(/-/g, ' ');
+  return formatted;
+}
+
+const imageImports = import.meta.glob<{ default: ImageMetadata }>("../../content/300-collections/portfolio/images/*");
+
+const artworkItemsWithImports = await Promise.all(
+  artworkItems.map(async item => {
+    let imgData = null;
+    const imageFileName = item.image ? item.image.replace(/^.*images\//, '') : "";
+    const globKey = `../../content/300-collections/portfolio/images/${imageFileName}`;
+    if (imageImports[globKey]) {
+      imgData = (await imageImports[globKey]()).default;
+    } else {
+      console.warn('Image not found via import.meta.glob mapping:', globKey);
+    }
+    return { ...item, imgData };
+  })
+);
+---
+
+<BaseLayout titleShort={titleShort} titleFull={titleFull}>
+  <div class="container mx-auto px-4 py-6">
+    <!-- Filter Controls -->
+    <div class="pb-6 flex justify-center items-center gap-3 flex-wrap text-base max-w-9/10 sm:max-w-3/4 mx-auto">
+      <span class="font-base font-semibold text-content-0">filter to</span>
+      {allTags.map((tag) => (
+        <button
+          class="filter-button px-3 py-2 rounded-full font-base font-light lowercase soft-transition focus-outline bg-surface-1 text-content-2"
+          data-tag={tag}
+          type="button"
+        >{tag}
+        </button>
+      ))}
+    </div>
+
+    <!-- Gallery Display: Each item gets data-tags attribute for filtering -->
+    <div id="image-gallery"
+      class="grid max-w-9/10 grid-cols-3 gap-4 md:gap-6 sm:max-w-3/4 md:grid-cols-4 lg:grid-cols-5 mx-auto justify-items-center">
+      {artworkItemsWithImports.map((item, index) => (
+        <div
+          class="overflow-hidden gallery-item aspect-square rounded-md relative group"
+          data-tags={item.art_tags?.map(formatTag).join(',') ?? ""}
+        >
+
+          {item.imgData && (
+            <Image
+              src={item.imgData}
+              alt={item.description ?? item.title ?? "artwork"}
+              loading={index < 20 ? "eager" : "lazy"}
+              width={600}
+              height={400}
+              sizes="(max-width: 800px) 100vw, (max-width: 1200px) 33vw, 25vw"
+              style="width:100%; height:auto;"
+            />
+            <div class="absolute inset-0 flex flex-col items-center justify-center bg-content-0 opacity-0 hover:opacity-80 soft-transition">
+              <p class="px-4 text-base font-semibold text-center text-surface-2 opacity-0 group-hover:opacity-100 soft-transition lowercase">{item.title}</p>
+              <p class="text-base font-mono font-semibold text-surface-3">{item.created.getFullYear()}</p>
+              {item.inspiration && (
+                <a class="text-sm font-base font-semibold text-center text-content-4 hover:text-content-3 opacity-0 group-hover:opacity-100 soft-transition"
+                  target="_blank"
+                  href={item.inspiration}>
+                    inspiration
+                </a>
+              )}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <script>
+    // Filter logic: Show/hide items by toggling .hidden based on selected tags
+    const buttons = document.querySelectorAll('.filter-button');
+    const items = document.querySelectorAll('.gallery-item');
+    let activeFilter: string | null = null;
+
+    buttons.forEach(button => {
+      button.addEventListener('click', () => {
+        const tag = button.getAttribute('data-tag');
+        if (activeFilter === tag) {
+          activeFilter = null; // Deselect if same button clicked
+        } else {
+          activeFilter = tag;
+        }
+        // Update buttons
+        buttons.forEach(b => {
+          const bTag = b.getAttribute('data-tag');
+          b.classList.toggle('bg-surface-3', activeFilter === bTag);
+          b.classList.toggle('text-content-1', activeFilter === bTag);
+          b.classList.toggle('bg-surface-1', activeFilter !== bTag);
+          b.classList.toggle('text-content-2', activeFilter !== bTag);
+        });
+        // Filter items
+        items.forEach(item => {
+          const itemTags = item.getAttribute('data-tags')?.split(',').map(formatTag);
+          if (!activeFilter || (itemTags && itemTags.includes(activeFilter))) {
+            item.classList.remove('hidden');
+          } else {
+            item.classList.add('hidden');
+          }
+        });
+      });
+    });
+
+    function formatTag(tag: string): string {
+      if (!tag) return '';
+      const formatted = tag.replace(/-/g, ' ');
+      return formatted;
+    }
+  </script>
+</BaseLayout>

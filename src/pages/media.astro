@@ -41,8 +41,12 @@ const ratingHeadings: Record<string, string> = {
 };
 ---
 
-<BaseLayout titleShort={titleShort} titleFull={titleFull}>
-  <p class="pb-6 text-content-1">(books, podcasts, articles, & the rest)</p>
+<BaseLayout titleShort={titleShort} titleFull={titleFull}>  
+  <span class="flex flex-col text-center pb-6"> 
+    <p class="text-content-1">(books, podcasts, articles, & the rest)</p>
+    <a class="font-base text-base text-content-2 hover:text-content-3 font-semibold soft-transition focus-outline-rounded" href="https://www.goodreads.com/user/show/31600461-maya-sheth" target="_blank"> goodreads </a>
+  </span>  
+  
 
   {ratings.slice().reverse().map(rating => (
     groupedMedia[rating].length > 0 && (

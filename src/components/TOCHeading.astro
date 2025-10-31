@@ -6,15 +6,19 @@ const indentClass =
   : heading.depth === 3 ? 'pl-4'
   : heading.depth === 4 ? 'pl-8'
   : '';
-import type { MarkdownHeading } from "astro";
-export interface HeadingHierarchy extends MarkdownHeading {
+
+export interface HeadingHierarchy {
+  text: string;
+  depth: number;
+  id?: string; // from rehype-slug
   subheadings: HeadingHierarchy[];
 }
+
 ---
-<li class={`${indentClass} leading-tight`}>
+<li class={`${indentClass} leading-2 pb-1`}>
   <a class="font-base text-sm tracking-tight text-content-3 focus-outline-rounded hover:font-semibold hover:text-content-2 soft-transition"
-    href={'#' + heading.slug}
-    id={`toc-link-${heading.slug}`}>
+    href={'#' + heading.id}
+    id={`toc-link-${heading.id}`}>
     {heading.text}
   </a>
   {heading.subheadings.length > 0 && (

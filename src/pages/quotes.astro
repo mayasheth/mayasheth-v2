@@ -1,13 +1,10 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
 const titleShort = "quotes";
 const titleFull = "words that resonate";
 
-//import type { QuoteItem } from '@/types/collections';
-//import quotesRaw from '@/data/quotes.json';
-//const quotes = quotesRaw as unknown as QuoteItem[];
-
-import { getCollection } from 'astro:content';
 const quotes = await getCollection('quotes');
 const quoteItems = quotes.map(q => q.data);
 
@@ -19,14 +16,20 @@ function formatTag(tag: string): string {
   const cleaned = tag.replace(/\/$/, '');
   const parts = cleaned.split('/');
   const lastPart = parts[parts.length - 1];
-  return lastPart || tag;
+
+  let formatted = lastPart;
+  if (lastPart == "quote-inspiration") {
+    formatted = "to illustrate!";
+  }
+
+  return formatted || tag;
 }
 ---
 
 <BaseLayout titleShort={titleShort} titleFull={titleFull}>
   <div class="container mx-auto px-4 py-6">
     <!-- Sort controls -->
-    <div class="pb-6 flex justify-center items-center gap-3 flex-wrap text-base">
+    <div class="pb-4 flex justify-center items-center gap-3 flex-wrap text-base">
       <span class="font-base font-semibold text-content-0">sort by</span>
       {['random', 'newest', 'oldest'].map((sort) => (
         <a 
@@ -53,7 +56,7 @@ function formatTag(tag: string): string {
     </div>
 
     <!-- Quotes Container -->
-    <div id="quotes-container" class="py-3 columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+    <div id="quotes-container" class="pb-6 columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
       <!-- Quotes will be inserted here by JavaScript -->
     </div>
   </div>
@@ -217,7 +220,13 @@ function formatTag(tag: string): string {
       const cleaned = tag.replace(/\/$/, '');
       const parts = cleaned.split('/');
       const lastPart = parts[parts.length - 1];
-      return lastPart || tag;
+
+      let formatted = lastPart;
+      if (lastPart == "quote-inspiration") {
+        formatted = "to illustrate!";
+      }
+      
+      return formatted || tag;
     }
   </script>
 </BaseLayout>

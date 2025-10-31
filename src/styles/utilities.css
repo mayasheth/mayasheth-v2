@@ -33,17 +33,36 @@
     @apply mt-4 mb-2
   }
 
-  .markdown-content  ul {
-    @apply list-outside list-disc;
+  .markdown-content h4 {
+    @apply mt-4 mb-2
   }
 
+  .markdown-content ul {
+    @apply list-outside list-disc py-2 ml-6;
+  }
   .markdown-content ol {
-    @apply list-inside list-decimal;
+    @apply list-inside list-decimal py-2 ml-6;
+  }
+  .markdown-content ul ul,
+  .markdown-content ol ol,
+  .markdown-content ul ol,
+  .markdown-content ol ul {
+    @apply ml-6;
   }
 
-  .markdown-content blockquote {
-    @apply font-base text-base font-light text-content-2 italic;
-    @apply border-l-4 border-surface-4 pl-4
+  .markdown-content blockquote p {
+    @apply font-base text-base tracking-tight font-light text-content-2;
+    @apply border-l-4 border-surface-4 pl-4 ml-2;
+  }
+
+  .markdown-content blockquote a {
+    @apply font-semibold text-content-3 hover:text-content-4 hover:scale-103;
+    @apply focus-visible:ring-[3px] focus-visible:ring-content-3 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-1 focus-visible:outline-none rounded-md;
+    @apply transition-all duration-400
+  }
+
+  .markdown-content hr {
+    @apply border-content-4 mt-6
   }
 
   .toc-active {

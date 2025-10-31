@@ -34,6 +34,15 @@
     @apply text-center;
   }
 
+  h4 {
+    font-family: var(--font-header);
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-semibold);
+    @apply tracking-wider;
+    @apply text-content-1;
+    @apply text-left;
+  }
+
   li {
     font-family: var(--font-base);
     font-size: var(--text-base);
