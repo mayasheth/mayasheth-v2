@@ -25,7 +25,7 @@ const atwLocationSchema = z.object({
 });
 
 const atwBookSchema = z.object({
-  author: z.coerce.string().nullish(),
+  book_author: z.string(),
   book_commentary: z.coerce.string().nullish(),
   book_cover: z.string().url().nullish(),
   book_date_read: z.coerce.date().nullish(),

@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getCollection, type CollectionEntry } from 'astro:content';
-import MediaInfo from "@/components/MediaInfo.astro"
+import MediaInfoGallery from "@/components/MediaInfoGallery.astro"
 
 const titleShort = "media";
 const titleFull = "media";
@@ -52,9 +52,9 @@ const ratingHeadings: Record<string, string> = {
     groupedMedia[rating].length > 0 && (
       <section class="mb-6" id={rating}>
         <h2 class="mb-2">{ratingHeadings[rating]}</h2>
-        <div class="grid max-w-9/10 mx-auto grid-cols-2 gap-2 md:gap-4 md:max-w-4/5 md:grid-cols-3 xl:grid-cols-4">
+        <div class="grid max-w-9/10 mx-auto grid-cols-2 gap-2 md:gap-4 lg:max-w-4/5 md:grid-cols-3 xl:grid-cols-4">
           {groupedMedia[rating].map(media => (
-            <MediaInfo mediaEntry={media} context="gallery" />
+            <MediaInfoGallery mediaEntry={media} />
           ))}
         </div>
       </section>

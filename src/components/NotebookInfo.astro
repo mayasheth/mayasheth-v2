@@ -33,7 +33,6 @@ const typeTags: string[] = [];
   }
 });
 
-
 function formatDate(date: Date): string {
   const newDate = new Date(date);
   const year = newDate.getFullYear();
@@ -41,6 +40,7 @@ function formatDate(date: Date): string {
   const day = String(newDate.getDate()).padStart(2, '0');
   return `${year}/${month}/${day}`;
 }
+
 ---
 
 <section class={`notebook-info rounded-xl bg-surface-1 px-6 py-4 mx-auto min-w-xs

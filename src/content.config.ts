@@ -9,7 +9,7 @@ const artwork = defineCollection({
 });
 
 const atw = defineCollection({
-  loader: glob({ pattern: "*.md", base: "./src/content/300-collections/around-the-world" }),
+  loader: glob({ pattern: "*.md", base: "./src/content/300-collections/media/around-the-world" }),
   schema: atwSchema
 });
 

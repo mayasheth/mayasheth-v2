@@ -93,13 +93,19 @@ function getBaseSlug(path: string): string {
 }
 
 // Build map: { baseFileName: fullSlug }
-export async function getBaseSlugMap(collections: string[]): Promise<Record<string, string>> {
+const COLLECTIONS = ['media', 'notebook', 'atw']
+export async function getBaseSlugMap(collections: string[] = COLLECTIONS): Promise<Record<string, string>> {
   const map: Record<string, string> = {};
   for (const collection of collections) {
     const entries = await (getCollection as any)(collection);
     entries.forEach((entry: any) => {
       const baseSlug = getBaseSlug(entry.id); // assuming entry.id is like 'media/beck-shotwell-the-folly-of-purity-politics'
-      map[baseSlug] = `/${collection}/${entry.id}`;
+      if (collection === "atw") {
+        map[baseSlug] = `/media/around-the-world/${entry.id}`;
+      } else {
+        map[baseSlug] = `/${collection}/${entry.id}`;
+      }
+     
     });
   }
   return map;
@@ -107,7 +113,7 @@ export async function getBaseSlugMap(collections: string[]): Promise<Record<stri
 
 export async function rewriteMarkdownLinksBase(
   markdown: string,
-  collections: string[],
+  collections: string[] = COLLECTIONS,
 ): Promise<string> {
   const slugMap = await getBaseSlugMap(collections);
 
@@ -125,6 +131,21 @@ export async function rewriteMarkdownLinksBase(
       return `[${text}](${url.replace(/\.md$/, '')})`;
     }
   );
+}
+
+export async function getInternalLink(
+  inputUrl: string
+): Promise<string | null> {
+  const slugMap = await getBaseSlugMap();
+
+  const baseSlug = inputUrl.split('/').pop()?.replace(/\.md$/, '') ?? '';
+  const absPath = slugMap[baseSlug];
+
+  if (absPath) {
+    return absPath; 
+  } else {
+    return null;
+  }
 }
 
 // Rewrites markdown link to correct absolute route using basename lookup

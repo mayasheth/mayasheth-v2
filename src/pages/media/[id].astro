@@ -4,7 +4,7 @@ import { getCollection, render, type CollectionEntry } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import  { type HeadingHierarchy } from "@/components/TOCHeading.astro";
 import TOCHeading from "@/components/TOCHeading.astro"
-import MediaInfo from "@/components/MediaInfo.astro"
+import MediaInfoPage from "@/components/MediaInfoPage.astro"
 import { createHeadingHierarchy } from '@/utils/toc-helpers';
 import { renderMarkdownWithRewriters } from '@/utils/markdown-render';
 import { imageRewriterFromMap, getBaseSlugMap, linkRewriterFromBaseSlugMap, walkImages, buildImageMap } from '@/utils/markdown-rewriters';
@@ -29,21 +29,17 @@ const { mediaEntry } = Astro.props;
 
 // 2.5 Rewrite markdown links
 const markdown = mediaEntry.body ?? '';
-const collections = ['notebook', 'media'];
-const currentRoute = `/notebook/${mediaEntry.id}`;
 
-// Build image map (sync or async, depending on your setup)
+// Build image and slug maps
 const imagePaths = await walkImages('public');
 const imageMap = buildImageMap(imagePaths);
-
-// Build slug map for page links
-const slugMap = await getBaseSlugMap(collections);
+const slugMap = await getBaseSlugMap();
 
 // Init rewriters:
 const imageRewriter = imageRewriterFromMap(imageMap);
 const linkRewriter = linkRewriterFromBaseSlugMap(slugMap);
 
-// Render!
+// Render
 const { html, headings } = await renderMarkdownWithRewriters(markdown, {
   imageRewriter,
   linkRewriter,
@@ -56,12 +52,12 @@ const hasToC = toc.length > 1;
 
 ---
 
-<BaseLayout titleShort={mediaEntry.data.title}>
+<BaseLayout titleShort={mediaEntry.data.title.toLowerCase()}>
 
   <section class={`md:grid md:grid-cols-4 ${hasToC ? "mx-auto max-w-7xl" : "max-w-5xl"}`}>
     {hasToC && (
-      <div class="relative mx-auto px-4 xl:pt-10 2xl:px-0">
-        <nav class="md:sticky md:top-20">
+      <div class="relative text-balance mx-auto px-4 xl:pt-10 2xl:px-0">
+        <nav class="md:sticky md:top-18 md:bottom-10 max-h-64 md:max-h-dvh overflow-y-scroll">
           <ul>
             {toc.map((heading) => (
               <TOCHeading heading={heading} />
@@ -74,7 +70,7 @@ const hasToC = toc.length > 1;
     <article class={`mx-auto py-10 items-center ${hasToC ? "md:col-span-3" : "md:col-span-4 max-w-6/7"}`}>
      
       <div class=`justify-center mb-10 flex ${hasToC ? "w-full" : ""}`>
-        <MediaInfo mediaEntry={mediaEntry} context="page"/>
+        <MediaInfoPage mediaEntry={mediaEntry}/>
       </div>
 
       <div class="markdown-content px-8 md:px-4" set:html={html}></div>
