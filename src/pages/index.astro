@@ -1,20 +1,100 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro';
+import HomeLayout from '@/layouts/HomeLayout.astro';
+import { socials } from '@/data/socials';
+import { Icon } from 'astro-icon/components';
+import QuoteCard from '@/components/QuoteCard.astro';
 
 const title = "hello";
 ---
 
-<BaseLayout titleShort={title} titleFull={title}>
-	<section class="markdown-content text-center">
-	<h3> who i am </h3>
-		<p> 28 year old human </p>
-		<p> asker of many questions (very skeptical) </p>
-		<p> big fan of dogs, the ocean, sunshine, & coffee </p>
-		<p> also, science </p>
-		<p>  </p>
-		<p> current hyperfixations: hockey, aviation + air traffic control </p>
-		<p class="mt-4"><a href="/quotes"> words that resonate </a></p>
-		<p><a href="/gratitudes"> smile-inducing, gratitude-provoking, and otherwise noteworthy moments </a></p>
-		<p>check out <a href="https://chill-atc-react.vercel.app/" target="_blank"> chill atc </a> for the optimal background soundtrack </p>
+<HomeLayout titleShort={title}>
+	<section id="hero" class="flex flex-col items-center justify-center pt-2 md:pt-4">
+		<div class="flex flex-col items-center">
+			<h1 class="text-2xl md:text-3xl lg:text-5xl mb-2">
+				hello!
+			</h1>
+		</div>
 	</section>
-</BaseLayout>
+
+	<section id="who-i-am" class="flex flex-col md:flex-row gap-8 rounded-xl bg-surface-1 p-6 md:max-w-9/10 lg:max-w-5/7 mx-auto mt-4">
+		<div class="max-w-xs md:max-w-2xs lg:max-w-xs flex flex-col gap-4 items-center mx-auto">
+			<img src="/banff-colored.jpeg" alt="me in Banff, rainbow colored" class="rounded-lg w-full" />
+			<div class="
+      socials flex flex-wrap justify-center md:justify-end gap-1.5 md:gap-2 lg:gap-3 items-center
+     ">
+      <span class="font-header text-base tracking-wide text-content-4 font-semibold">connect</span>
+				{socials.map(social => (
+					<a
+						href={social.href}
+						target="_blank"
+						rel="noopener noreferrer"
+						aria-label={social.name}
+						class="hover:text-content-1 transition"
+					>
+						<Icon
+							name={social.icon}
+							class="w-5 h-5 lg:w-6 lg:h-6 text-content-3 hover:text-content-2 hover:scale-105 soft-transition" />
+					</a>
+				))}
+			</div>
+		</div>
+		<div id="intro" class="text-center flex flex-col justify-center">
+			<h2 class="mb-1 text-2xl italic">who i am</h2>
+			<ul class="mb-3 text-lg space-y-1">
+				<li class="text-content-1">28 year old human</li>
+				<li class="text-content-2">asker of many questions (very skeptical)</li>
+				<li class="text-content-3">big fan of dogs, the ocean, sunshine, & coffee</li>
+			</ul>
+			<h2 class="mt-4 mb-1 italic">also, science</h3>
+			<ul class="space-y-1">
+				<li class="text-content-1">4th year bioengineering PhD @ Stanford</li>
+				<li class="text-content-2">thinking about human gene regulation & modeling the noncoding genome</li>
+				<li class="text-content-3">more on my research <a class="font-semibold text-content-2 hover:text-content-3 hover:tracking-wide soft-transition focus-outline-rounded" href="/portfolio/research">here</a></li>
+			</ul>
+		</div>
+	</section>
+
+
+
+	<section 
+  id="featured" 
+  class="grid grid-cols-1 md:grid-cols-3 gap-4 md:max-w-9/10 lg:max-w-5/7 mx-auto mt-4"
+>
+  <div class="md:h-full flex flex-col rounded-xl bg-surface-1 p-4">
+    <QuoteCard id="a-map-is-not-the.md" include_extra={false} />
+  </div>
+
+  <div class="md:h-full flex flex-col rounded-xl bg-surface-1 p-4 md:p-8 text-center">
+    <p class="text-center leading-tight lowercase">
+      <span class="font-header text-lg font-semibold text-content-3 tracking-wide">current interests</span>
+    </p>
+    <div class="flex-grow">
+      <p class="leading-tight mt-2"> 
+          <span class="text-content-1 italic"> aviation + air traffic control: </span>
+          <span class="text-content-2">check out </span>
+          <a class="text-content-3 hover:text-content-2 font-semibold hover:tracking-wide soft-transition focus-outline-rounded" href="https://chill-atc-react.vercel.app/" target="_blank">
+            chill atc
+          </a>
+          <span class="text-content-2">for the ideal background soundtrack</span>
+      </p>
+      <p class="leading-tight mt-2"> 
+        <span class="text-content-1 italic"> reading around the world: </span>
+        <span class="text-content-2">see </span>
+        <a class="text-content-3 hover:text-content-2 font-semibold hover:tracking-wide soft-transition focus-outline-rounded" href="/media/around-the-world">
+          worldly
+        </a>
+        <span class="text-content-2">for more</span>
+      </p>
+      <p class="leading-tight mt-2"> 
+        <span class="text-content-1 italic"> hockey + sports analytics: </span>
+        <span class="text-content-2">project in the works :) </span>
+      </p>
+    </div>
+  </div>
+
+  <div class="md:h-full flex flex-col rounded-xl bg-surface-1 p-4">
+    <QuoteCard id="what-kind-of-life-is.md" include_extra={false} />
+  </div>
+</section>
+
+</HomeLayout>

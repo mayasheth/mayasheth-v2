@@ -45,6 +45,8 @@
   --text-2xl--line-height: calc(2.25 / 2);
   --text-3xl: 2.5rem;
   --text-3xl--line-height: calc(2.75 / 2.5);
+  --text-5xl: 3.5rem;
+  --text-5xl--line-height: calc(3.75 / 3.5);
   --text-8xl: 5rem;
 
   --font-weight-*: initial;

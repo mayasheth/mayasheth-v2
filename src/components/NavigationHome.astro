@@ -1,42 +1,53 @@
 ---
 import { Icon } from 'astro-icon/components'
-import { NAV_ITEMS } from '@/data/navData';
+import { NAV_ITEMS } from '@/data/navData'
 
-const navbarClasses = "flex items-center soft-transition group-hover:font-semibold group-hover:text-content-2 focus-outline-rounded"
-const dropdownClasses = "block px-4 py-1 font-header soft-transition hover:font-semibold hover:text-content-2 focus-outline"
+const headerClasses = "font-header text-lg font-semibold tracking-wide text-content-1"
+const linkClasses = "block font-header text-base font-light text-content-3 rounded-xl py-1.5 hover:text-content-2 hover:bg-surface-2 hover:font-semibold focus-outline-rounded soft-transition "
 const mobileClasses = "block font-header text-base font-light text-content-3 soft-transition hover:font-semibold hover:text-content-2"
-
 ---
 
-<header class="sticky top-0 z-50 bg-surface-1 p-3">
+<aside class={`hidden md:flex flex-col fixed top-0 left-0 h-full md:w-54 lg:w-68 z-50 bg-surface-1 items-center pt-6 pb-8`}>
+  {/* Name and logo */}
+  <div class="flex flex-row items-center mb-6">
+    <img src="/tricolor-paw.svg" alt="paw-logo" class="md:w-10 lg:w-14 mt-2 h-auto mr-2" />
+    <span class="font-serif md:text-xl lg:text-3xl font-bold text-content-3 tracking-tight mt-3 mb-1">maya sheth</span>
+  </div>
+
+    {/* Search bar */}
+    <div class="mb-6 w-5/6 mx-auto">
+      <div class="group relative">
+        <Icon name="mdi--magnify" class="absolute left-2 top-1/2 h-6 w-6 -translate-y-1/2 text-content-3 soft-transition group-has-[:focus]:text-content-2" />
+        <input type="text" placeholder="search!" class="w-full rounded border border-content-3 py-1.5 pl-9 pr-3 font-base text-base font-light text-content-1 focus-border">
+      </div>
+    </div>
+
+  {/* Navigation (stacked by section) */}
+  <nav class="w-full text-center">
+    {NAV_ITEMS.map(section => (
+      <div class="mb-4">
+        <div class={headerClasses}>
+          {section.label}
+        </div>
+        <div class="flex flex-col">
+          {section.children.map(link => (
+            <a href={link.href} class={linkClasses}>{link.label}</a>
+          ))}
+        </div>
+      </div>
+    ))}
+
+  </nav>
+
+</aside>
+
+{ /* MOBILE - SAME AS NON-HOME-PAGE NAV */ }
+<header class="md:hidden sticky top-0 z-50 bg-surface-1 p-3">
   <div class="mx-auto flex max-w-6xl items-center justify-between">
     <div class="flex items-end justify-center">
       <img class="-mb-0.5 h-auto w-8" src="/tricolor-paw.svg" alt="paw-logo">
       <a href="/" class="ml-2 font-serif text-xl font-bold text-content-3 soft-transition hover:text-content-2 focus-outline-rounded">maya sheth</a>
     </div>
-    
-    <!-- Desktop menu -->
-    <nav class="hidden items-center space-x-6 font-header text-base font-light tracking-wide text-content-3 md:flex">
-      {NAV_ITEMS.map(item => (
-        <div class="group relative">
-          <button class={navbarClasses}>
-            {item.label}
-            <Icon name={item.icon} class="ml-1 h-4 w-4 soft-transition group-hover:-scale-100" />
-          </button>
-          <div class="absolute left-1/2 my-2 hidden w-auto -translate-x-1/2 rounded-md bg-surface-2 py-1 text-center before:absolute before:inset-x-0 before:-top-2 before:h-2 before:content-[''] group-hover:block">
-            {item.children.map(child => (
-              <a href={child.href} class={dropdownClasses}>{child.label}</a>
-            ))}
-          </div>
-        </div>
-      ))}
-      
-      <!-- Search bar (always visible on desktop) -->
-      <div class="group relative">
-        <Icon name="mdi--magnify" class="absolute left-2 top-1/2 h-5 w-5 -translate-y-1/2 text-content-3 transition-colors group-has-[:focus]:text-content-2" />
-        <input type="text" placeholder="search!" class="w-48 rounded border border-content-3 py-1.5 pl-9 pr-3 font-base text-sm font-light text-content-1 focus-border lg:w-56">
-      </div>
-    </nav>
 
     <!-- Mobile header items -->
     <div class="flex items-center gap-3 md:hidden">

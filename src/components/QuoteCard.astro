@@ -1,0 +1,77 @@
+---
+import { getCollection } from 'astro:content';
+
+// Props
+export interface Props {
+  id: string,
+  include_extra: boolean ;
+}
+
+const { id, include_extra } = Astro.props;
+
+// Utility (copy from your page)
+function formatTag(tag: string) {
+  if (!tag) return '';
+  const cleaned = tag.replace(/\/$/, '');
+  const parts = cleaned.split('/');
+  const lastPart = parts[parts.length - 1];
+
+  let formatted = lastPart;
+  if (lastPart == "quote-inspiration") {
+    formatted = "to illustrate!";
+  }
+
+  return formatted || tag;
+}
+
+function getQuoteClass(text: string) {
+  const length = text.length;
+  if (length < 60) return 'font-serif text-2xl font-extrabold text-content-4 leading-tight';
+  if (length < 100) return 'font-serif text-xl font-bold text-content-3 leading-tight';
+  if (length < 140) return 'font-base text-lg font-medium text-content-2';
+  return 'font-base text-base font-light text-content-1';
+}
+
+// Load all quotes and find the one with matching id
+const quotes = await getCollection('quotes');
+const quote = quotes.find(q => q.id === id)?.data;
+
+if (!quote) {
+  throw new Error(`Quote with id "${id}" not found`);
+}
+---
+
+<article class="break-inside-avoid rounded-xl p-4 bg-surface-1">
+  <blockquote>
+    <p class={`${getQuoteClass(quote.words)} lowercase`}>
+      {quote.words}
+    </p>
+  </blockquote>
+  <span class="mt-8 text-right block">
+    {quote.primary_source && (
+      <div class="text-content-0 font-base text-base font-semibold lowercase">
+        {quote.primary_source}
+      </div>
+    )}
+    {quote.secondary_source && (
+      <div class="text-content-1 font-base text-sm font-light italic lowercase mt-1">
+        via {quote.secondary_source}
+      </div>
+    )}
+  </span>
+
+  {include_extra && quote.tags && quote.tags.length && (
+    <div class="mt-4 flex flex-wrap gap-2 justify-center">
+      {quote.tags.map(tag => (
+        <span class="rounded-full bg-surface-2 hover:bg-surface-3 px-2 py-1 font-base text-sm text-content-3 hover:text-content-2 soft-transition uppercase">
+          {formatTag(tag)}
+        </span>
+      ))}
+    </div>
+  )}
+  {include_extra && quote.commentary && (
+    <p class="mt-4 text-sm font-base font-light text-content-4 text-center lowercase">
+      {quote.commentary}
+    </p>
+  )}
+</article>

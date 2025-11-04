@@ -99,7 +99,7 @@ function formatTag(tag: string): string {
     function renderQuotes(quoteItems) {
       const container = document.getElementById('quotes-container');
       container.innerHTML = quoteItems.map(q => `
-        <article class="break-inside-avoid mb-6 rounded-2xl p-6 bg-surface-1">
+        <article class="break-inside-avoid mb-6 rounded-xl p-6 bg-surface-1">
           <blockquote>
             <p class="${getQuoteClass(q.words)} lowercase">
               ${q.words}
