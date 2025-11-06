@@ -11,12 +11,12 @@
   --color-ocean-100: oklch(93.8% 0.05 215);  /* #adedfc */
   --color-ocean-200: oklch(87.2% 0.1 210);  /* #7cdbf6 */
   --color-ocean-300: oklch(80% 0.15 208);  
-  --color-ocean-400: oklch(71.2% 0.15 215);  /* #42a8d9 */
+  --color-ocean-400: oklch(70.2% 0.14 215);  /* #42a8d9 */
   --color-ocean-500: oklch(58.5% 0.15 225);  /* #2f80be */
   --color-ocean-600: oklch(49.8% 0.1 230);  /* #2869a7 */
   --color-ocean-700: oklch(38.2% 0.1 235);  /* #204b89 */
-  --color-ocean-800: oklch(25% 0.08 240);  /* #162967 */
-  --color-ocean-900: oklch(19.8% 0.07 245);  /* #121754 */
+  --color-ocean-800: oklch(27% 0.09 240);  /* #162967 */
+  --color-ocean-900: oklch(22.8% 0.07 245);  /* #121754 */
   --color-ocean-950: oklch(14.2% 0.07 250);  /* #0d0441 */
 
   --color-green-200: oklch(86.92% 0.129 132.22);

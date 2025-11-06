@@ -1,0 +1,95 @@
+---
+// src/pages/colophon.astro
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { ColorSwatchesGrid } from "@/components/ColorSwatchGrid";
+
+const title = "colophon"
+
+const COLOR_TOKENS = [
+  { name: "surface-0", varName: "--color-surface-0" },
+  { name: "surface-1", varName: "--color-surface-1" },
+  { name: "surface-2", varName: "--color-surface-2" },
+  { name: "surface-3", varName: "--color-surface-3" },
+  { name: "surface-4", varName: "--color-surface-4" },
+  { name: "content-4", varName: "--color-content-4" },
+  { name: "content-3", varName: "--color-content-3" },
+  { name: "content-2", varName: "--color-content-2" },
+  { name: "content-1", varName: "--color-content-1" },
+  { name: "content-0", varName: "--color-content-0" }
+]
+
+const linkClasses = "text-content-4 font-semibold hover:text-content-3 hover:tracking-wide soft-transition focus-outline-rounded";
+
+---
+<BaseLayout titleShort={title} titleFull={title}>
+  <section id="intro" class="flex flex-col p-6 mt-4 bg-surface-1 rounded-xl
+    max-w-full md:max-w-1/2 lg:max-w-2/5 mx-auto items-center text-pretty">
+    <h2>welcome</h2>
+    <p class="text-content-1 text-center">
+        this website began as a way for me to organize, access, and visualize my personal collections.
+        over time, it's grown into both a personal and professional portfolio.
+        along the way, building this site has allowed me to play + experiment with design of all kinds.
+    </p>
+
+    <p class="mt-4 text-content-2 text-center">
+      the site is built from the ground up by me with coding guidance from gpt-4.1 & claude-4-sonnet.
+      all code is open source and available on <a class={linkClasses} target="_blank" href="https://github.com/mayasheth/mayasheth-v2">GitHub</a>.
+      all mistakes are my own; any feedback is welcome. 
+    </p>
+
+    <p class="mt-4 text-content-3 text-center">
+      i hope you discover something unexpected & perhaps serendipitous here, as i've done so many times along the way.
+    </p>
+  </section>
+
+  <section id="design" class="flex flex-col p-6 mt-4 bg-surface-1 rounded-xl
+    max-w-full md:max-w-1/2 lg:max-w-2/5 mx-auto items-center text-pretty">
+    <h2>design</h2>
+    <p class="text-content-1 text-center">
+      headers are set in <a  class={linkClasses} target="_blank" href="https://schibsted.com/about/schibsteds-visual-design/our-typeface/">Schibsted Grotesk</a>,
+      interface text in <a class={linkClasses} target="_blank" href="https://github.com/JulietaUla/Montserrat">Montserrat</a>,
+      monospace text in <a class={linkClasses} target="_blank" href="https://levien.com/type/myfonts/inconsolata.html">Inconsolata</a>,
+      & selected serif text in   <a class={linkClasses} target="_blank" href="https://github.com/clauseggers/Playfair">Playfair</a>.
+      all are erved by <a class={linkClasses} target="_blank" href="https://fonts.google.com/">Google Fonts</a>.
+      lowercase (mostly) everything because i like the vibe.
+    </p>
+
+    <p class="text-content-2 text-center mt-4"> 
+      brand icons were <a class={linkClasses} target="_blank" href="https://github.com/FortAwesome/Font-Awesome">Font Awesome</a>
+      and all others from <a class={linkClasses} target="_blank" href="https://github.com/Templarian/MaterialDesign">Material Design</a>,
+      both via <a class={linkClasses} target="_blank" href="https://iconify.design/docs/">Iconify</a>.
+    </p>
+
+    <p class="text-content-3 text-center mt-4 mb-2"> 
+      the color palette was developed using OKLCH tokens and rendered to sRGB at runtime,
+      with some help from the <a class={linkClasses} target="_blank" href="https://www.tints.dev/palette/v1:Y29yYWx8MjA0Yjg5fDgwMHxwfDB8MHwwfDEwMHxh">tints.dev</a> palette generator:
+    </p>
+    <ColorSwatchesGrid colors={COLOR_TOKENS} client:only="react" />
+    <p class="text-sm text-content-3 text-center">click to copy OKLCH</p>
+  </section>
+
+  <section id="tech" class="flex flex-col p-6 mt-4 mb-4 bg-surface-1 rounded-xl
+    max-w-full md:max-w-1/2 lg:max-w-2/5 mx-auto items-center text-pretty">
+    <h2>tech</h2>
+    <p class="text-content-1 text-center">
+      this site is built with <a class={linkClasses} target="_blank" href="https://astro.build/">Astro</a>,
+      <a class={linkClasses} target="_blank" href="https://react.dev/">React</a>,
+      & <a class={linkClasses} target="_blank" href="https://www.typescriptlang.org/">TypeScript</a>,
+      styled with <a class={linkClasses} target="_blank" href="https://tailwindcss.com/">Tailwind CSS</a>,
+      and deployed on <a class={linkClasses} target="_blank" href="https://vercel.com/">Vercel</a>. 
+    </p>
+
+    <p class="text-content-2 text-center mt-4">
+      all content is written + curated in <a class={linkClasses} target="_blank" href="https://obsidian.md/">Obsidian</a>,
+      then synchronized + processed with 
+      <a class={linkClasses} target="_blank" href="https://docs.astro.build/en/guides/content-collections/">Astro content collections</a>
+      for publishing here.
+    </p>
+    
+    <p class="text-content-3 text-center mt-4 flex flex-col">
+      <span>carbon emissions per view are estimated via <a class={linkClasses} target="_blank" href="https://www.websitecarbon.com/">Website Carbon</a>.</span>
+      <span>site-wide search is powered by <a class={linkClasses} href="https://pagefind.app/" target="_blank">Pagefind</a>.</span>
+    </p>
+  </section>
+</BaseLayout>
