@@ -1,13 +1,14 @@
 ---
-import { Icon } from 'astro-icon/components'
+// src/components/Navigation.astro
+import { Icon } from 'astro-icon/components';
+import SearchButton from '@/components/SearchButton.astro';
+import MobileMenu from '@/components/MobileMenu.astro';
+import SearchModal from '@/components/SearchModal.astro';
 import { NAV_ITEMS } from '@/data/navData';
 
-const navbarClasses = "flex items-center soft-transition group-hover:font-semibold group-hover:text-content-2 focus-outline-rounded"
-const dropdownClasses = "block px-4 py-1 font-header soft-transition hover:font-semibold hover:text-content-2 focus-outline"
-const mobileClasses = "block font-header text-base font-light text-content-3 soft-transition hover:font-semibold hover:text-content-2"
-
+const navbarClasses = "flex items-center soft-transition group-hover:font-semibold group-hover:text-content-2 focus-outline-rounded";
+const dropdownClasses = "block px-4 py-1 font-header soft-transition hover:font-semibold hover:text-content-2 focus-outline";
 ---
-
 <header class="sticky top-0 z-50 bg-surface-1 p-3">
   <div class="mx-auto flex max-w-6xl items-center justify-between">
     <div class="flex items-end justify-center">
@@ -21,7 +22,7 @@ const mobileClasses = "block font-header text-base font-light text-content-3 sof
         <div class="group relative">
           <button class={navbarClasses}>
             {item.label}
-            <Icon name={item.icon} class="ml-1 h-4 w-4 soft-transition group-hover:-scale-100" />
+            {item.icon && <Icon name={item.icon} class="ml-1 h-4 w-4 soft-transition group-hover:-scale-100" />}
           </button>
           <div class="absolute left-1/2 my-2 hidden w-auto -translate-x-1/2 rounded-md bg-surface-2 py-1 text-center before:absolute before:inset-x-0 before:-top-2 before:h-2 before:content-[''] group-hover:block">
             {item.children.map(child => (
@@ -30,75 +31,14 @@ const mobileClasses = "block font-header text-base font-light text-content-3 sof
           </div>
         </div>
       ))}
-      
-      <!-- Search bar (always visible on desktop) -->
-      <div class="group relative">
-        <Icon name="mdi--magnify" class="absolute left-2 top-1/2 h-5 w-5 -translate-y-1/2 text-content-3 transition-colors group-has-[:focus]:text-content-2" />
-        <input type="text" placeholder="search!" class="w-48 rounded border border-content-3 py-1.5 pl-9 pr-3 font-base text-sm font-light text-content-1 focus-border lg:w-56">
-      </div>
+      <!-- Search button (desktop) -->
+      <SearchButton id="search-trigger" />
     </nav>
 
-    <!-- Mobile header items -->
-    <div class="flex items-center gap-3 md:hidden">
-      <!-- Mobile search bar (always visible) -->
-      <div class="group relative">
-        <Icon name="mdi--magnify" class="absolute left-2 top-1/2 h-5 w-5 -translate-y-1/2 text-content-3 transition-colors group-has-[:focus]:text-content-2" />
-        <input type="text" placeholder="search!" class="w-32 rounded border border-content-3 py-1.5 pl-9 pr-3 font-base text-sm font-light text-content-1 focus-border">
-      </div>
-      
-      <button class="focus-outline-rounded" id="mobile-menu-toggle">
-        <Icon name="mdi--menu" class="h-6 w-6 text-content-3 soft-transition hover:text-content-2" id="mobile-menu-icon" />
-      </button>
-    </div>
+    <!-- Mobile navigation -->
+    <MobileMenu navItems={NAV_ITEMS} />
   </div>
 
-  <!-- Mobile dropdown menu (compact, below header) -->
-  <div id="mobile-menu" class="max-h-0 opacity-0 translate-y-3 overflow-hidden bg-surface-1 transition-all duration-600 ease-in-out md:hidden">    
-    <nav class="w-full border-t-1 border-content-4 py-4">
-      <ul class="grid grid-cols-3 gap-x-8 gap-y-4 text-center">
-        {NAV_ITEMS.map(item => (
-          <li class="space-y-2">
-            <div class="font-header text-base font-semibold tracking-wide text-content-2">{item.label}</div>
-            <ul class="space-y-1.5">
-              {item.children.map(child => (
-                <li>
-                  <a href={child.href} class={mobileClasses}>{child.label}</a>
-                </li>
-              ))}
-            </ul>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  </div>
+  <!-- Search modal -->
+  <SearchModal />
 </header>
-
-<script>
-  const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
-  const mobileMenu = document.getElementById('mobile-menu');
-  const mobileMenuIcon = document.getElementById('mobile-menu-icon');
-
-  mobileMenuToggle?.addEventListener('click', () => {
-    mobileMenu?.classList.toggle('max-h-0');
-    mobileMenu?.classList.toggle('max-h-[1000px]'); // Adjust this value based on your menu's maximum height
-    mobileMenu?.classList.toggle('opacity-0');
-    mobileMenu?.classList.toggle('opacity-100');
-    
-    // Change icon between menu and close
-    const isOpen = mobileMenu?.classList.contains('max-h-[1000px]');
-    if (mobileMenuIcon) {
-      mobileMenuIcon.setAttribute('name', isOpen ? 'mdi--close' : 'mdi--menu');
-    }
-  });
-
-  // Close mobile menu when screen size changes to desktop
-  window.addEventListener('resize', () => {
-    if (window.innerWidth >= 768) {
-      mobileMenu?.classList.add('max-h-0', 'opacity-0');
-      mobileMenu?.classList.remove('max-h-[1000px]', 'opacity-100');
-      if (mobileMenuIcon) {
-        mobileMenuIcon.setAttribute('name', 'mdi--menu');
-      }
-    }
-  });
-</script>

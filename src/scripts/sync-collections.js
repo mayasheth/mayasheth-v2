@@ -76,7 +76,7 @@ async function copyCollectionImagesContent(collection) {
   return copied;
 }
 
-// ---- /public helpers (aggregated images) ----
+// ---- public helpers (aggregated images) ----
 async function copyToPublic(absSrc, collectionName) {
   const relWithinCollection = relative(join(SRC_FROM, collectionName), absSrc).replace(/\\/g, '/');
   const dstAbs = join(PUBLIC_DST, collectionName, relWithinCollection);
@@ -155,7 +155,7 @@ async function aggregateCollection(collection) {
       }
     }
     items.push({
-      id: rel.replace(/\\/g, '/'),
+      id: slug,
       slug,
       collection,
       ...data

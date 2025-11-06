@@ -8,11 +8,10 @@ const titleShort = ":)";
 const titleFull = "thank you, world";
 
 const gratitudes = await getCollection('gratitudes');
-const gratitudeItems = gratitudes.map(g => g.data);
 
 // Sort newest relevant_date
-gratitudeItems.sort((a, b) =>
-  (new Date(b.relevant_date) > new Date(a.relevant_date) ? 1 : -1)
+gratitudes.sort((a, b) =>
+  (new Date(b.data.relevant_date) > new Date(a.data.relevant_date) ? 1 : -1)
 );
 
 function formatDate(date: Date): string {
@@ -27,12 +26,12 @@ function formatDate(date: Date): string {
 const imageImports = import.meta.glob<{ default: ImageMetadata }>("../content/300-collections/gratitudes/images/*");
 
 const itemsWithImageImports = await Promise.all(
-  gratitudeItems.map(async item => {
+  gratitudes.map(async item => {
     let imgSrc = null;
-    if (item.image) {
+    if (item.data.image) {
       // item.image: '../images/filename.png'
       // Remove '../images/' prefix – get IMAGE FILENAME
-      const imageFileName = item.image.replace(/^\.\.\/images\//, '');
+      const imageFileName = item.data.image.replace(/^\.\.\/images\//, '');
       // Build the glob key: it must match exactly as the key in imageImports
       const globKey = `../content/300-collections/gratitudes/images/${imageFileName}`;
       if (imageImports[globKey]) {
@@ -52,26 +51,28 @@ const itemsWithImageImports = await Promise.all(
 
   <div class="grid max-w-9/10 grid-cols-2 gap-4 md:max-w-3/4 md:grid-cols-3 lg:grid-cols-4">
     {itemsWithImageImports.map((item, index) => (
-      <div class={`overflow-hidden rounded-xl ${item.imgSrc
+      <div id={item.id}
+        data-pagefind-body data-pagefind-title="${item.data.redacted_content}" data-pagefind-url="/gratitudes#${item.slug}"
+        class={`overflow-hidden rounded-xl ${item.imgSrc
         ? 'row-span-2 max-h-80'
         : 'flex flex-col justify-between bg-surface-2 hover:bg-surface-3 soft-transition'}`}>
         {item.imgSrc ? (
           <div class="relative h-full group">
-            <Image src={item.imgSrc} alt={item.redacted_content} loading={index < 20 ? "eager" : "lazy"} class="object-cover w-full h-full" />
+            <Image src={item.imgSrc} alt={item.data.redacted_content} loading={index < 20 ? "eager" : "lazy"} class="object-cover w-full h-full" />
             <div class="absolute inset-0 flex items-center justify-center bg-content-0 opacity-0 hover:opacity-80 soft-transition">
-              <p class="p-4 text-base font-semibold text-center text-content-4 opacity-0 group-hover:opacity-100 soft-transition lowercase text-ellipsis">{item.redacted_content}</p>
+              <p class="p-4 text-base font-semibold text-center text-content-4 opacity-0 group-hover:opacity-100 soft-transition lowercase text-ellipsis">{item.data.redacted_content}</p>
             </div>
             <p class="absolute bottom-2 right-2 px-2 py-1 text-base font-mono font-semibold text-content-1">
-              {formatDate(item.relevant_date)}
+              {formatDate(item.data.relevant_date)}
             </p>
           </div>
         ) : (
           <div class="flex items-center justify-center flex-grow p-4">
-            <p class="text-base font-light text-center text-content-2 group-hover:text-content-0 soft-transition text-ellipsis lowercase">{item.redacted_content}</p>
+            <p class="text-base font-light text-center text-content-2 group-hover:text-content-0 soft-transition text-ellipsis lowercase">{item.data.redacted_content}</p>
           </div>
         )}
         <p class="px-2 py-2 text-base text-right font-mono font-semibold text-content-3">
-          {formatDate(item.relevant_date)}
+          {formatDate(item.data.relevant_date)}
         </p>
       </div>
     ))}

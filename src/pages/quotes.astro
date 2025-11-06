@@ -6,10 +6,9 @@ const titleShort = "quotes";
 const titleFull = "words that resonate";
 
 const quotes = await getCollection('quotes');
-const quoteItems = quotes.map(q => q.data);
 
 // Extract unique tags from all quotes
-const allTags = [...new Set(quoteItems.flatMap(q => q.tags || []).map(formatTag))].sort();
+const allTags = [...new Set(quotes.flatMap(q => q.data.tags || []).map(formatTag))].sort();
 
 function formatTag(tag: string): string {
   if (!tag) return '';
@@ -61,7 +60,7 @@ function formatTag(tag: string): string {
     </div>
   </div>
 
-  <script define:vars={{quoteItems, allTags}}>
+  <script define:vars={{quotes, allTags}}>
     // Get URL parameters
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
@@ -69,66 +68,80 @@ function formatTag(tag: string): string {
     let activeFilters = new Set();
 
     // Sort function
-    function sortQuotes(quoteItems, sortParam) {
-      let sortedQuotes = [...quoteItems];
+    function sortQuotes(quotes, sortParam) {
+      let sortedQuotes = [...quotes];
       if (sortParam === 'random') {
-        sortedQuotes.sort(() => Math.random() - 0.5);
+        quotes.sort(() => Math.random() - 0.5);
       } else if (sortParam === 'newest') {
-        sortedQuotes.sort((a, b) =>
-          new Date(b.last_modified ?? b.created).getTime() - new Date(a.last_modified ?? a.created).getTime()
+        quotes.sort((a, b) =>
+          new Date(b.data.last_modified ?? b.data.created).getTime() - new Date(a.data.last_modified ?? a.data.created).getTime()
         );
       } else if (sortParam === 'oldest') {
         sortedQuotes.sort((a, b) =>
-          new Date(a.last_modified ?? a.created).getTime() - new Date(b.last_modified ?? b.created).getTime()
+          new Date(a.data.last_modified ?? a.data.created).getTime() - new Date(b.data.last_modified ?? b.data.created).getTime()
         );
       }
       return sortedQuotes;
     }
 
     // Filter function
-    function filterQuotes(quoteItems, filters) {
-      if (filters.size === 0) return quoteItems;
-      return quoteItems.filter(q => 
+    function filterQuotes(quotes, filters) {
+      if (filters.size === 0) return quotes;
+      return quotes.filter(q => 
         Array.from(filters).every(filter => 
-          q.tags && q.tags.some(tag => formatTag(tag) === filter)
+          q.data.tags && q.data.tags.some(tag => formatTag(tag) === filter)
         )
       );
+
     }
 
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+    }
+  
     // Render quotes
-    function renderQuotes(quoteItems) {
+    function renderQuotes(quotes) {
       const container = document.getElementById('quotes-container');
-      container.innerHTML = quoteItems.map(q => `
-        <article class="break-inside-avoid mb-6 rounded-xl p-6 bg-surface-1">
+      container.innerHTML = quotes.map(q => `
+        <article
+          class="break-inside-avoid mb-6 rounded-xl p-6 bg-surface-1"
+        >
           <blockquote>
-            <p class="${getQuoteClass(q.words)} lowercase">
-              ${q.words}
+            <p class="${getQuoteClass(q.data.words)} text-pretty lowercase">
+              <a href="/quotes/${q.id}" rel="noopener" aria-label="link to quote page">
+              ${escapeHtml(q.data.words)}
+              </a>
             </p>
           </blockquote>
           <span class="mt-8 text-right">
-            ${q.primary_source ? `
+            ${q.data.primary_source ? `
               <div class="text-content-0 font-base text-base font-semibold lowercase">
-                ${q.primary_source}
+                ${escapeHtml(q.data.primary_source)}
               </div>
             ` : ''}
-            ${q.secondary_source ? `
+            ${q.data.secondary_source ? `
               <div class="text-content-1 font-base text-sm font-light italic lowercase mt-1">
-                via ${q.secondary_source}
+                via ${escapeHtml(q.data.secondary_source)}
               </div>
             ` : ''}
           </span>
-          ${q.tags && q.tags.length ? `
+          ${q.data.tags && q.data.tags.length ? `
             <div class="mt-4 flex flex-wrap gap-2 justify-center">
-              ${q.tags.map(t => `
+              ${q.data.tags.map(t => `
                 <span class="rounded-full bg-surface-2 hover:bg-surface-3 px-2 py-1 font-base text-sm text-content-3 hover:text-content-2 soft-transition uppercase">
-                  ${formatTag(t)}
+                  ${escapeHtml(formatTag(t))}
                 </span>
               `).join('')}
             </div>
           ` : ''}
-          ${q.commentary ? `
+          ${q.data.commentary ? `
             <p class="mt-4 text-sm font-base font-light text-content-4 text-center lowercase">
-              ${q.commentary}
+              ${escapeHtml(q.data.commentary)}
             </p>
           ` : ''}
         </article>
@@ -165,7 +178,7 @@ function formatTag(tag: string): string {
     // Apply sort and filter
     function applySortAndFilter() {
       const sortParam = params.sort || 'random';
-      let filteredAndSortedQuotes = filterQuotes(quoteItems, activeFilters);
+      let filteredAndSortedQuotes = filterQuotes(quotes, activeFilters);
       filteredAndSortedQuotes = sortQuotes(filteredAndSortedQuotes, sortParam);
       renderQuotes(filteredAndSortedQuotes);
       updateSortButtons(sortParam);
@@ -209,10 +222,10 @@ function formatTag(tag: string): string {
     // Helper functions
     function getQuoteClass(text) {
       const length = text.length;
-      if (length < 60) return 'font-serif text-2xl font-extrabold text-content-4 leading-tight';
-      if (length < 100) return 'font-serif text-xl font-bold text-content-3 leading-tight';
-      if (length < 140) return 'font-base text-lg font-medium text-content-2';
-      return 'font-base text-base font-light text-content-1';
+      if (length < 60) return 'font-serif text-2xl font-extrabold text-content-4 hover:text-content-3 leading-tight soft-transition focus-outline-rounded';
+      if (length < 100) return 'font-serif text-xl font-bold text-content-3 hover:text-content-2 leading-tight soft-transition focus-outline-rounded';
+      if (length < 140) return 'font-base text-lg font-medium text-content-2 hover:text-content-1 soft-transition focus-outline-rounded';
+      return 'font-base text-base font-light text-content-1 hover:text-content-0 soft-transition focus-outline-rounded';
     }
 
     function formatTag(tag) {

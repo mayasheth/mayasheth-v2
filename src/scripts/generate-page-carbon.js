@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import { JSDOM } from 'jsdom';
-// import fetch from 'node-fetch'; // Uncomment if using node-fetch in Node < 18
 
 const DIST = 'dist';
 const OUTPUT = path.join(DIST, 'page-carbon.json');

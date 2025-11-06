@@ -25,6 +25,7 @@ pnpm-debug.log*
 src/vault-content/
 
 # Ignore generated content (if you sync submodule contents to Astro's /src/content)
+.sync-cache.json
 src/content/300-collections
 public/collections
 src/data/gratitudes.json

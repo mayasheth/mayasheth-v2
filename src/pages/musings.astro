@@ -2,8 +2,8 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getCollection, type CollectionEntry } from 'astro:content';
 
-const titleShort = "notebook";
-const titleFull = "notebook";
+const titleShort = "musings";
+const titleFull = "musings";
 
 // load collection and sort by date 
 const notebook = (await getCollection('notebook')).sort((a, b) => {
@@ -68,7 +68,7 @@ function formatDate(date: Date): string {
 
 <BaseLayout titleShort={titleShort} titleFull={titleFull}>
   <p class="pb-0 text-content-1 text-center"> (musings, updates, and other such words on what i've been reading / listening to lately) </p>
-  <p class="pb-6 text-content-2">
+  <p class="pb-6 text-content-2 text-center">
     sign up 
       <a
         class="font-semibold text-content-3 hover:text-content-4 hover:scale-103 soft-transition focus-outline-rounded"

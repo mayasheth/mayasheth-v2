@@ -1,16 +1,17 @@
 {
   "type": "module",
   "scripts": {
-    "sync": "node scripts/sync-collections.js",
+    "sync": "node src/scripts/sync-collections.js",
     "predev": "git submodule update --init --remote && npm run sync",
-    "dev": "astro dev && node scripts/generate-page-carbon.js",
+    "dev": "astro dev && node src/scripts/generate-page-carbon.js",
     "prebuild": "scripts/submodule-auth.sh && npm run sync",
-    "build": "npm run prebuild && astro build && node scripts/generate-page-carbon.js",
-    "preview": "astro preview",
+    "build": "npm run prebuild && astro build && node src/scripts/generate-page-carbon.js",
+    "preview": "npm run astro build && npx -y pagefind --site dist --serve",
     "astro": "astro"
   },
   "dependencies": {
     "@astrojs/react": "^4.4.0",
+    "@pagefind/modular-ui": "^1.4.0",
     "@tailwindcss/vite": "^4.1.14",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",

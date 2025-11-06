@@ -1,0 +1,104 @@
+/* src/styles/pagefind-custom.css */
+.pagefind-ui {
+  --pagefind-ui-scale: 1;
+  --pagefind-ui-primary: var(--color-content-2);
+  --pagefind-ui-text: var(--color-content-1);
+  --pagefind-ui-background: var(--color-surface-1);
+  --pagefind-ui-border: var(--color-surface-4);
+  --pagefind-ui-tag: var(--color-surface-2);
+  --pagefind-ui-border-width: 2px;
+  --pagefind-ui-border-radius: 0.75rem;
+  --pagefind-ui-image-border-radius: 0.75rem;
+  --pagefind-ui-image-box-ratio: 3 / 2;
+  --pagefind-ui-font: var(--font-base);
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  @apply overflow-y-scroll w-full;
+}
+
+.pagefind-ui__form {
+  @apply flex flex-wrap md:gap-0 md:mb-1;
+}
+
+.pagefind-ui__search-input {
+  @apply text-content-1 bg-surface-0 font-base text-base font-light;
+  @apply focus-visible:border-[1.5px] focus-visible:border-content-3 focus-visible:outline-none transition-all duration-200;
+  @apply rounded-md border-1 border-content-3;
+  @apply px-2 py-2 m-0.5;
+  @apply min-w-1/2 grow;
+  @apply focus:px-2;
+}
+
+.pagefind-ui__search-clear {
+  @apply hidden sm:inline-flex text-content-3 font-base font-light text-base bg-surface-2 px-2 py-1.25 sm:px-4 sm:py-2 rounded-full;
+  @apply hover:bg-surface-3 hover:font-semibold hover:text-content-2 transition-all duration-400;
+  @apply focus-visible:ring-[3px] focus-visible:ring-content-3 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-1 focus-visible:outline-none;
+  @apply my-auto grow-0 mx-1.5 sm:ml-3 sm:mr-2;
+}
+
+.pagefind-ui__button {
+  @apply text-content-3 font-base font-light text-base bg-surface-2 px-2 py-1.5 mt-2 -mb-0.5 rounded-full;
+  @apply hover:bg-surface-3 hover:font-semibold hover:text-content-2 transition-all duration-400;
+  @apply focus-visible:ring-[3px] focus-visible:ring-content-3 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-1 focus-visible:outline-none;
+  @apply self-center mx-auto;
+}
+
+.pagefind-ui__drawer {
+  @apply p-0;
+  @apply overflow-y-visible;
+  flex-basis: 100%;
+}
+
+.pagefind-ui__drawer .pagefind-ui__hidden {
+  @apply hidden;
+}
+
+.pagefind-ui__results-area {
+  @apply grow overflow-y-auto pr-0.5;  /* Add some padding for the scrollbar */
+  @apply flex flex-col items-center; 
+}
+
+.pagefind-ui__result {
+  @apply py-2.5 px-0 w-full;
+  @apply border-b-1 border-content-4;
+  overflow-y: visible; 
+}
+
+.pagefind-ui__result:last-child {
+  @apply border-none;
+}
+
+
+.pagefind-ui__message {
+  @apply text-content-4 text-base font-base font-semibold pt-2 text-center;
+}
+
+.pagefind-ui__result-title {
+  @apply font-header text-[1.1rem] font-medium mb-0.5 leading-tight text-content-1 lowercase;
+  
+}
+
+.pagefind-ui__result-excerpt {
+  @apply font-base text-sm leading-tight font-light text-content-3 lowercase text-pretty;
+}
+
+.pagefind-ui__result-nested {
+  @apply pl-6;
+}
+
+.pagefind-ui__result-nested .pagefind-ui__result-title {
+  @apply text-base font-light text-content-2 pt-[0.1em];
+}
+
+.pagefind-ui__result-link {
+  @apply hover:text-content-1 hover:font-semibold hover:tracking-wide;
+  @apply transition-all duration-400;
+  @apply focus-visible:ring-[3px] focus-visible:ring-content-3 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-1 focus-visible:outline-none rounded-md;
+}
+
+.pagefind-ui mark {
+  @apply bg-surface-4 text-content-1 font-semibold! tracking-wide;
+  @apply rounded-sm px-[0.15rem] py-[0.1rem];
+}
