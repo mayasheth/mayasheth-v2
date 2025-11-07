@@ -28,13 +28,13 @@ function formatTag(tag: string): string {
 <BaseLayout titleShort={titleShort} titleFull={titleFull}>
   <div class="container mx-auto px-4 py-6">
     <!-- Sort controls -->
-    <div class="pb-4 flex justify-center items-center gap-3 flex-wrap text-base">
+    <div class="pb-4 flex justify-center items-center gap-1.5 md:gap-3 flex-wrap text-base">
       <span class="font-base font-semibold text-content-0">sort by</span>
       {['random', 'newest', 'oldest'].map((sort) => (
         <a 
           href={`?sort=${sort}`}
           data-sort={sort}
-          class="sort-button px-4 py-2 rounded-full font-base font-light soft-transition focus-outline  "
+          class="sort-button px-2.5 py-1 md:px-4 md:py-2 rounded-full text-base font-base font-light soft-transition focus-outline  "
         >
           {sort}
         </a>
@@ -42,11 +42,11 @@ function formatTag(tag: string): string {
     </div>
 
     <!-- Filter controls -->
-    <div class="pb-6 flex justify-center items-center gap-3 flex-wrap text-base">
+    <div class="pb-6 flex justify-center items-center gap-1.5 md:gap-3 flex-wrap text-base">
       <span class="font-base font-semibold text-content-0">filter to</span>
         {allTags.map((tag) => (
           <button
-            class="filter-button px-3 py-2 rounded-full font-base font-light lowercase soft-transition focus-outline"
+            class="filter-button px-2 py-1 md:px-3 md:py-2 rounded-full text-base font-base font-light lowercase soft-transition focus-outline"
             data-tag={tag}
           >
             {tag}

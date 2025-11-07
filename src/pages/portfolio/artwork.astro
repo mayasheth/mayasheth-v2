@@ -44,11 +44,11 @@ const artworkItemsWithImports = await Promise.all(
 <BaseLayout titleShort={titleShort} titleFull={titleFull}>
   <div class="container mx-auto px-4 py-6">
     <!-- Filter Controls -->
-    <div class="pb-6 flex justify-center items-center gap-3 flex-wrap text-base max-w-9/10 sm:max-w-3/4 mx-auto">
+    <div class="pb-6 flex justify-center items-center gap-1.5 md:gap-3 flex-wrap text-base max-w-9/10 sm:max-w-3/4 mx-auto">
       <span class="font-base font-semibold text-content-0">filter to</span>
       {allTags.map((tag) => (
         <button
-          class="filter-button px-3 py-2 rounded-full font-base font-light lowercase soft-transition focus-outline bg-surface-1 text-content-2"
+          class="filter-button px-2 py-1 md:px-3 md:py-2 rounded-full text-base font-base font-light lowercase soft-transition focus-outline bg-surface-1 text-content-2"
           data-tag={tag}
           type="button"
         >{tag}

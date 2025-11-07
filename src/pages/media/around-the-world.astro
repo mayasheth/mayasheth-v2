@@ -45,15 +45,15 @@ function formatDate(date: Date): string {
 ---
 
 <BaseLayout titleShort={titleShort} titleFull={titleFull}>
-  <p class="text-content-1 text-center text-pretty"> (a quest to read a book (& listen to a song while i'm at it) for every country (or other major (subjective) territory) in the world) </p>
+  <p class="text-content-1 text-center text-pretty"> (a quest to read a book (& listen to a song while i'm at it) for every country (or other major [subjective] territory) in the world </p>
   <p class="pb-6 text-content-2 text-center">
     <span class="font-semibold"> current status: </span>
     books read for 
-    <span class="font-mono font-semibold text-xl text-content-3"> {bookComplete}</span>
+    <span class="font-mono font-semibold text-lg md:text-xl text-content-3"> {bookComplete}</span>
     locations; ideas for 
-    <span class="font-mono font-semibold text-xl text-content-3"> {bookIdea}</span>
+    <span class="font-mono font-semibold text-lg md:text-xl text-content-3"> {bookIdea}</span>
     more; 
-    <span class="font-mono font-semibold text-xl text-content-3"> {bookIncomplete}</span>
+    <span class="font-mono font-semibold text-lg md:text-xl text-content-3"> {bookIncomplete}</span>
     to go!
   </p>
 

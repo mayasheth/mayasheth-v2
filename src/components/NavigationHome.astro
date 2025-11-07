@@ -39,13 +39,16 @@ const linkClasses = "block font-header text-base font-light text-content-3 round
 </aside>
 
 <!-- Mobile header/nav -->
-<header class="md:hidden sticky top-0 z-50 bg-surface-1 p-3">
+<header class="md:hidden sticky top-0 z-50 bg-surface-2 p-3">
   <div class="mx-auto flex max-w-6xl items-center justify-between">
     <div class="flex items-end justify-center">
       <img class="-mb-0.5 h-auto w-8" src="/tricolor-paw.svg" alt="paw-logo">
       <a href="/" class="ml-2 font-serif text-xl font-bold text-content-3 soft-transition hover:text-content-2 focus-outline-rounded">maya sheth</a>
     </div>
-    <MobileMenu navItems={NAV_ITEMS} />
+    <MobileMenu navItems={NAV_ITEMS} mode = "icons" />
   </div>
+
+  <MobileMenu navItems={NAV_ITEMS} mode="dropdown" /> <!--- Mobile dropdown -->
+
   <SearchModal /> <!-- For mobile menu/modal -->
 </header>
