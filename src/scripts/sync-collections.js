@@ -14,12 +14,19 @@ import { fileURLToPath } from 'url';
 import matter from 'gray-matter';
 
 const __dirname   = dirname(fileURLToPath(import.meta.url));
-const VAULT_ROOT  = join(__dirname, '../src/vault-content');                 // submodule root
-const SRC_FROM    = join(VAULT_ROOT, '300-collections');                      // source collections
-const CONTENT_DST = join(__dirname, '../src/content/300-collections');       // mirror for non-aggregated
-const DATA_DST    = join(__dirname, '../src/data');                           // aggregated JSON
-const PUBLIC_DST  = join(__dirname, '../public/collections/300-collections'); // public images for aggregated
-const CACHE_FILE  = join(__dirname, '../.sync-cache.json');
+const VAULT_ROOT  = join(__dirname, '../../vault-content');
+const SRC_FROM    = join(VAULT_ROOT, '300-collections');
+const CONTENT_DST = join(__dirname, '../../content/300-collections');
+const DATA_DST    = join(__dirname, '../../data');
+const PUBLIC_DST  = join(__dirname, '../../public/collections/300-collections');
+const CACHE_FILE  = join(__dirname, '../../.sync-cache.json');
+
+// const VAULT_ROOT  = join(__dirname, '../src/vault-content');                 // submodule root
+// const SRC_FROM    = join(VAULT_ROOT, '300-collections');                      // source collections
+// const CONTENT_DST = join(__dirname, '../src/content/300-collections');       // mirror for non-aggregated
+// const DATA_DST    = join(__dirname, '../src/data');                           // aggregated JSON
+// const PUBLIC_DST  = join(__dirname, '../public/collections/300-collections'); // public images for aggregated
+// const CACHE_FILE  = join(__dirname, '../.sync-cache.json');
 
 // These use Astro <Image /> (images in src/content for import)
 const CONTENT_IMAGE_COLLECTIONS = ['gratitudes', 'portfolio']; // <-- edit as needed
