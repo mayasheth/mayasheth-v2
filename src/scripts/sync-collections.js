@@ -18,7 +18,7 @@ const VAULT_ROOT  = join(__dirname, '../vault-content');
 const SRC_FROM    = join(VAULT_ROOT, '300-collections');
 const CONTENT_DST = join(__dirname, '../content/300-collections');
 const DATA_DST    = join(__dirname, '../data');
-const PUBLIC_DST  = join(__dirname, '../public/collections/300-collections');
+const PUBLIC_DST  = join(__dirname, '../../public/collections/300-collections');
 const CACHE_FILE  = join(__dirname, '../.sync-cache.json');
 
 // const VAULT_ROOT  = join(__dirname, '../src/vault-content');                 // submodule root

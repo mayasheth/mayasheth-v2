@@ -6,7 +6,6 @@ import rehypeStringify from 'rehype-stringify';
 import { visit } from 'unist-util-visit';
 import type { Root } from 'mdast';
 
-
 // IMAGE REWRITER: expects (url, alt) => url
 // LINK REWRITER: expects async (url, text) => url
 

@@ -29,6 +29,11 @@
     @apply transition-all duration-400
   }
 
+  .markdown-content mark {
+    @apply bg-surface-4 text-content-1 font-semibold! tracking-wide;
+    @apply rounded-sm px-[0.15rem] py-[0.1rem];
+  }
+
   .markdown-content h2 {
     @apply mt-4 mb-2 text-balance
   }

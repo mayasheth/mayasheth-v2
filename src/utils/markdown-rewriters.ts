@@ -65,6 +65,7 @@ export async function rewriteImagePathsWithMap(markdown: string, publicDir: stri
   const imageMap = buildImageMap(imagePaths);
 
   // Main rewrite logic
+   
   return markdown.replace(
     /!\[([^\]]*)\]\((?!http|\/\/|\/collections\/)([^)]+)\)/g,
     (match, alt, url) => {
@@ -93,7 +94,7 @@ function getBaseSlug(path: string): string {
 }
 
 // Build map: { baseFileName: fullSlug }
-const COLLECTIONS = ['media', 'notebook', 'atw']
+const COLLECTIONS = ['media', 'notebook', 'atw', 'quotes']
 export async function getBaseSlugMap(collections: string[] = COLLECTIONS): Promise<Record<string, string>> {
   const map: Record<string, string> = {};
   for (const collection of collections) {
