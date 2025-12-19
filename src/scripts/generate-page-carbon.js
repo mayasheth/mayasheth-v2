@@ -4,6 +4,11 @@ import { JSDOM } from 'jsdom';
 
 const DIST = 'dist';
 const OUTPUT = path.join(DIST, 'page-carbon.json');
+const SIZE_GRANULARITY = 1000; // in bytes
+
+function roundSize(bytes) {
+  return Math.round(bytes / SIZE_GRANULARITY) * SIZE_GRANULARITY;
+}
 
 function walk(dir, filelist = []) {
   fs.readdirSync(dir).forEach(file => {
@@ -46,9 +51,12 @@ async function getCarbonGrams(bytes, green = 0) {
 async function main() {
   const htmlFiles = walk(DIST);
   const routeCarbon = {};
+  const sizeToRoutes = {}; // {roundedSize: [route1, route2, ...]}
+  const routeSize = {};    // {route: roundedSize}
+  
+   // 1. Map pages to rounded sizes
   for (const file of htmlFiles) {
-    const htmlSize = fs.statSync(file).size;
-    let totalSize = htmlSize;
+    let totalSize = fs.statSync(file).size;
     const html = fs.readFileSync(file, 'utf-8');
     const dom = new JSDOM(html);
 
@@ -75,11 +83,32 @@ async function main() {
         totalSize += fs.statSync(assetFile).size;
       }
     }
+    const roundedSize = roundSize(totalSize);
+    const route = fileToRoute(file);
 
-    // Now: Fetch carbon grams for totalSize
-    const grams = await getCarbonGrams(totalSize);
-    routeCarbon[fileToRoute(file)] = grams !== null ? grams : '--';
-    console.log(`Route: ${fileToRoute(file)} | bytes: ${totalSize} | grams: ${grams}`);
+    routeSize[route] = roundedSize;
+    if (!sizeToRoutes[roundedSize]) sizeToRoutes[roundedSize] = [];
+    sizeToRoutes[roundedSize].push(route);
+
+    // // Now: Fetch carbon grams for totalSize
+    // const grams = await getCarbonGrams(totalSize);
+    // routeCarbon[fileToRoute(file)] = grams !== null ? grams : '--';
+    // console.log(`Route: ${fileToRoute(file)} | bytes: ${totalSize} | grams: ${grams}`);
+  }
+
+  // 2. Calculate carbon for *each unique rounded size*
+  const sizeToGrams = {};
+  for (const roundedSize of Object.keys(sizeToRoutes)) {
+    const grams = await getCarbonGrams(Number(roundedSize));
+    sizeToGrams[roundedSize] = grams;
+    await new Promise(r => setTimeout(r, 1100)); // throttle if needed
+    console.log(`Rounded size: ${roundedSize} | grams: ${grams}`);
+  }
+
+  // 3. Map results back to routes
+  for (const route in routeSize) {
+    const roundedSize = routeSize[route];
+    routeCarbon[route] = sizeToGrams[roundedSize] ?? '--';
   }
 
   fs.writeFileSync(OUTPUT, JSON.stringify(routeCarbon, null, 2));
