@@ -4,8 +4,8 @@ import { JSDOM } from 'jsdom';
 
 const DIST = 'dist';
 const OUTPUT = path.join(DIST, 'page-carbon.json');
-const SIZE_GRANULARITY_BYTES = 5000; 
-const DELAY_MS = 5000;
+const SIZE_GRANULARITY_BYTES = 25000; 
+const DELAY_MS = 10000;
 
 function roundSize(bytes) {
   return Math.round(bytes / SIZE_GRANULARITY_BYTES) * SIZE_GRANULARITY_BYTES;
@@ -14,6 +14,39 @@ function roundSize(bytes) {
 // Throttle requests with a delay (ms)
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function interpolateMissing(sizeToGrams) {
+  // Get sizes and sort numerically
+  const sizes = Object.keys(sizeToGrams).map(Number).sort((a, b) => a - b);
+
+  // For each size with null, fill in by interpolation
+  for (let i = 0; i < sizes.length; i++) {
+    if (sizeToGrams[sizes[i]] === null) {
+      // Find previous known
+      let prevIdx = i - 1;
+      while (prevIdx >= 0 && sizeToGrams[sizes[prevIdx]] === null) prevIdx--;
+      // Find next known
+      let nextIdx = i + 1;
+      while (nextIdx < sizes.length && sizeToGrams[sizes[nextIdx]] === null) nextIdx++;
+      // If both bounds exist, interpolate
+      if (prevIdx >= 0 && nextIdx < sizes.length) {
+        const sizeA = sizes[prevIdx], gramsA = sizeToGrams[sizeA];
+        const sizeB = sizes[nextIdx], gramsB = sizeToGrams[sizeB];
+        const ratio = (sizes[i] - sizeA) / (sizeB - sizeA);
+        sizeToGrams[sizes[i]] = gramsA + ratio * (gramsB - gramsA);
+      }
+      // If only one bound exists, extrapolate
+      else if (prevIdx >= 0 && nextIdx >= sizes.length) {
+        sizeToGrams[sizes[i]] = sizeToGrams[sizes[prevIdx]];
+      }
+      else if (prevIdx < 0 && nextIdx < sizes.length) {
+        sizeToGrams[sizes[i]] = sizeToGrams[sizes[nextIdx]];
+      }
+      // Else, leave as null (unfillable)
+    }
+  }
+  return sizeToGrams;
 }
 
 function walk(dir, filelist = []) {
@@ -52,7 +85,7 @@ async function getCarbonGrams(bytes, green = 0, retryCount = 0) {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36'
       }
     });
-    
+
     // If the response is not OK, or not application/json, get text and log
     const contentType = res.headers.get("content-type") || "";
     if (!res.ok || !contentType.includes("application/json")) {
@@ -128,11 +161,6 @@ async function main() {
     routeSize[route] = roundedSize;
     if (!sizeToRoutes[roundedSize]) sizeToRoutes[roundedSize] = [];
     sizeToRoutes[roundedSize].push(route);
-
-    // // Now: Fetch carbon grams for totalSize
-    // const grams = await getCarbonGrams(totalSize);
-    // routeCarbon[fileToRoute(file)] = grams !== null ? grams : '--';
-    // console.log(`Route: ${fileToRoute(file)} | bytes: ${totalSize} | grams: ${grams}`);
   }
 
   // 2. Query API for EACH unique rounded size, with error checks
@@ -144,6 +172,8 @@ async function main() {
     await delay(DELAY_MS);
     console.log(`Rounded size: ${roundedSize} | grams: ${grams}`);
   }
+
+  interpolateMissing(sizeToGrams);
 
   // 3. Map results back to routes
   for (const route in routeSize) {
