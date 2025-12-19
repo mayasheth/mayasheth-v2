@@ -4,10 +4,11 @@ import { JSDOM } from 'jsdom';
 
 const DIST = 'dist';
 const OUTPUT = path.join(DIST, 'page-carbon.json');
-const SIZE_GRANULARITY = 5000; // in bytes
+const SIZE_GRANULARITY_BYTES = 5000; 
+const DELAY_MS = 5000;
 
 function roundSize(bytes) {
-  return Math.round(bytes / SIZE_GRANULARITY) * SIZE_GRANULARITY;
+  return Math.round(bytes / SIZE_GRANULARITY_BYTES) * SIZE_GRANULARITY_BYTES;
 }
 
 // Throttle requests with a delay (ms)
@@ -46,8 +47,12 @@ function assetPath(assetUrl) {
 async function getCarbonGrams(bytes, green = 0, retryCount = 0) {
   try {
     const url = `https://api.websitecarbon.com/data?bytes=${bytes}&green=${green}`;
-    const res = await fetch(url);
-
+    const res = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36'
+      }
+    });
+    
     // If the response is not OK, or not application/json, get text and log
     const contentType = res.headers.get("content-type") || "";
     if (!res.ok || !contentType.includes("application/json")) {
@@ -136,7 +141,7 @@ async function main() {
     // Make only one request per unique roundedSize
     const grams = await getCarbonGrams(Number(roundedSize));
     sizeToGrams[roundedSize] = grams;
-    await delay(1200); // 1.2s delay between requests
+    await delay(DELAY_MS);
     console.log(`Rounded size: ${roundedSize} | grams: ${grams}`);
   }
 
