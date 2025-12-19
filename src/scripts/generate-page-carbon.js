@@ -6,6 +6,23 @@ const DIST = 'dist';
 const OUTPUT = path.join(DIST, 'page-carbon.json');
 const SIZE_GRANULARITY_BYTES = 25000; 
 const DELAY_MS = 10000;
+const CACHE_FILE = path.join(DIST, 'carbon-cache.json');
+
+// Load cache if exists
+function loadCache() {
+  if (fs.existsSync(CACHE_FILE)) {
+    try {
+      return JSON.parse(fs.readFileSync(CACHE_FILE, 'utf-8'));
+    } catch (err) { /* corrupted cache, ignore */ }
+  }
+  return {};
+}
+
+// Save cache
+function saveCache(cache) {
+  fs.writeFileSync(CACHE_FILE, JSON.stringify(cache, null, 2));
+}
+
 
 function roundSize(bytes) {
   return Math.round(bytes / SIZE_GRANULARITY_BYTES) * SIZE_GRANULARITY_BYTES;
@@ -125,6 +142,12 @@ async function main() {
   const routeCarbon = {};
   const sizeToRoutes = {}; // {roundedSize: [route1, route2, ...]}
   const routeSize = {};    // {route: roundedSize}
+
+  // Load previous cache
+  const sizeToGramsCache = loadCache();
+
+  // Find all rounded sizes needed
+  const allSizes = new Set();
   
    // 1. Map pages to rounded sizes
   for (const file of htmlFiles) {
@@ -161,24 +184,29 @@ async function main() {
     routeSize[route] = roundedSize;
     if (!sizeToRoutes[roundedSize]) sizeToRoutes[roundedSize] = [];
     sizeToRoutes[roundedSize].push(route);
+    allSizes.add(roundedSize);
   }
 
   // 2. Query API for EACH unique rounded size, with error checks
-  const sizeToGrams = {};
-  for (const roundedSize of Object.keys(sizeToRoutes)) {
-    // Make only one request per unique roundedSize
-    const grams = await getCarbonGrams(Number(roundedSize));
-    sizeToGrams[roundedSize] = grams;
-    await delay(DELAY_MS);
-    console.log(`Rounded size: ${roundedSize} | grams: ${grams}`);
+  // Query API only for sizes not in cache
+  for (const size of allSizes) {
+    if (!(size in sizeToGramsCache)) {
+      const grams = await getCarbonGrams(Number(size));
+      sizeToGramsCache[size] = grams;
+      await delay(DELAY_MS);
+      console.log(`Rounded size: ${size} | grams: ${grams}`);
+    }
   }
 
   interpolateMissing(sizeToGrams);
 
-  // 3. Map results back to routes
+  // Save updated cache for next run
+  saveCache(sizeToGramsCache);
+
+  // 3. Map results back to routes (use cache!)
   for (const route in routeSize) {
     const roundedSize = routeSize[route];
-    routeCarbon[route] = sizeToGrams[roundedSize] ?? '--';
+    routeCarbon[route] = sizeToGramsCache[roundedSize] ?? '--';
   }
 
   fs.writeFileSync(OUTPUT, JSON.stringify(routeCarbon, null, 2));
