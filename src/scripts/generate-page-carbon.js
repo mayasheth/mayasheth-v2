@@ -4,10 +4,15 @@ import { JSDOM } from 'jsdom';
 
 const DIST = 'dist';
 const OUTPUT = path.join(DIST, 'page-carbon.json');
-const SIZE_GRANULARITY = 1000; // in bytes
+const SIZE_GRANULARITY = 5000; // in bytes
 
 function roundSize(bytes) {
   return Math.round(bytes / SIZE_GRANULARITY) * SIZE_GRANULARITY;
+}
+
+// Throttle requests with a delay (ms)
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function walk(dir, filelist = []) {
@@ -37,13 +42,42 @@ function assetPath(assetUrl) {
   return path.join(DIST, local);
 }
 
-async function getCarbonGrams(bytes, green = 0) {
+// API call with enhanced error handling
+async function getCarbonGrams(bytes, green = 0, retryCount = 0) {
   try {
-    const res = await fetch(`https://api.websitecarbon.com/data?bytes=${bytes}&green=${green}`);
-    const json = await res.json();
+    const url = `https://api.websitecarbon.com/data?bytes=${bytes}&green=${green}`;
+    const res = await fetch(url);
+
+    // If the response is not OK, or not application/json, get text and log
+    const contentType = res.headers.get("content-type") || "";
+    if (!res.ok || !contentType.includes("application/json")) {
+      const text = await res.text();
+      console.error(`Carbon API HTTP error [size ${bytes}]: ${res.status}\nContent-Type: ${contentType}\nMessage: ${text.slice(0, 120)}...`);
+      // Optionally retry on 429 (rate limit)
+      if (res.status === 429 && retryCount < 3) {
+        await delay(2000);
+        return await getCarbonGrams(bytes, green, retryCount + 1);
+      }
+      return null;
+    }
+
+    // Now it's safe to parse JSON
+    let json;
+    try {
+      json = await res.json();
+    } catch (e) {
+      const text = await res.text();
+      console.error(`Carbon API response for size ${bytes} failed JSON parse. Content-Type: ${contentType}\nSample: ${text.slice(0, 100)}...`);
+      return null;
+    }
+
     return json?.statistics?.co2?.grid?.grams ?? null;
   } catch (err) {
     console.error('Carbon API error for', bytes, err);
+    if (retryCount < 3) {
+      await delay(1000);
+      return await getCarbonGrams(bytes, green, retryCount + 1);
+    }
     return null;
   }
 }
@@ -96,12 +130,13 @@ async function main() {
     // console.log(`Route: ${fileToRoute(file)} | bytes: ${totalSize} | grams: ${grams}`);
   }
 
-  // 2. Calculate carbon for *each unique rounded size*
+  // 2. Query API for EACH unique rounded size, with error checks
   const sizeToGrams = {};
   for (const roundedSize of Object.keys(sizeToRoutes)) {
+    // Make only one request per unique roundedSize
     const grams = await getCarbonGrams(Number(roundedSize));
     sizeToGrams[roundedSize] = grams;
-    await new Promise(r => setTimeout(r, 1100)); // throttle if needed
+    await delay(1200); // 1.2s delay between requests
     console.log(`Rounded size: ${roundedSize} | grams: ${grams}`);
   }
 
