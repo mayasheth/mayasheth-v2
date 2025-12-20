@@ -198,7 +198,7 @@ async function main() {
     }
   }
 
-  interpolateMissing(sizeToGrams);
+  interpolateMissing(sizeToGramsCache);
 
   // Save updated cache for next run
   saveCache(sizeToGramsCache);
