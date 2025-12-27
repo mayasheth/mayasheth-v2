@@ -1,1 +1,1 @@
-personal webiste, a wip
+personal website, a wip
