@@ -1,0 +1,96 @@
+---
+// MediaInfoGallery.astro
+
+import type { CollectionEntry } from "astro:content";
+import { Icon } from "astro-icon/components";
+import {
+  isImage,
+  formatTag,
+  getFormatIcon,
+} from "@/lib/helpers/media-info-helpers";
+
+export interface Props {
+  mediaEntry: CollectionEntry<"media">;
+}
+
+const { mediaEntry } = Astro.props;
+
+// Tags (for gallery, just format and maybe type, minimal here)
+const tagsToRemove: string[] = ["type/notes"];
+const otherTags: string[] = [...(mediaEntry.data.tags ?? [])]
+  .map(formatTag)
+  .filter((tag) => !tagsToRemove.includes(tag));
+otherTags.push(mediaEntry.data.format);
+
+const format = Array.isArray(mediaEntry.data.format)
+  ? mediaEntry.data.format[0]
+  : mediaEntry.data.format;
+const formatIcon = getFormatIcon(format);
+---
+
+<div
+  class="media-info bg-surface-1 flex w-full flex-col items-stretch gap-2 rounded-xl px-4 py-4 lg:flex-row lg:gap-4"
+>
+  <!-- Image -->
+  <div class="flex items-center justify-center">
+    {
+      mediaEntry.data.link_to_source ? (
+        isImage(mediaEntry.data.link_to_source) ? (
+          <img
+            src={mediaEntry.data.link_to_source}
+            alt={`cover for ${mediaEntry.data.title}`}
+            class="my-auto h-32 w-auto lg:w-48 lg:object-contain"
+          />
+        ) : (
+          <div class="flex flex-wrap justify-center">
+            <a
+              href={mediaEntry.data.link_to_source}
+              target="_blank"
+              rel="noopener"
+              class="focus-outline-rounded inline-flex items-center justify-center rounded-full"
+              aria-label={`source for ${mediaEntry.data.title}`}
+            >
+              <Icon
+                name={formatIcon}
+                class="text-content-3 hover:text-content-2 soft-transition h-16 w-auto hover:scale-105 lg:h-auto lg:w-16"
+              />
+            </a>
+          </div>
+        )
+      ) : (
+        <span class="inline-flex items-center justify-center rounded-full">
+          <Icon
+            name={formatIcon}
+            class="text-surface-4 h-16 w-auto lg:h-auto lg:w-16"
+          />
+        </span>
+      )
+    }
+  </div>
+
+  <!-- Info box -->
+  <section class="flex w-full flex-col justify-between lg:h-32">
+    <div>
+      <p
+        class="font-heading text-content-1 text-center text-base font-light italic"
+      >
+        {mediaEntry.data.title}
+      </p>
+      <p class="font-base text-content-3 text-center text-sm font-light">
+        {mediaEntry.data.author}
+      </p>
+    </div>
+
+    <a
+      href={`/media/${mediaEntry.id}`}
+      rel="noopener"
+      class="focus-outline-rounded inline-flex items-center justify-center rounded-full"
+      aria-label={`source for ${mediaEntry.data.title}`}
+    >
+      <Icon
+        name="mdi--more-circle-outline"
+        class="text-content-4 hover:text-content-2 soft-transition h-7 w-7 hover:scale-105"
+      />
+    </a>
+  </section>
+</div>

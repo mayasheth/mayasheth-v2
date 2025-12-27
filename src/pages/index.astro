@@ -1,101 +1,138 @@
 ---
-import HomeLayout from '@/layouts/HomeLayout.astro';
-import { socials } from '@/data/socials';
-import { Icon } from 'astro-icon/components';
-import QuoteCard from '@/components/QuoteCard.astro';
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { socials } from "@/data/socials";
+import { Icon } from "astro-icon/components";
+import QuoteCard from "@/components/content/QuoteCard.astro";
 
 const title = "hello";
 ---
 
-<HomeLayout titleShort={title}>
-	<section id="hero" class="flex flex-col items-center justify-center pt-2 md:pt-4">
-		<div class="flex flex-col items-center">
-			<h1 class="text-2xl md:text-3xl lg:text-5xl mb-2">
-				hello!
-			</h1>
-			<p class="text-content-3"> (this site is a work-in-progress) </p>
-		</div>
-	</section>
+<BaseLayout titleShort={title} variant="home">
+  <section
+    id="hero"
+    class="flex flex-col items-center justify-center pt-2 md:pt-4"
+  >
+    <div class="flex flex-col items-center">
+      <h1 class="mb-2 text-2xl md:text-3xl lg:text-5xl">hello!</h1>
+      <p class="text-content-3">(this site is a work-in-progress)</p>
+    </div>
+  </section>
 
-	<section id="who-i-am" class="flex flex-col md:flex-row gap-8 rounded-xl bg-surface-1 p-6 md:max-w-9/10 lg:max-w-5/7 mx-auto mt-4">
-		<div class="max-w-xs md:max-w-2xs lg:max-w-xs flex flex-col gap-4 items-center mx-auto">
-			<img src="/banff-colored.jpeg" alt="me in Banff, rainbow colored" class="rounded-lg w-full" />
-			<div class="
-      socials flex flex-wrap justify-center md:justify-end gap-1.5 md:gap-2 lg:gap-3 items-center
-     ">
-      <span class="font-header text-base tracking-wide text-content-4 font-semibold">connect</span>
-				{socials.map(social => (
-					<a
-						href={social.href}
-						target="_blank"
-						rel="noopener noreferrer"
-						aria-label={social.name}
-						class="hover:text-content-1 transition"
-					>
-						<Icon
-							name={social.icon}
-							class="w-5 h-5 lg:w-6 lg:h-6 text-content-3 hover:text-content-2 hover:scale-105 soft-transition" />
-					</a>
-				))}
-			</div>
-		</div>
-		<div id="intro" class="text-center flex flex-col justify-center">
-			<h2 class="mb-1 text-2xl italic">who i am</h2>
-			<ul class="mb-3 text-lg space-y-1">
-				<li class="text-content-1">28 year old human</li>
-				<li class="text-content-2">asker of many questions (very skeptical)</li>
-				<li class="text-content-3">big fan of dogs, the ocean, sunshine, & coffee</li>
-			</ul>
-			<h2 class="mt-4 mb-1 italic">also, science</h3>
-			<ul class="space-y-1">
-				<li class="text-content-1 lowercase">4th year bioengineering PhD @ Stanford</li>
-				<li class="text-content-2">thinking about human gene regulation & modeling the noncoding genome</li>
-				<li class="text-content-3">more on my research <a class="font-semibold text-content-2 hover:text-content-3 hover:tracking-wide soft-transition focus-outline-rounded" href="/portfolio/research">here</a></li>
-			</ul>
-		</div>
-	</section>
+  <section
+    id="who-i-am"
+    class="bg-surface-1 mx-auto mt-4 flex flex-col gap-8 rounded-xl p-6 md:max-w-9/10 md:flex-row lg:max-w-5/7"
+  >
+    <div
+      class="mx-auto flex max-w-xs flex-col items-center gap-4 md:max-w-2xs lg:max-w-xs"
+    >
+      <img
+        src="/banff-colored.jpeg"
+        alt="me in Banff, rainbow colored"
+        class="w-full rounded-lg"
+      />
+      <div
+        class="socials flex flex-wrap items-center justify-center gap-1.5 md:justify-end md:gap-2 lg:gap-3"
+      >
+        <span
+          class="font-header text-content-4 text-base font-semibold tracking-wide"
+          >connect</span
+        >
+        {
+          socials.map((social) => (
+            <a
+              href={social.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={social.name}
+              class="hover:text-content-1 transition"
+            >
+              <Icon
+                name={social.icon}
+                class="text-content-3 hover:text-content-2 soft-transition h-5 w-5 hover:scale-105 lg:h-6 lg:w-6"
+              />
+            </a>
+          ))
+        }
+      </div>
+    </div>
+    <div id="intro" class="flex flex-col justify-center text-center">
+      <h2 class="mb-1 text-2xl italic">who i am</h2>
+      <ul class="mb-3 space-y-1 text-lg">
+        <li class="text-content-1">28 year old human</li>
+        <li class="text-content-2">asker of many questions (very skeptical)</li>
+        <li class="text-content-3">
+          big fan of dogs, the ocean, sunshine, & coffee
+        </li>
+      </ul>
+      <h2 class="mt-4 mb-1 italic">also, science</h2>
+      <ul class="space-y-1">
+        <li class="text-content-1 lowercase">
+          4th year bioengineering PhD @ Stanford
+        </li>
+        <li class="text-content-2">
+          thinking about human gene regulation & modeling the noncoding genome
+        </li>
+        <li class="text-content-3">
+          more on my research <a
+            class="text-content-2 hover:text-content-3 soft-transition focus-outline-rounded font-semibold hover:tracking-wide"
+            href="/portfolio/research">here</a>
+        </li>
+      </ul>
+    </div>
+  </section>
 
+  <section
+    id="featured"
+    class="mx-auto mt-4 grid grid-cols-1 gap-4 md:max-w-9/10 md:grid-cols-3 lg:max-w-5/7"
+  >
+    <div class="bg-surface-1 flex flex-col rounded-xl p-4 md:h-full">
+      <QuoteCard id="a-map-is-not-the" include_extra={false} />
+    </div>
 
-
-	<section 
-  id="featured" 
-  class="grid grid-cols-1 md:grid-cols-3 gap-4 md:max-w-9/10 lg:max-w-5/7 mx-auto mt-4"
->
-  <div class="md:h-full flex flex-col rounded-xl bg-surface-1 p-4">
-    <QuoteCard id="a-map-is-not-the" include_extra={false} />
-  </div>
-
-  <div class="md:h-full flex flex-col rounded-xl bg-surface-1 p-4 md:p-8 text-center">
-    <p class="text-center leading-tight lowercase">
-      <span class="font-header text-lg font-semibold text-content-3 tracking-wide">current interests</span>
-    </p>
-    <div class="flex-grow">
-      <p class="leading-tight mt-2"> 
-          <span class="text-content-1 italic">aviation + air traffic control: </span>
+    <div
+      class="bg-surface-1 flex flex-col rounded-xl p-4 text-center md:h-full md:p-8"
+    >
+      <p class="text-center leading-tight lowercase">
+        <span
+          class="font-header text-content-3 text-lg font-semibold tracking-wide"
+          >current interests</span
+        >
+      </p>
+      <div class="flex-grow">
+        <p class="mt-2 leading-tight">
+          <span class="text-content-1 italic"
+            >aviation + air traffic control:
+          </span>
           <span class="text-content-2">check out </span>
-          <a class="text-content-3 hover:text-content-2 font-semibold hover:tracking-wide soft-transition focus-outline-rounded" href="https://chill-atc-react.vercel.app/" target="_blank">
+          <a
+            class="text-content-3 hover:text-content-2 soft-transition focus-outline-rounded font-semibold hover:tracking-wide"
+            href="https://chill-atc-react.vercel.app/"
+            target="_blank"
+          >
             chill atc
           </a>
           <span class="text-content-2">for the ideal ambient soundtrack</span>
-      </p>
-      <p class="leading-tight mt-2"> 
-        <span class="text-content-1 italic">reading around the world: </span>
-        <span class="text-content-2">see </span>
-        <a class="text-content-3 hover:text-content-2 font-semibold hover:tracking-wide soft-transition focus-outline-rounded" href="/media/around-the-world">
-          worldly
-        </a>
-        <span class="text-content-2">for more</span>
-      </p>
-      <p class="leading-tight mt-2"> 
-        <span class="text-content-1 italic">hockey + sports analytics: </span>
-        <span class="text-content-2">project in the works :) </span>
-      </p>
+        </p>
+        <p class="mt-2 leading-tight">
+          <span class="text-content-1 italic">reading around the world: </span>
+          <span class="text-content-2">see </span>
+          <a
+            class="text-content-3 hover:text-content-2 soft-transition focus-outline-rounded font-semibold hover:tracking-wide"
+            href="/media/around-the-world"
+          >
+            worldly
+          </a>
+          <span class="text-content-2">for more</span>
+        </p>
+        <p class="mt-2 leading-tight">
+          <span class="text-content-1 italic">hockey + sports analytics: </span>
+          <span class="text-content-2">project in the works :) </span>
+        </p>
+      </div>
     </div>
-  </div>
 
-  <div class="md:h-full flex flex-col rounded-xl bg-surface-1 p-4">
-    <QuoteCard id="what-kind-of-life-is" include_extra={false} />
-  </div>
-</section>
-
-</HomeLayout>
+    <div class="bg-surface-1 flex flex-col rounded-xl p-4 md:h-full">
+      <QuoteCard id="what-kind-of-life-is" include_extra={false} />
+    </div>
+  </section>
+</BaseLayout>

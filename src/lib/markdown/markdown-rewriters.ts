@@ -3,26 +3,28 @@
 /**
  * Rewrites markdown image paths to use public URLs for Astro.
  */
-export function rewriteImagePaths(markdown: string, currentCollection: string): string {
+export function rewriteImagePaths(
+  markdown: string,
+  currentCollection: string,
+): string {
   return markdown.replace(
     /!\[([^\]]*)\]\((?!http|\/\/|\/collections\/)([^)]+)\)/g,
     (match, alt, url) => {
-      const cleanedUrl = url.replace(/^[./]+/, '');
+      const cleanedUrl = url.replace(/^[./]+/, "");
       let publicUrl;
-      if (cleanedUrl.startsWith('300-collections/')) {
+      if (cleanedUrl.startsWith("300-collections/")) {
         publicUrl = `/collections/${cleanedUrl}`;
       } else {
         publicUrl = `/collections/300-collections/${currentCollection}/${cleanedUrl}`;
       }
       return `![${alt}](${publicUrl})`;
-    }
+    },
   );
 }
 
 import { getCollection, type CollectionEntry } from "astro:content";
 
-
-// REWRITE IMAGE PATHS SEARCHING AVAILABLE IN PUBLIC 
+// REWRITE IMAGE PATHS SEARCHING AVAILABLE IN PUBLIC
 
 import { readdir } from "fs/promises";
 import { join, relative } from "path";
@@ -30,13 +32,16 @@ import { join, relative } from "path";
 /**
  * Recursively walk a directory, returning all image file public URLs.
  */
-export async function walkImages(dir: string, out: string[] = []): Promise<string[]> {
+export async function walkImages(
+  dir: string,
+  out: string[] = [],
+): Promise<string[]> {
   const entries = await readdir(dir, { withFileTypes: true });
   for (const entry of entries) {
     const abs = join(dir, entry.name);
     if (entry.isDirectory()) await walkImages(abs, out);
     else if (/\.(png|jpe?g|gif|webp|svg|avif|heic)$/i.test(entry.name)) {
-      out.push('/' + relative('public', abs).replace(/\\/g, '/'));
+      out.push("/" + relative("public", abs).replace(/\\/g, "/"));
     }
   }
   return out;
@@ -48,7 +53,7 @@ export async function walkImages(dir: string, out: string[] = []): Promise<strin
 export function buildImageMap(imagePaths: string[]): Map<string, string> {
   const map = new Map<string, string>();
   for (const url of imagePaths) {
-    const base = url.split('/').pop();
+    const base = url.split("/").pop();
     if (base) map.set(base, url);
   }
   return map;
@@ -60,42 +65,45 @@ export function buildImageMap(imagePaths: string[]): Map<string, string> {
  * Usage:
  *   const updatedMarkdown = await rewriteImagePathsWithMap(markdown, 'public');
  */
-export async function rewriteImagePathsWithMap(markdown: string, publicDir: string = "public"): Promise<string> {
+export async function rewriteImagePathsWithMap(
+  markdown: string,
+  publicDir: string = "public",
+): Promise<string> {
   const imagePaths = await walkImages(publicDir);
   const imageMap = buildImageMap(imagePaths);
 
   // Main rewrite logic
-   
+
   return markdown.replace(
     /!\[([^\]]*)\]\((?!http|\/\/|\/collections\/)([^)]+)\)/g,
     (match, alt, url) => {
-      const base = url.split('/').pop();
+      const base = url.split("/").pop();
       const publicUrl = base && imageMap.get(base) ? imageMap.get(base) : url;
       return `![${alt}](${publicUrl})`;
-    }
+    },
   );
 }
-
 
 // REWRITERS
 
 // Rewrites image url to public URL
 export function imageRewriterFromMap(imageMap: Map<string, string>) {
   return (url: string, alt: string): string => {
-    const base = url.split('/').pop();
+    const base = url.split("/").pop();
     return imageMap.get(base || url) ?? url;
   };
 }
 
-
 // Utility function to get the base filename without extension
 function getBaseSlug(path: string): string {
-  return path.split('/').pop()?.replace(/\.md$/, '') ?? '';
+  return path.split("/").pop()?.replace(/\.md$/, "") ?? "";
 }
 
 // Build map: { baseFileName: fullSlug }
-const COLLECTIONS = ['media', 'notebook', 'atw', 'quotes']
-export async function getBaseSlugMap(collections: string[] = COLLECTIONS): Promise<Record<string, string>> {
+const COLLECTIONS = ["media", "notebook", "atw", "quotes"];
+export async function getBaseSlugMap(
+  collections: string[] = COLLECTIONS,
+): Promise<Record<string, string>> {
   const map: Record<string, string> = {};
   for (const collection of collections) {
     const entries = await (getCollection as any)(collection);
@@ -106,7 +114,6 @@ export async function getBaseSlugMap(collections: string[] = COLLECTIONS): Promi
       } else {
         map[baseSlug] = `/${collection}/${entry.id}`;
       }
-     
     });
   }
   return map;
@@ -123,44 +130,42 @@ export async function rewriteMarkdownLinksBase(
     /\[([^\]]+)\]\((?!http|\/\/)([^)]+?\.md)\)/g,
     (match, text, url) => {
       // Extract the base file name from the link url
-      const baseSlug = url.split('/').pop()?.replace(/\.md$/, '') ?? '';
+      const baseSlug = url.split("/").pop()?.replace(/\.md$/, "") ?? "";
       const absPath = slugMap[baseSlug];
       if (absPath) {
         return `[${text}](${absPath})`;
       }
       // Fallback: just strip .md and leave as is
-      return `[${text}](${url.replace(/\.md$/, '')})`;
-    }
+      return `[${text}](${url.replace(/\.md$/, "")})`;
+    },
   );
 }
 
 export async function getInternalLink(
-  inputUrl: string
+  inputUrl: string,
 ): Promise<string | null> {
   const slugMap = await getBaseSlugMap();
 
-  const baseSlug = inputUrl.split('/').pop()?.replace(/\.md$/, '') ?? '';
+  const baseSlug = inputUrl.split("/").pop()?.replace(/\.md$/, "") ?? "";
   const absPath = slugMap[baseSlug];
 
   if (absPath) {
-    return absPath; 
+    return absPath;
   } else {
     return null;
   }
 }
 
 // Rewrites markdown link to correct absolute route using basename lookup
-export function linkRewriterFromBaseSlugMap(
-  slugMap: Record<string, string>
-) {
+export function linkRewriterFromBaseSlugMap(slugMap: Record<string, string>) {
   return (url: string, text: string): string => {
     // Extract the base file name (without extension) from any url like 'foo/bar/baz.md'
-    const baseSlug = url.split('/').pop()?.replace(/\.md$/, '') ?? url;
+    const baseSlug = url.split("/").pop()?.replace(/\.md$/, "") ?? url;
     const absPath = slugMap[baseSlug];
     if (absPath) {
       return absPath; // use the full Astro route
     }
     // Fallback: just strip .md extension and leave as is
-    return url.replace(/\.md$/, '');
+    return url.replace(/\.md$/, "");
   };
 }

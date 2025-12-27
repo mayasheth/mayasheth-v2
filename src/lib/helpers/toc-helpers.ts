@@ -1,21 +1,28 @@
-import  { type HeadingHierarchy } from "@/components/TOCHeading.astro";
+import { type HeadingHierarchy } from "@/components/ui/TOCHeading.astro";
 import type { MarkdownHeading } from "astro";
 
-export function createHeadingHierarchy(headings: (MarkdownHeading | {
-  text: string;
-  depth: number;
-  id?: string;
-})[]): HeadingHierarchy[]
- {
+export function createHeadingHierarchy(
+  headings: (
+    | MarkdownHeading
+    | {
+        text: string;
+        depth: number;
+        id?: string;
+      }
+  )[],
+): HeadingHierarchy[] {
   if (headings.length === 0) return [];
-  
+
   const hierarchy: HeadingHierarchy[] = [];
   const stack: HeadingHierarchy[] = [];
-  
-  headings.forEach(heading => {
-    if (heading.depth > 4) throw Error(`Depths greater than 4 not allowed:\n${JSON.stringify(heading, null, 2)}`);
 
-    const node: HeadingHierarchy = {...heading, subheadings: []};
+  headings.forEach((heading) => {
+    if (heading.depth > 4)
+      throw Error(
+        `Depths greater than 4 not allowed:\n${JSON.stringify(heading, null, 2)}`,
+      );
+
+    const node: HeadingHierarchy = { ...heading, subheadings: [] };
 
     // Pop until we find a heading of lower depth (parent)
     while (stack.length && stack[stack.length - 1].depth >= node.depth) {

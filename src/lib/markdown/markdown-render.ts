@@ -1,10 +1,10 @@
-import { remark } from 'remark';
-import remarkParse from 'remark-parse';
-import remarkRehype from 'remark-rehype';
-import rehypeSlug from 'rehype-slug';
-import rehypeStringify from 'rehype-stringify';
-import { visit } from 'unist-util-visit';
-import type { Root } from 'mdast';
+import { remark } from "remark";
+import remarkParse from "remark-parse";
+import remarkRehype from "remark-rehype";
+import rehypeSlug from "rehype-slug";
+import rehypeStringify from "rehype-stringify";
+import { visit } from "unist-util-visit";
+import type { Root } from "mdast";
 
 // IMAGE REWRITER: expects (url, alt) => url
 // LINK REWRITER: expects async (url, text) => url
@@ -13,7 +13,9 @@ import type { Root } from 'mdast';
 const headings: { text: string; depth: number; id?: string }[] = [];
 
 // After remark-rehype (i.e. in hast, not mdast)
-function headingExtractor(headings: { text: string; depth: number; id?: string }[] ) {
+function headingExtractor(
+  headings: { text: string; depth: number; id?: string }[],
+) {
   return (tree: any) => {
     visit(tree, "element", (node) => {
       if (
@@ -35,7 +37,8 @@ function getHeadingText(node: any): string {
   if (node.type === "text") return node.value;
   if (node.type === "link") return ""; // Skip link text
   // For other types, recurse into children
-  if (Array.isArray(node.children)) return node.children.map(getHeadingText).join('');
+  if (Array.isArray(node.children))
+    return node.children.map(getHeadingText).join("");
   return "";
 }
 
@@ -45,28 +48,27 @@ export async function renderMarkdownWithRewriters(
     imageRewriter,
     linkRewriter,
   }: {
-    imageRewriter?: (url: string, alt: string) => string,
-    linkRewriter?: (url: string, text: string) => string
-  } = {}
+    imageRewriter?: (url: string, alt: string) => string;
+    linkRewriter?: (url: string, text: string) => string;
+  } = {},
 ): Promise<{ html: string; headings: { text: string; depth: number }[] }> {
-
   function syncRewritePlugin(options: {
-    imageRewriter: (url: string, alt: string) => string,
-    linkRewriter: (url: string, text: string) => string,
-    headings: { text: string, depth: number, id: string }[]
+    imageRewriter: (url: string, alt: string) => string;
+    linkRewriter: (url: string, text: string) => string;
+    headings: { text: string; depth: number; id: string }[];
   }) {
     return (tree: any) => {
       const { imageRewriter, linkRewriter, headings } = options;
 
-      visit(tree, 'image', node => {
-        if (imageRewriter) node.url = imageRewriter(node.url, node.alt ?? '');
+      visit(tree, "image", (node) => {
+        if (imageRewriter) node.url = imageRewriter(node.url, node.alt ?? "");
       });
-      visit(tree, 'link', node => {
+      visit(tree, "link", (node) => {
         if (linkRewriter) {
           const linkText = node.children
-            .filter((n: any) => n.type === 'text')
+            .filter((n: any) => n.type === "text")
             .map((n: any) => n.value)
-            .join('');
+            .join("");
           node.url = linkRewriter(node.url, linkText);
         }
       });
@@ -74,7 +76,7 @@ export async function renderMarkdownWithRewriters(
   }
 
   // This headings array will be filled by headingExtractor below:
-  const headings: { text: string; depth: number, id?: string }[] = [];
+  const headings: { text: string; depth: number; id?: string }[] = [];
 
   const processed = await remark()
     .use(remarkParse)
@@ -86,9 +88,8 @@ export async function renderMarkdownWithRewriters(
     .use(rehypeStringify)
     .process(markdown);
 
-    return {
-      html: processed.value as string,
-      headings
-    };
+  return {
+    html: processed.value as string,
+    headings,
+  };
 }
-

@@ -1,125 +1,169 @@
 ---
 // Server-side code, as before
 import { Image } from "astro:assets";
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
-import type { ImageMetadata } from 'astro';
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+import type { ImageMetadata } from "astro";
 
 const titleShort = "art";
 const titleFull = "artwork";
 
-const artwork = await getCollection('artwork');
-const artworkItems = artwork.map(item => item.data);
-artworkItems.sort((a, b) => (new Date(b.created) > new Date(a.created) ? 1 : -1));
+const artwork = await getCollection("artwork");
+const artworkItems = artwork.map((item) => item.data);
+artworkItems.sort((a, b) =>
+  new Date(b.created) > new Date(a.created) ? 1 : -1,
+);
 
-const allTags = [...new Set(artworkItems.flatMap(a => a.art_tags ?? []))].map(formatTag).sort();
+const allTags = [...new Set(artworkItems.flatMap((a) => a.art_tags ?? []))]
+  .map(formatTag)
+  .sort();
 
 function formatTag(tag: string): string {
-  if (!tag) return '';
-  return tag.replace(/-/g, ' ');
+  if (!tag) return "";
+  return tag.replace(/-/g, " ");
 }
 
-const imageImports = import.meta.glob<{ default: ImageMetadata }>("../../content/300-collections/portfolio/images/*");
+const imageImports = import.meta.glob<{ default: ImageMetadata }>(
+  "../../content/300-collections/portfolio/images/*",
+);
 
 const artworkItemsWithImports = await Promise.all(
-  artworkItems.map(async item => {
+  artworkItems.map(async (item) => {
     let imgData = null;
-    const imageFileName = item.image ? item.image.replace(/^.*images\//, '') : "";
+    const imageFileName = item.image
+      ? item.image.replace(/^.*images\//, "")
+      : "";
     const globKey = `../../content/300-collections/portfolio/images/${imageFileName}`;
     if (imageImports[globKey]) {
       imgData = (await imageImports[globKey]()).default;
     } else {
-      console.warn('Image not found via import.meta.glob mapping:', globKey);
+      console.warn("Image not found via import.meta.glob mapping:", globKey);
     }
     return { ...item, imgData };
-  })
+  }),
 );
 ---
 
 <BaseLayout titleShort={titleShort} titleFull={titleFull}>
   <div class="container mx-auto px-4 py-6">
     <!-- Filter Controls -->
-    <div class="pb-6 flex justify-center items-center gap-1.5 md:gap-3 flex-wrap text-base max-w-9/10 sm:max-w-3/4 mx-auto">
-      <span class="font-base font-semibold text-content-0">filter to</span>
-      {allTags.map((tag) => (
-        <button
-          class="filter-button px-2 py-1 md:px-3 md:py-2 rounded-full text-base font-base font-light lowercase soft-transition focus-outline bg-surface-1 text-content-2"
-          data-tag={tag}
-          type="button"
-        >{tag}
-        </button>
-      ))}
+    <div
+      class="mx-auto flex max-w-9/10 flex-wrap items-center justify-center gap-1.5 pb-6 text-base sm:max-w-3/4 md:gap-3"
+    >
+      <span class="font-base text-content-0 font-semibold">filter to</span>
+      {
+        allTags.map((tag) => (
+          <button
+            class="filter-button font-base soft-transition focus-outline bg-surface-1 text-content-2 rounded-full px-2 py-1 text-base font-light lowercase md:px-3 md:py-2"
+            data-tag={tag}
+            type="button"
+          >
+            {tag}
+          </button>
+        ))
+      }
     </div>
 
     <!-- Masonry List -->
     <masonry-list
       style="--masonry-item-width: 20rem; --masonry-list-column-gap: 1rem; --masonry-list-row-gap: 1rem; --masonry-item-max-span: 1;"
-      class="max-w-9/10 sm:max-w-3/4 mx-auto"
+      class="mx-auto max-w-9/10 sm:max-w-3/4"
     >
-      {artworkItemsWithImports.map((item, index) => (
-        <masonry-item
-          class="rounded-md relative group mb-2 md:mb-3 w-full h-auto"
-          data-tags={item.art_tags?.map(formatTag).join(',') ?? ""}
-        >
-          {item.imgData && (
-            <Image
-              src={item.imgData}
-              alt={item.description ?? item.title ?? "artwork"}
-              loading={index < 20 ? "eager" : "lazy"}
-              style="width:100%; height:auto; border-radius:0.375rem;"
-            />
-            <div class="absolute rounded-md inset-0 flex flex-col items-center justify-center bg-content-0 opacity-0 hover:opacity-90 soft-transition">
-              <p class="px-4 text-base font-semibold text-center text-surface-3 opacity-0 group-hover:opacity-100 soft-transition lowercase">{item.title}</p>
-              <p class="text-base font-mono font-medium text-surface-4">{item.created.getFullYear()}</p>
-              {item.inspiration && (
-                <a class="text-sm font-base font-medium italic text-center text-content-4 hover:text-content-3 opacity-0 group-hover:opacity-100 soft-transition"
-                  target="_blank"
-                  href={item.inspiration}>
-                    inspiration
-                </a>
-              )}
-            </div>
-          )}
-        </masonry-item>
-      ))}
+      {
+        artworkItemsWithImports.map((item, index) => (
+          <masonry-item
+            class="group relative mb-2 h-auto w-full rounded-md md:mb-3"
+            data-tags={item.art_tags?.map(formatTag).join(",") ?? ""}
+            data-title={item.title ?? ""}
+            data-description={item.description ?? ""}
+            data-year={item.created ? item.created.getFullYear() : ""}
+            data-inspiration={item.inspiration ?? ""}
+            data-imgsrc={item.imgData ? item.imgData.src : ""}
+          >
+            {item.imgData && (
+              <>
+                <Image
+                  src={item.imgData}
+                  alt={item.description ?? item.title ?? "artwork"}
+                  loading={index < 20 ? "eager" : "lazy"}
+                  style="width:100%; height:auto; border-radius:0.375rem;"
+                />
+                <div class="bg-content-0 soft-transition absolute inset-0 flex flex-col items-center justify-center rounded-md opacity-0 hover:opacity-90">
+                  <p class="text-surface-3 soft-transition px-4 text-center text-base font-semibold lowercase opacity-0 group-hover:opacity-100">
+                    {item.title}
+                  </p>
+                  <p class="text-surface-4 font-mono text-base font-medium">
+                    {item.created.getFullYear()}
+                  </p>
+                  {item.inspiration && (
+                    <a
+                      class="font-base text-content-4 hover:text-content-3 soft-transition text-center text-sm font-medium italic opacity-0 group-hover:opacity-100"
+                      target="_blank"
+                      href={item.inspiration}
+                    >
+                      inspiration
+                    </a>
+                  )}
+                </div>
+              </>
+            )}
+          </masonry-item>
+        ))
+      }
     </masonry-list>
+  </div>
+
+  <div
+    id="gallery-modal"
+    class="bg-surface-0/60 hide-modal fixed inset-0 z-50 flex items-center justify-center backdrop-blur-xs"
+    tabindex="-1"
+  >
+    <div
+      id="gallery-modal-content"
+      class="bg-surface-1 relative max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-xl p-6 md:max-w-2xl md:px-6 md:py-8"
+    >
+      <!-- Dynamic content injected by JS -->
+    </div>
   </div>
 
   <script>
     // Filter logic (same as before)
-    const buttons = document.querySelectorAll('.filter-button');
-    const items = document.querySelectorAll('masonry-item');
+    const buttons = document.querySelectorAll(".filter-button");
+    const items = document.querySelectorAll("masonry-item");
     let activeFilter: string | null = null;
 
     function formatTag(tag: string): string {
-      if (!tag) return '';
-      const formatted = tag.replace(/-/g, ' ');
+      if (!tag) return "";
+      const formatted = tag.replace(/-/g, " ");
       return formatted;
     }
 
-    buttons.forEach(button => {
-      button.addEventListener('click', () => {
-        const tag = button.getAttribute('data-tag');
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const tag = button.getAttribute("data-tag");
         if (activeFilter === tag) {
           activeFilter = null;
         } else {
           activeFilter = tag;
         }
         // Update buttons
-        buttons.forEach(b => {
-          const bTag = b.getAttribute('data-tag');
-          b.classList.toggle('bg-surface-3', activeFilter === bTag);
-          b.classList.toggle('text-content-1', activeFilter === bTag);
-          b.classList.toggle('bg-surface-1', activeFilter !== bTag);
-          b.classList.toggle('text-content-2', activeFilter !== bTag);
+        buttons.forEach((b) => {
+          const bTag = b.getAttribute("data-tag");
+          b.classList.toggle("bg-surface-3", activeFilter === bTag);
+          b.classList.toggle("text-content-1", activeFilter === bTag);
+          b.classList.toggle("bg-surface-1", activeFilter !== bTag);
+          b.classList.toggle("text-content-2", activeFilter !== bTag);
         });
         // Filter items (works with custom element tags!)
-        items.forEach(item => {
-          const itemTags = item.getAttribute('data-tags')?.split(',').map(formatTag);
+        items.forEach((item) => {
+          const itemTags = item
+            .getAttribute("data-tags")
+            ?.split(",")
+            .map(formatTag);
           if (!activeFilter || (itemTags && itemTags.includes(activeFilter))) {
-            item.classList.remove('hidden');
+            item.classList.remove("hidden");
           } else {
-            item.classList.add('hidden');
+            item.classList.add("hidden");
           }
         });
       });
@@ -129,13 +173,18 @@ const artworkItemsWithImports = await Promise.all(
     class MasonryList extends HTMLElement {
       #patched = false;
 
-      get patched() { return this.#patched; }
+      get patched() {
+        return this.#patched;
+      }
       connectedCallback() {
         const style = getComputedStyle(this);
         if (style.gridTemplateRows === "masonry") return;
         this.#patched = true;
         this.style.gridAutoRows = "0px";
-        this.style.setProperty("--masonry-list-row-gap", `${Math.round(parseFloat(style.rowGap))}`);
+        this.style.setProperty(
+          "--masonry-list-row-gap",
+          `${Math.round(parseFloat(style.rowGap))}`,
+        );
         this.style.setProperty("row-gap", "1px", "important");
       }
     }
@@ -157,36 +206,155 @@ const artworkItemsWithImports = await Promise.all(
         this.#layout();
       }
       /* @ts-ignore */
-      disconnectedCallback() { this.#observer?.disconnect(); }
+      disconnectedCallback() {
+        this.#observer?.disconnect();
+      }
     }
 
     if (typeof window !== "undefined") {
       customElements.define("masonry-list", MasonryList);
       customElements.define("masonry-item", MasonryItem);
     }
+
+    (function () {
+      const modal = document.getElementById("gallery-modal");
+      const modalContent = document.getElementById("gallery-modal-content");
+      let lastFocused: any;
+
+      document.querySelectorAll("masonry-item").forEach((item) => {
+        item.addEventListener("click", function (e) {
+          e.preventDefault();
+          lastFocused = item;
+          // Read data attributes
+          const imgSrc = item.getAttribute("data-imgsrc");
+          const title = item.getAttribute("data-title") || "";
+          const desc = item.getAttribute("data-description") || "";
+          const tags =
+            item.getAttribute("data-tags")?.split(",").filter(Boolean) || [];
+          const year = item.getAttribute("data-year") || "";
+          const inspiration = item.getAttribute("data-inspiration") || "";
+
+          // Build modal HTML (adapt/extend for your design)
+          /* @ts-ignore */
+          modalContent.innerHTML = `
+            <button id="modal-close"
+              class="absolute top-3 right-3 px-2 text-xl md:text-2xl font-base font-semibold text-content-3 
+              hover:text-content-2 hover:scale-105 soft-transition focus-outline-rounded"
+              aria-label="Close">&times;
+            </button>
+            <div class="flex flex-col items-center gap-2">
+              <img src="${imgSrc}" alt="${title || desc}" class="max-h-[50vh] rounded-lg" />
+              <h2 class="mt-2 text-lg xl:text-xl text-content-0 lowercase text-pretty leading-none">${title}
+                <span class="font-mono text-base xl:text-lg text-content-3 ml-2">${year}</span>
+              </h2>
+              ${desc ? `<p class="text-center text-pretty text-sm md:text-base text-content-2 lowercase max-h-30 overflow-y-scroll">${desc}</p>` : ""}
+              ${
+                inspiration
+                  ? `<p><a href="${inspiration}" target="_blank" rel="noopener"
+                class="font-semibold italic text-content-3 hover:text-content-4 hover:tracking-wide soft-transition focus-outline-rounded">
+                  inspiration
+              </a></p>`
+                  : ""
+              }
+              ${
+                tags.length
+                  ? `
+                <div class="mt-2 flex flex-wrap gap-2 justify-center">
+                  ${tags
+                    .map(
+                      (tag) => `<span
+                    class="rounded-full bg-surface-2 hover:bg-surface-3 px-2 py-1 font-base text-sm
+                    text-content-3 hover:text-content-2 soft-transition uppercase">
+                    ${tag}</span>`,
+                    )
+                    .join("")}
+                </div>`
+                  : ""
+              }
+            </div>
+          `;
+          /* @ts-ignore */
+          modal.classList.remove("hide-modal");
+          // Focus close button for accessibility:
+          /* @ts-ignore */
+          //setTimeout(() => { modalContent.querySelector("#modal-close").focus(); },100);
+
+          // Close button:
+          /* @ts-ignore */
+          modalContent
+            .querySelector("#modal-close")
+            .addEventListener("click", closeModal);
+        });
+      });
+
+      // Background click closes modal
+      /* @ts-ignore */
+      modal.addEventListener("mousedown", function (e) {
+        if (e.target === modal) closeModal();
+      });
+
+      // Escape closes modal
+      document.addEventListener("keydown", function (e) {
+        /* @ts-ignore */
+        if (!modal.classList.contains("hide-modal") && e.key === "Escape")
+          closeModal();
+      });
+
+      function closeModal() {
+        /* @ts-ignore */
+        modal.classList.add("hide-modal");
+        /* @ts-ignore */
+        modalContent.innerHTML = "";
+        if (lastFocused) {
+          lastFocused.focus();
+        }
+      }
+    })();
   </script>
 </BaseLayout>
 
 <style>
-/* Responsive columns for masonry-list */
-masonry-list {
-  display: grid;
-  column-gap: var(--masonry-list-column-gap, 1rem);
-  row-gap: var(--masonry-list-row-gap, 1rem);
-  grid-template-columns: repeat(auto-fit, minmax(min(30ch, var(--masonry-item-width, 15rem)), 1fr));
-  grid-auto-flow: dense;
-}
-@media (max-width: 40rem) {
-  masonry-list { grid-template-columns: 1fr 1fr; }
-}
-@media (min-width: 40rem) and (max-width: 64rem) {
-  masonry-list { grid-template-columns: repeat(3, 1fr); }
-}
-@media (min-width: 64rem) {
-  masonry-list { grid-template-columns: repeat(5, 1fr); }
-}
-masonry-item {
-  align-self: start;
-  grid-column-end: span var(--masonry-item-span, 1);
-}
+  /* Responsive columns for masonry-list */
+  masonry-list {
+    display: grid;
+    column-gap: var(--masonry-list-column-gap, 1rem);
+    row-gap: var(--masonry-list-row-gap, 1rem);
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(min(30ch, var(--masonry-item-width, 15rem)), 1fr)
+    );
+    grid-auto-flow: dense;
+  }
+  @media (max-width: 40rem) {
+    masonry-list {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (min-width: 40rem) and (max-width: 64rem) {
+    masonry-list {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  @media (min-width: 64rem) {
+    masonry-list {
+      grid-template-columns: repeat(5, 1fr);
+    }
+  }
+  masonry-item {
+    align-self: start;
+    grid-column-end: span var(--masonry-item-span, 1);
+  }
+
+  /* Modal styling */
+  .hide-modal {
+    opacity: 0;
+    pointer-events: none;
+  }
+  #gallery-modal {
+    opacity: 1;
+    transition: opacity 0.15s;
+  }
+  #gallery-modal.hide-modal {
+    opacity: 0;
+  }
 </style>

@@ -1,19 +1,27 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro';
+import BaseLayout from "@/layouts/BaseLayout.astro";
 
 const title = "500";
 ---
 
 <BaseLayout titleShort={title}>
-	<section class="rounded-4xl p-1 m-4 mt-16 md:mt-24 lg:mt-40 text-center flex flex-col bg-surface-4">
-		<section class="rounded-4xl  p-1 m-4 text-center bg-surface-3">
-			<section class="rounded-4xl p-1 m-4 text-center bg-surface-2">
-				<section class="rounded-4xl p-8 m-4 text-center flex flex-col bg-surface-1">
-						<span class="font-serif text-8xl leading-none font-bold text-content-4 mb-2 -mt-6"> 500 </span>
-						<h2 class="text-content-2 mb-2"> internal server error </h2>
-						<p class="text-content-1"> this page isn't working :( </p>
-				</section>
-			</section>
-		</section>
-	</section>
+  <section
+    class="bg-surface-4 m-4 mt-16 flex flex-col rounded-4xl p-1 text-center md:mt-24 lg:mt-40"
+  >
+    <section class="bg-surface-3 m-4 rounded-4xl p-1 text-center">
+      <section class="bg-surface-2 m-4 rounded-4xl p-1 text-center">
+        <section
+          class="bg-surface-1 m-4 flex flex-col rounded-4xl p-8 text-center"
+        >
+          <span
+            class="text-content-4 -mt-6 mb-2 font-serif text-8xl leading-none font-bold"
+          >
+            500
+          </span>
+          <h2 class="text-content-2 mb-2">internal server error</h2>
+          <p class="text-content-1">this page isn't working :(</p>
+        </section>
+      </section>
+    </section>
+  </section>
 </BaseLayout>

@@ -1,13 +1,13 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import { getCollection, type CollectionEntry } from 'astro:content';
-import { Icon } from 'astro-icon/components';
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getCollection, type CollectionEntry } from "astro:content";
+import { Icon } from "astro-icon/components";
 
 const titleShort = "worldly";
 const titleFull = "around the world";
 
 // load collection
-const atw = (await getCollection('atw'))
+const atw = await getCollection("atw");
 
 // get basic counts
 const { bothComplete, bookOnlyComplete, bookIdea, bookIncomplete } = atw.reduce(
@@ -16,116 +16,144 @@ const { bothComplete, bookOnlyComplete, bookIdea, bookIncomplete } = atw.reduce(
       acc.bothComplete++;
     } else if (item.data.book_status === "DONE") {
       acc.bookOnlyComplete++;
-    } else if (item.data.book_ideas !== null && item.data.book_ideas?.length !== 0 ) {
+    } else if (
+      item.data.book_ideas !== null &&
+      item.data.book_ideas?.length !== 0
+    ) {
       acc.bookIdea++;
     } else {
       acc.bookIncomplete++;
     }
     return acc;
   },
-  { bothComplete: 0, bookOnlyComplete: 0, bookIdea: 0, bookIncomplete: 0 }
+  { bothComplete: 0, bookOnlyComplete: 0, bookIdea: 0, bookIncomplete: 0 },
 );
 const bookComplete: number = bothComplete + bookOnlyComplete;
 
-
 // group into atwBookComplete, atwIncomplete
-const atwBookComplete: CollectionEntry<'atw'>[] = atw.filter(item =>
-  item.data.book_status === "DONE" );
-const atwIncomplete: CollectionEntry<'atw'>[] = atw.filter(item =>
-  item.data.book_status !== "DONE" );
+const atwBookComplete: CollectionEntry<"atw">[] = atw.filter(
+  (item) => item.data.book_status === "DONE",
+);
+const atwIncomplete: CollectionEntry<"atw">[] = atw.filter(
+  (item) => item.data.book_status !== "DONE",
+);
 
 function formatDate(date: Date): string {
   const newDate = new Date(date);
   const year = newDate.getFullYear();
-  const month = String(newDate.getMonth() + 1).padStart(2, '0');
-  const day = String(newDate.getDate()).padStart(2, '0');
+  const month = String(newDate.getMonth() + 1).padStart(2, "0");
+  const day = String(newDate.getDate()).padStart(2, "0");
   return `${year}/${month}/${day}`;
 }
-
 ---
 
 <BaseLayout titleShort={titleShort} titleFull={titleFull}>
-  <p class="text-content-1 text-center text-pretty"> (a quest to read a book (& listen to a song while i'm at it) for every country (or other major [subjective] territory) in the world </p>
-  <p class="pb-6 text-content-2 text-center">
+  <p class="text-content-1 text-center text-pretty">
+    (a quest to read a book (& listen to a song while i'm at it) for every
+    country (or other major [subjective] territory) in the world
+  </p>
+  <p class="text-content-2 pb-6 text-center">
     <span class="font-semibold"> current status: </span>
-    books read for 
-    <span class="font-mono font-semibold text-lg md:text-xl text-content-3"> {bookComplete}</span>
-    locations; ideas for 
-    <span class="font-mono font-semibold text-lg md:text-xl text-content-3"> {bookIdea}</span>
-    more; 
-    <span class="font-mono font-semibold text-lg md:text-xl text-content-3"> {bookIncomplete}</span>
+    books read for
+    <span class="text-content-3 font-mono text-lg font-semibold md:text-xl">
+      {bookComplete}</span
+    >
+    locations; ideas for
+    <span class="text-content-3 font-mono text-lg font-semibold md:text-xl">
+      {bookIdea}</span
+    >
+    more;
+    <span class="text-content-3 font-mono text-lg font-semibold md:text-xl">
+      {bookIncomplete}</span
+    >
     to go!
   </p>
 
-  { /* BOOK COMPLETE */ }
-  <section class="flex flex-wrap mx-auto justify-center md:max-w-3/4">
-    {atwBookComplete.map(item => (
-      <div class="p-0 m-2 bg-surface-1 rounded-xl flex flex-col">
-        {/* location name + link */}
-        <a
-          href={`/media/around-the-world/${item.id}`}
-          rel="noopener"
-          class="truncate bg-surface-2 p-2 rounded-b-none rounded-t-xl
-            text-center font-header tracking-wide font-light text-lg lowercase text-content-3 hover:text-content-2 hover:font-semibold soft-transition focus-outline"
-          aria-label={`page for ${item.data.location}`}
-        >
-          {item.data.location}
-        </a>
+  {/* BOOK COMPLETE */}
+  <section class="mx-auto flex flex-wrap justify-center md:max-w-3/4">
+    {
+      atwBookComplete.map((item) => (
+        <div class="bg-surface-1 m-2 flex flex-col rounded-xl p-0">
+          {/* location name + link */}
+          <a
+            href={`/media/around-the-world/${item.id}`}
+            rel="noopener"
+            class="bg-surface-2 font-header text-content-3 hover:text-content-2 soft-transition focus-outline truncate rounded-t-xl rounded-b-none p-2 text-center text-lg font-light tracking-wide lowercase hover:font-semibold"
+            aria-label={`page for ${item.data.location}`}
+          >
+            {item.data.location}
+          </a>
 
-        <div class="flex flex-row gap-2 md:gap-6 items-center">
-          { /* book image */ }
-          <div class="ml-2 md:ml-4 flex items-center">
-            <img
-              src={item.data.book_cover}
-              alt={`cover for ${item.data.book_title}`}
-              class="h-auto w-16 md:w-26"
-            />
-          </div>
- 
-          { /* book title + music */ }
-          <div class = {`flex flex-col justify-between items-center mr-2 md:mr-4 h-42 md:h-48 ${item.data.music_status === "DONE" ? "w-32 md:w-42" : "w-24"}`}>
-            <p class="mt-6 wrap-anywhere hyphens-auto text-content-1 text-center font-semibold lowercase italic leading-none"> ← {item.data.book_title}</p>
-            {item.data.music_status === "DONE" && (
-              <div class="text-center mb-2">
-                <p class="text-wrap text-content-2 font-semibold lowercase leading-none"> "{item.data.music_song}"</p>
-                <p class="mt-2 text-wrap text-content-3 lowercase leading-none"> — {item.data.music_artist}</p>
-                <a
-                  href={item.data.music_link}
-                  target="_blank"
-                  rel="noopener"
-                  class="p-2 focus-outline-rounded flex items-center justify-center"
-                  aria-label={`link to ${item.data.music_song}`}
-                >
-                  <Icon name="mdi--play-circle" class="w-7 sm:w-9 h-auto text-content-4 hover:text-content-2 hover:scale-105 soft-transition" />
-                </a>
-              </div>
-            )}
+          <div class="flex flex-row items-center gap-2 md:gap-6">
+            {/* book image */}
+            <div class="ml-2 flex items-center md:ml-4">
+              <img
+                src={item.data.book_cover}
+                alt={`cover for ${item.data.book_title}`}
+                class="h-auto w-16 md:w-26"
+              />
+            </div>
+
+            {/* book title + music */}
+            <div
+              class={`mr-2 flex h-42 flex-col items-center justify-between md:mr-4 md:h-48 ${item.data.music_status === "DONE" ? "w-32 md:w-42" : "w-24"}`}
+            >
+              <p class="text-content-1 mt-6 text-center leading-none font-semibold wrap-anywhere hyphens-auto lowercase italic">
+                {" "}
+                ← {item.data.book_title}
+              </p>
+              {item.data.music_status === "DONE" && (
+                <div class="mb-2 text-center">
+                  <p class="text-content-2 leading-none font-semibold text-wrap lowercase">
+                    {" "}
+                    "{item.data.music_song}"
+                  </p>
+                  <p class="text-content-3 mt-2 leading-none text-wrap lowercase">
+                    {" "}
+                    — {item.data.music_artist}
+                  </p>
+                  <a
+                    href={item.data.music_link}
+                    target="_blank"
+                    rel="noopener"
+                    class="focus-outline-rounded flex items-center justify-center p-2"
+                    aria-label={`link to ${item.data.music_song}`}
+                  >
+                    <Icon
+                      name="mdi--play-circle"
+                      class="text-content-4 hover:text-content-2 soft-transition h-auto w-7 hover:scale-105 sm:w-9"
+                    />
+                  </a>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    ))}
+      ))
+    }
   </section>
 
-  {/* IN PROGRESS */}  
-  <h2 class="mt-6"> in progress / searching </h2>
-  <p class="pb-6 text-content-1 text-center"> please let me know if you have ideas or suggestions! </p>
+  {/* IN PROGRESS */}
+  <h2 class="mt-6">in progress / searching</h2>
+  <p class="text-content-1 pb-6 text-center">
+    please let me know if you have ideas or suggestions!
+  </p>
 
-  <section class="flex flex-wrap mx-auto justify-center md:max-w-3/4">
-    {atwIncomplete.map(item => (
-      <div class="p-0 m-2 bg-surface-1 rounded-xl flex flex-col">
-        {/* location name + link */}
-        <a
-          href={`/media/around-the-world/${item.id}`}
-          rel="noopener"
-          class="truncate bg-surface-2 p-2 rounded-xl
-            text-center font-header tracking-wide font-light text-lg lowercase text-content-3 hover:text-content-2 hover:font-semibold soft-transition focus-outline"
-          aria-label={`page for ${item.data.location}`}
-        >
-          {item.data.location}
-        </a>
-      </div>
-    ))}
-    
+  <section class="mx-auto flex flex-wrap justify-center md:max-w-3/4">
+    {
+      atwIncomplete.map((item) => (
+        <div class="bg-surface-1 m-2 flex flex-col rounded-xl p-0">
+          {/* location name + link */}
+          <a
+            href={`/media/around-the-world/${item.id}`}
+            rel="noopener"
+            class="bg-surface-2 font-header text-content-3 hover:text-content-2 soft-transition focus-outline truncate rounded-xl p-2 text-center text-lg font-light tracking-wide lowercase hover:font-semibold"
+            aria-label={`page for ${item.data.location}`}
+          >
+            {item.data.location}
+          </a>
+        </div>
+      ))
+    }
   </section>
-
 </BaseLayout>

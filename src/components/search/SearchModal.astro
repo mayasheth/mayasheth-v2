@@ -1,0 +1,30 @@
+---
+// src/components/SearchModal.astro
+---
+
+<!-- Search Modal Component -->
+<div id="search-modal" class="fixed inset-0 z-[999] hidden">
+  <!-- Backdrop -->
+  <div class="bg-surface-0 absolute inset-0 opacity-85"></div>
+
+  <!-- Modal content -->
+  <div
+    class="relative flex min-h-screen items-center justify-center p-2 sm:p-4"
+  >
+    <div
+      class="bg-surface-1 border-content-4 relative z-[1000] flex max-h-[60vh] w-full max-w-11/12 flex-col overflow-hidden rounded-xl border-2 p-4 sm:max-w-9/10 sm:p-5 md:max-w-5/7 lg:max-w-3/5"
+    >
+      <button
+        id="close-search-modal"
+        class="text-content-3 hover:text-content-2 soft-transition absolute top-[1.5px] right-[2px] z-[1001] px-1 text-base hover:scale-110 sm:top-2 sm:text-lg md:right-3"
+        >&times;</button
+      >
+      <!-- Pagefind UI container -->
+      <div
+        id="modal-search-field"
+        class="flex flex-grow flex-col overflow-hidden"
+      >
+      </div>
+    </div>
+  </div>
+</div>

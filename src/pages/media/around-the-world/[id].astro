@@ -1,35 +1,42 @@
 ---
 // pages/media/[id].astro
-import { getCollection, render, type CollectionEntry } from 'astro:content';
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import { renderMarkdownWithRewriters } from '@/utils/markdown-render';
-import { imageRewriterFromMap, getInternalLink, getBaseSlugMap, linkRewriterFromBaseSlugMap, walkImages, buildImageMap } from '@/utils/markdown-rewriters';
-import { formatDate } from '@/utils/media-info-helpers.ts';
-import { Icon } from 'astro-icon/components';
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { renderMarkdownWithRewriters } from "@/lib/markdown/markdown-render";
+import {
+  imageRewriterFromMap,
+  getInternalLink,
+  getBaseSlugMap,
+  linkRewriterFromBaseSlugMap,
+  walkImages,
+  buildImageMap,
+} from "@/lib/markdown/markdown-rewriters";
+import { formatDate } from "@/lib/helpers/media-info-helpers";
+import { Icon } from "astro-icon/components";
 
 export const prerender = true;
 
 // 1. Generate a new path for every collection entry
 export async function getStaticPaths() {
-  const atw = await getCollection('atw');
+  const atw = await getCollection("atw");
 
-  return atw.map(atwEntry => ({
+  return atw.map((atwEntry) => ({
     params: { id: atwEntry.id },
-    props: { atwEntry }
+    props: { atwEntry },
   }));
 }
 
 // 2. Get the entry directly from the prop
 type Props = {
-  atwEntry: CollectionEntry<'atw'>;
-}
+  atwEntry: CollectionEntry<"atw">;
+};
 const { atwEntry } = Astro.props;
 
 // 2.5 Rewrite markdown links
-const markdown = atwEntry.body ?? '';
+const markdown = atwEntry.body ?? "";
 
 // Build image and slug maps
-const imagePaths = await walkImages('public');
+const imagePaths = await walkImages("public");
 const imageMap = buildImageMap(imagePaths);
 const slugMap = await getBaseSlugMap();
 
@@ -55,211 +62,245 @@ function extractSpotifyTrackId(url: string): string | null {
   return match ? match[1] : null;
 }
 if (atwEntry.data.music_link) {
-  const track_id = extractSpotifyTrackId(atwEntry.data.music_link)
-  spotify_embed_url = `https://open.spotify.com/embed/track/${track_id}?utm_source=generator`
+  const track_id = extractSpotifyTrackId(atwEntry.data.music_link);
+  spotify_embed_url = `https://open.spotify.com/embed/track/${track_id}?utm_source=generator`;
 }
-
 ---
 
 <BaseLayout titleShort={atwEntry.data.location.toLowerCase()}>
-
-  { /* HEADER with location, location tag, and status */ }
-  <section class="flex flex-col bg-surface-1 rounded-xl pt-4 pb-6 px-6 mt-6
-    min-w-xs max-w-full md:min-w-sm md:max-w-2/3 lg:min-w-md lg:max-w-2/5 text-center text-pretty">
-
+  {/* HEADER with location, location tag, and status */}
+  <section
+    class="bg-surface-1 mt-6 flex max-w-full min-w-xs flex-col rounded-xl px-6 pt-4 pb-6 text-center text-pretty md:max-w-2/3 md:min-w-sm lg:max-w-2/5 lg:min-w-md"
+  >
     {/* Location summary  */}
-    <div class="flex flex-wrap gap-2 justify-center items-baseline">
+    <div class="flex flex-wrap items-baseline justify-center gap-2">
       <h1 class="lowercase">{atwEntry.data.location}</h1>
-      <span class="font-base font-semibold text-sm text-content-4 uppercase">{atwEntry.data.location_type}</span>
+      <span class="font-base text-content-4 text-sm font-semibold uppercase"
+        >{atwEntry.data.location_type}</span
+      >
     </div>
 
-    <div class="flex flex-col mt-2 gap-2 items-center"> {/* <div> controls vertical stacking */}
+    <div class="mt-2 flex flex-col items-center gap-2">
+      {/* <div> controls vertical stacking */}
       {/* Book status line */}
       <p class="text-center leading-tight lowercase">
-        <span class="font-header text-base font-semibold text-content-4 tracking-wide">book status: </span>
-        {atwEntry.data.book_status === "DONE" ? (
-          <>
-            <span class="text-content-2 font-semibold italic">
-              <a
-                class="hover:text-content-3 hover:tracking-wide soft-transition focus-outline-rounded"
-                href={atwEntry.data.book_url}
-                target="_blank"
-              >
-                {atwEntry.data.book_title}
-              </a>
-            </span>
-            <span class="text-content-3 ml-0.75"> — </span>
-            <span class="text-content-3">{atwEntry.data.book_author}</span>
-          </>
-        ) : (
-          <span class="text-surface-4 font-semibold"> incomplete </span>
-        )}
+        <span
+          class="font-header text-content-4 text-base font-semibold tracking-wide"
+          >book status:
+        </span>
+        {
+          atwEntry.data.book_status === "DONE" ? (
+            <>
+              <span class="text-content-2 font-semibold italic">
+                <a
+                  class="hover:text-content-3 soft-transition focus-outline-rounded hover:tracking-wide"
+                  href={atwEntry.data.book_url}
+                  target="_blank"
+                >
+                  {atwEntry.data.book_title}
+                </a>
+              </span>
+              <span class="text-content-3 ml-0.75"> — </span>
+              <span class="text-content-3">{atwEntry.data.book_author}</span>
+            </>
+          ) : (
+            <span class="text-surface-4 font-semibold"> incomplete </span>
+          )
+        }
       </p>
 
       {/* Music status line */}
       <p class="text-center leading-tight lowercase">
-        <span class="font-header text-base font-semibold text-content-4 tracking-wide">music status: </span>
-        {atwEntry.data.music_status === "DONE" ? (
-          <>
-            <span class="text-content-2">
-              <a
-                class="hover:text-content-3 hover:font-semibold soft-transition focus-outline-rounded"
-                href={atwEntry.data.music_link}
-                target="_blank"
-              >
-                "{atwEntry.data.music_song}"
-              </a>
-            </span>
-            <span class="text-content-3 ml-0.75"> — </span>
-            <span class="text-content-3">{atwEntry.data.music_artist}</span>
-          </>
-        ) : (
-          <span class="text-surface-4 font-semibold"> incomplete </span>
-        )}
+        <span
+          class="font-header text-content-4 text-base font-semibold tracking-wide"
+          >music status:
+        </span>
+        {
+          atwEntry.data.music_status === "DONE" ? (
+            <>
+              <span class="text-content-2">
+                <a
+                  class="hover:text-content-3 soft-transition focus-outline-rounded hover:font-semibold"
+                  href={atwEntry.data.music_link}
+                  target="_blank"
+                >
+                  "{atwEntry.data.music_song}"
+                </a>
+              </span>
+              <span class="text-content-3 ml-0.75"> — </span>
+              <span class="text-content-3">{atwEntry.data.music_artist}</span>
+            </>
+          ) : (
+            <span class="text-surface-4 font-semibold"> incomplete </span>
+          )
+        }
       </p>
     </div>
   </section>
-  
 
+  <div
+    class="mt-6 flex flex-col justify-center gap-6 md:max-w-4/5 md:flex-row md:gap-4 lg:max-w-2/3"
+  >
+    {/* BOOK CARD */}
+    {
+      (atwEntry.data.book_status === "DONE" || atwEntry.data.book_ideas) && (
+        <section class="bg-surface-1 flex basis-3/5 flex-col rounded-xl px-6 pt-4 pb-6">
+          <h2 class="mb-2"> book </h2>
 
-  <div class="flex flex-col mt-6 md:flex-row gap-6 md:gap-4 md:max-w-4/5 lg:max-w-2/3 justify-center">
-    { /* BOOK CARD */ }
-    {(atwEntry.data.book_status === "DONE" || atwEntry.data.book_ideas) && (
-      <section class="flex basis-3/5 flex-col bg-surface-1 pt-4 pb-6 px-6 rounded-xl">
-        <h2 class="mb-2"> book </h2>
+          {atwEntry.data.book_status === "DONE" && (
+            <>
+              <div class="flex flex-row items-center justify-center gap-4">
+                {/* cover */}
+                <div class="flex w-1/3 items-center md:w-1/4">
+                  <img
+                    src={atwEntry.data.book_cover}
+                    alt={`cover for ${atwEntry.data.book_title}`}
+                    class="h-auto w-full"
+                  />
+                </div>
 
-        {atwEntry.data.book_status === "DONE" && (
-          <>
-            <div class="flex flex-row gap-4 items-center justify-center">
-              {/* cover */}
-              <div class="flex items-center w-1/3 md:w-1/4">
-                <img
-                  src={atwEntry.data.book_cover}
-                  alt={`cover for ${atwEntry.data.book_title}`}
-                  class="h-auto w-full"
-                />
-              </div>
-
-              {/* text */}
-              <div class="flex flex-col text-center lowercase text-pretty">
-                <p class="italic text-lg font-semibold text-content-1">
-                  <a class="hover:text-content-2 hover:tracking-wide soft-transition focus-outline-rounded"
-                    href={atwEntry.data.book_url}
-                    aria-label="link for external book page"
-                    target="_blank">
-                    {atwEntry.data.book_title}
-                  </a>
-                </p>
-                {atwEntry.data.book_subtitle && (
-                  <p class="text-content-1"> {atwEntry.data.book_subtitle} </p>
-                )}
-                <p class="text-content-2"> {atwEntry.data.book_author} </p>
-                <p class="md:mt-2 md:mb-4"> 
-                  <span class="font-header text-base font-semibold text-content-4 tracking-wide"> date read: </span>
-                  <span class="font-mono text-content-3">{formatDate(atwEntry.data.book_date_read!)}</span>
-                </p>
-                <div class="flex flex-col gap-2">
-                  {atwEntry.data.book_tags!.map(t => (
-                    <span class="rounded-full bg-surface-2 hover:bg-surface-3 mx-auto px-2 py-1 font-base text-sm text-content-3 hover:text-content-2 soft-transition uppercase">
-                      {t}
+                {/* text */}
+                <div class="flex flex-col text-center text-pretty lowercase">
+                  <p class="text-content-1 text-lg font-semibold italic">
+                    <a
+                      class="hover:text-content-2 soft-transition focus-outline-rounded hover:tracking-wide"
+                      href={atwEntry.data.book_url}
+                      aria-label="link for external book page"
+                      target="_blank"
+                    >
+                      {atwEntry.data.book_title}
+                    </a>
+                  </p>
+                  {atwEntry.data.book_subtitle && (
+                    <p class="text-content-1">
+                      {" "}
+                      {atwEntry.data.book_subtitle}{" "}
+                    </p>
+                  )}
+                  <p class="text-content-2"> {atwEntry.data.book_author} </p>
+                  <p class="md:mt-2 md:mb-4">
+                    <span class="font-header text-content-4 text-base font-semibold tracking-wide">
+                      {" "}
+                      date read:{" "}
                     </span>
-                  ))}
+                    <span class="text-content-3 font-mono">
+                      {formatDate(atwEntry.data.book_date_read!)}
+                    </span>
+                  </p>
+                  <div class="flex flex-col gap-2">
+                    {atwEntry.data.book_tags!.map((t) => (
+                      <span class="bg-surface-2 hover:bg-surface-3 font-base text-content-3 hover:text-content-2 soft-transition mx-auto rounded-full px-2 py-1 text-sm uppercase">
+                        {t}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* link to internal notes page */}
-            {book_notes_url !== null && (
-              <div class="mt-4 inline-flex items-center gap-2 justify-center">
-                <span class="font-header text-base font-semibold text-content-4 tracking-wide">
-                  see more notes
-                </span>
-                <a
-                  href={book_notes_url}
-                  class="inline-flex items-center justify-center rounded-full focus-outline-rounded"
-                  aria-label={`more notes for ${atwEntry.data.book_title}`}
-                >
-                  <Icon name="mdi--more-circle-outline" class="w-7 h-7 text-content-3 hover:text-content-2 hover:scale-105 soft-transition" />
-                </a>
+              {/* link to internal notes page */}
+              {book_notes_url !== null && (
+                <div class="mt-4 inline-flex items-center justify-center gap-2">
+                  <span class="font-header text-content-4 text-base font-semibold tracking-wide">
+                    see more notes
+                  </span>
+                  <a
+                    href={book_notes_url}
+                    class="focus-outline-rounded inline-flex items-center justify-center rounded-full"
+                    aria-label={`more notes for ${atwEntry.data.book_title}`}
+                  >
+                    <Icon
+                      name="mdi--more-circle-outline"
+                      class="text-content-3 hover:text-content-2 soft-transition h-7 w-7 hover:scale-105"
+                    />
+                  </a>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* commentary */}
+          {atwEntry.data.book_commentary && (
+            <div class="mt-4 w-full md:mt-6">
+              <div class="text-content-1 font-base bg-surface-2 max-h-32 overflow-y-auto overscroll-auto rounded-lg p-4 text-sm font-light md:max-h-60">
+                {atwEntry.data.book_commentary}
               </div>
-            )}
-          </>
-        )}
-
-        {/* commentary */}
-        {atwEntry.data.book_commentary && (
-          <div class="w-full mt-4 md:mt-6">
-            <div class="text-content-1 font-base text-sm font-light p-4 rounded-lg bg-surface-2 overflow-y-auto overscroll-auto max-h-32 md:max-h-60">
-              {atwEntry.data.book_commentary}
             </div>
-          </div>
-        )}
+          )}
 
-        {/* book ideas */}
-        {atwEntry.data.book_ideas && (
-          <div class="w-full mt-4 md:mt-6 items-center text-pretty">
-            <p class="lowercase leading-tight text-center">
-              <span class="font-header text-base font-semibold text-content-4 tracking-wide">book idea(s): </span>
-              <span class="text-content-2"> {atwEntry.data.book_ideas} </span>
-            </p>
-          </div>
-        )}
-      </section>
-    )}
+          {/* book ideas */}
+          {atwEntry.data.book_ideas && (
+            <div class="mt-4 w-full items-center text-pretty md:mt-6">
+              <p class="text-center leading-tight lowercase">
+                <span class="font-header text-content-4 text-base font-semibold tracking-wide">
+                  book idea(s):{" "}
+                </span>
+                <span class="text-content-2"> {atwEntry.data.book_ideas} </span>
+              </p>
+            </div>
+          )}
+        </section>
+      )
+    }
 
-    { /* MUSIC CARD */ }
-    {atwEntry.data.music_status === "DONE" && (
-      <section class="flex basis-2/5 flex-col bg-surface-1 pt-4 pb-6 px-6 my-auto rounded-xl items-center">
-        <h2 class="mb-2">music</h2>
+    {/* MUSIC CARD */}
+    {
+      atwEntry.data.music_status === "DONE" && (
+        <section class="bg-surface-1 my-auto flex basis-2/5 flex-col items-center rounded-xl px-6 pt-4 pb-6">
+          <h2 class="mb-2">music</h2>
 
-        {spotify_embed_url !== null ? (
-          <iframe
-            data-testid="embed-iframe"
-            src={spotify_embed_url}
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-            loading="lazy"
-            class="h-40 w-full"
-          />
-        ) : (
-          <div class="flex flex-col text-center lowercase text-pretty">
-            <p class="italic text-lg font-semibold text-content-1">
-              <a
-                class="hover:text-content-2 hover:tracking-wide soft-transition focus-outline-rounded"
-                href={atwEntry.data.music_link}
-                aria-label="link for external book page"
-                target="_blank"
-              >
-                "{atwEntry.data.music_song}"
-              </a>
-            </p>
-            <p class="text-content-2">{atwEntry.data.music_artist}</p>
-          </div>
-        )}
+          {spotify_embed_url !== null ? (
+            <iframe
+              data-testid="embed-iframe"
+              src={spotify_embed_url}
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              loading="lazy"
+              class="h-40 w-full"
+            />
+          ) : (
+            <div class="flex flex-col text-center text-pretty lowercase">
+              <p class="text-content-1 text-lg font-semibold italic">
+                <a
+                  class="hover:text-content-2 soft-transition focus-outline-rounded hover:tracking-wide"
+                  href={atwEntry.data.music_link}
+                  aria-label="link for external book page"
+                  target="_blank"
+                >
+                  "{atwEntry.data.music_song}"
+                </a>
+              </p>
+              <p class="text-content-2">{atwEntry.data.music_artist}</p>
+            </div>
+          )}
 
-        <p class="mt-2">
-          <span class="font-header text-base font-semibold text-content-4 tracking-wide">date listened: </span>
-          <span class="font-mono text-content-3">
-            {formatDate(atwEntry.data.music_listened_date!)}
-          </span>
-        </p>
+          <p class="mt-2">
+            <span class="font-header text-content-4 text-base font-semibold tracking-wide">
+              date listened:{" "}
+            </span>
+            <span class="text-content-3 font-mono">
+              {formatDate(atwEntry.data.music_listened_date!)}
+            </span>
+          </p>
 
-        {/* music notes */}
-        {atwEntry.data.music_notes && (
-          <div class="w-full mt-4 md:mt-6 items-center text-pretty">
-            <p class="lowercase leading-tight text-center">
-              <span class="font-header text-base font-semibold text-content-4 tracking-wide">notes: </span>
-              <span class="text-content-2">{atwEntry.data.music_notes}</span>
-            </p>
-          </div>
-        )}
-      </section>
-    )}
+          {/* music notes */}
+          {atwEntry.data.music_notes && (
+            <div class="mt-4 w-full items-center text-pretty md:mt-6">
+              <p class="text-center leading-tight lowercase">
+                <span class="font-header text-content-4 text-base font-semibold tracking-wide">
+                  notes:{" "}
+                </span>
+                <span class="text-content-2">{atwEntry.data.music_notes}</span>
+              </p>
+            </div>
+          )}
+        </section>
+      )
+    }
   </div>
 
-  { /* ADDITIONAL CONTENT */ }
-  <article class="mx-auto py-10 items-center md:col-span-4 max-w-full md:max-w-3/5 lg:max-w-2/3">
-    <div class="markdown-content px-8 md:px-4" set:html={html}></div>
+  {/* ADDITIONAL CONTENT */}
+  <article
+    class="mx-auto max-w-full items-center py-10 md:col-span-4 md:max-w-3/5 lg:max-w-2/3"
+  >
+    <div class="markdown-content px-8 md:px-4" set:html={html} />
   </article>
-
 </BaseLayout>
-

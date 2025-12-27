@@ -1,0 +1,59 @@
+---
+import { socials } from "../data/socials";
+import { Icon } from "astro-icon/components";
+
+const navbarClasses =
+  "soft-transition hover:font-semibold hover:text-content-2 focus-outline-rounded";
+---
+
+<footer class="bg-surface-2 text-content-2 p-3 md:sticky md:bottom-0 md:z-50">
+  <div
+    class="mx-auto flex w-full max-w-6xl flex-col gap-2 md:grid md:grid-cols-3 md:items-center md:gap-6"
+  >
+    <!-- Left -->
+    <div
+      class="font-header text-content-3 flex items-center justify-center gap-3 text-base font-light tracking-wide md:justify-start"
+    >
+      <a href="/colophon" class={navbarClasses}>colophon</a>
+    </div>
+    <!-- Center -->
+    <div class="carbon-badge flex items-center justify-center gap-2">
+      <Icon name="mdi--foot-print" class="text-content-4 h-7 w-auto" />
+      <p id="carbon-value" class="text-content-2 font-mono text-lg">...</p>
+      <span
+        class="font-header text-content-3 text-sm font-light tracking-wide md:text-base"
+        >g CO₂e/view</span
+      >
+      <Icon
+        name="mdi--foot-print"
+        class="text-content-4 h-7 w-auto -scale-x-100"
+      />
+    </div>
+    <!-- Right -->
+    <div
+      class="font-header text-content-3 flex items-center justify-center gap-3 text-base font-light tracking-wide md:justify-end"
+    >
+      <a
+        href="https://github.com/mayasheth/mayasheth-v2"
+        target="_blank"
+        rel="noopener"
+        class={navbarClasses}>source</a
+      >
+    </div>
+  </div>
+
+  <script>
+    (async () => {
+      const route = window.location.pathname || "/";
+      const res = await fetch("/page-carbon.json");
+      const pageCarbon = await res.json();
+
+      // Ensure trailing slash for all lookup
+      const normalized = route.endsWith("/") ? route : route + "/";
+      const value = pageCarbon[normalized];
+      const label = Number.isFinite(value) ? value.toFixed(3) : "--";
+      const el = document.getElementById("carbon-value");
+      if (el) el.textContent = label;
+    })();
+  </script>
+</footer>

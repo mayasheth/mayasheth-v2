@@ -9,7 +9,9 @@ function getVarRaw(varName: string): string {
 }
 
 function getVarComputed(varName: string): string {
-  const expr = getVarRaw(varName) || (varName.startsWith("--") ? `var(${varName})` : varName);
+  const expr =
+    getVarRaw(varName) ||
+    (varName.startsWith("--") ? `var(${varName})` : varName);
   const probe = document.createElement("span");
   probe.style.color = expr;
   document.body.appendChild(probe);
@@ -26,7 +28,8 @@ function getOklchLiteral(varName: string): string | null {
 }
 
 function copy(text: string) {
-  if (navigator?.clipboard?.writeText) navigator.clipboard.writeText(text).catch(() => {});
+  if (navigator?.clipboard?.writeText)
+    navigator.clipboard.writeText(text).catch(() => {});
 }
 
 const normOKLCH = (s?: string | null) =>
@@ -53,16 +56,16 @@ function Swatch({
       }}
       disabled={disabled}
       className={[
-        "group relative h-8 w-8 sm:h-10 sm:w-10 rounded-md ring-1 ring-transparent hover:scale-110 focus-outline soft-transition",
-        isBgMatch ? "border-1 border-dotted border-content-0" : "",
-        disabled ? "opacity-60 cursor-not-allowed" : "",
+        "group focus-outline soft-transition relative h-8 w-8 rounded-md ring-1 ring-transparent hover:scale-110 sm:h-10 sm:w-10",
+        isBgMatch ? "border-content-0 border-1 border-dotted" : "",
+        disabled ? "cursor-not-allowed opacity-60" : "",
       ].join(" ")}
       style={{ background: `var(${token.varName})` }}
       aria-label={`copy ${token.varName} OKLCH to clipboard`}
       title={disabled ? "no OKLCH available" : "click to copy OKLCH"}
     >
       {/* tiny toast */}
-      <span className="pointer-events-none absolute -top-6 left-1/2 -translate-x-1/2 rounded bg-surface-2 px-1.5 py-0.5 text-sm font-base text-content-2 opacity-0 group-[.copied]:opacity-100 transition">
+      <span className="bg-surface-2 font-base text-content-2 pointer-events-none absolute -top-6 left-1/2 -translate-x-1/2 rounded px-1.5 py-0.5 text-sm opacity-0 transition group-[.copied]:opacity-100">
         copied
       </span>
     </button>
@@ -106,8 +109,15 @@ export function ColorSwatchesGrid({
   const Row = ({ row }: { row: ColorToken[] }) => (
     <div className="grid grid-cols-5 gap-2">
       {row.map((c) => (
-        <div key={c.varName} className={copiedKey === c.varName ? "group copied" : "group"}>
-          <Swatch token={c} isBgMatch={isBgMatch(c)} onCopied={() => onCopied(c.varName)} />
+        <div
+          key={c.varName}
+          className={copiedKey === c.varName ? "group copied" : "group"}
+        >
+          <Swatch
+            token={c}
+            isBgMatch={isBgMatch(c)}
+            onCopied={() => onCopied(c.varName)}
+          />
         </div>
       ))}
     </div>
@@ -124,13 +134,20 @@ export function ColorSwatchesGrid({
               row3.length === 1
                 ? "grid-cols-1"
                 : row3.length === 2
-                ? "grid-cols-2"
-                : "grid-cols-3"
+                  ? "grid-cols-2"
+                  : "grid-cols-3"
             }`}
           >
             {row3.map((c) => (
-              <div key={c.varName} className={copiedKey === c.varName ? "group copied" : "group"}>
-                <Swatch token={c} isBgMatch={isBgMatch(c)} onCopied={() => onCopied(c.varName)} />
+              <div
+                key={c.varName}
+                className={copiedKey === c.varName ? "group copied" : "group"}
+              >
+                <Swatch
+                  token={c}
+                  isBgMatch={isBgMatch(c)}
+                  onCopied={() => onCopied(c.varName)}
+                />
               </div>
             ))}
           </div>

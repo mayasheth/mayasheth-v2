@@ -1,12 +1,21 @@
 ---
 // src/components/SearchButton.astro
-import { Icon } from 'astro-icon/components';
+import { Icon } from "astro-icon/components";
 const { id = "search-trigger", size = "h-6 w-6", label } = Astro.props;
 ---
+
 <div class="group relative flex items-center">
-  <Icon name="mdi--magnify"
+  <Icon
+    name="mdi--magnify"
     id={id}
     class={`${size} text-content-3 hover:text-content-2 soft-transition group-has-[:focus]:text-content-2 group-has-[:focus]:scale-110 soft-transition`}
-    style="cursor:pointer;" />
-  {label && <span class="ml-2 font-header text-base font-semibold tracking-wide text-content-4">{label}</span>}
+    style="cursor:pointer;"
+  />
+  {
+    label && (
+      <span class="font-header text-content-4 ml-2 text-base font-semibold tracking-wide">
+        {label}
+      </span>
+    )
+  }
 </div>

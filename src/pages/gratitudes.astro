@@ -1,86 +1,106 @@
 ---
 import { Image } from "astro:assets";
-import type { ImageMetadata } from 'astro';
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
+import type { ImageMetadata } from "astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
 
 const titleShort = ":)";
 const titleFull = "thank you, world";
 
-const gratitudes = await getCollection('gratitudes');
+const gratitudes = await getCollection("gratitudes");
 
 // Sort newest relevant_date
 gratitudes.sort((a, b) =>
-  (new Date(b.data.relevant_date) > new Date(a.data.relevant_date) ? 1 : -1)
+  new Date(b.data.relevant_date) > new Date(a.data.relevant_date) ? 1 : -1,
 );
 
 function formatDate(date: Date): string {
   const newDate = new Date(date);
   const year = newDate.getFullYear();
-  const month = String(newDate.getMonth() + 1).padStart(2, '0');
-  const day = String(newDate.getDate()).padStart(2, '0');
+  const month = String(newDate.getMonth() + 1).padStart(2, "0");
+  const day = String(newDate.getDate()).padStart(2, "0");
   return `${year}/${month}/${day}`;
 }
 
 // Import images if present using Astro V4 dynamic asset import
-const imageImports = import.meta.glob<{ default: ImageMetadata }>("../content/300-collections/gratitudes/images/*");
+const imageImports = import.meta.glob<{ default: ImageMetadata }>(
+  "../content/300-collections/gratitudes/images/*",
+);
 
 const itemsWithImageImports = await Promise.all(
-  gratitudes.map(async item => {
+  gratitudes.map(async (item) => {
     let imgSrc = null;
     if (item.data.image) {
       // item.image: '../images/filename.png'
       // Remove '../images/' prefix – get IMAGE FILENAME
-      const imageFileName = item.data.image.replace(/^\.\.\/images\//, '');
+      const imageFileName = item.data.image.replace(/^\.\.\/images\//, "");
       // Build the glob key: it must match exactly as the key in imageImports
       const globKey = `../content/300-collections/gratitudes/images/${imageFileName}`;
       if (imageImports[globKey]) {
         imgSrc = (await imageImports[globKey]()).default;
       } else {
-        console.warn('Image not found via import.meta.glob mapping:', globKey);
+        console.warn("Image not found via import.meta.glob mapping:", globKey);
       }
     }
     return { ...item, imgSrc };
-  })
+  }),
 );
-
 ---
 
 <BaseLayout titleShort={titleShort} titleFull={titleFull}>
-  <p class="pb-6 text-content-1 text-center">(smile-inducing, gratitude-provoking, and otherwise noteworthy moments)</p>
+  <p class="text-content-1 pb-6 text-center">
+    (smile-inducing, gratitude-provoking, and otherwise noteworthy moments)
+  </p>
 
   <masonry-list
-      style="--masonry-item-width: 20rem; --masonry-list-column-gap: 1rem; --masonry-list-row-gap: 1rem; --masonry-item-max-span: 1;"
-      class="max-w-9/10 sm:max-w-3/4 mx-auto"
-    >
-    {itemsWithImageImports.map((item, index) => (
-      <masonry-item
-        id={item.id}
-        data-pagefind-body data-pagefind-title="${item.data.redacted_content}" data-pagefind-url="/gratitudes#${item.slug}"
-        class={`overflow-hidden rounded-xl ${item.imgSrc
-        ? 'w-full h-auto'
-        : 'flex flex-col justify-between bg-surface-2 hover:bg-surface-3 soft-transition'}`}
-      >
-        {item.imgSrc ? (
-          <div class="relative h-full group">
-            <Image src={item.imgSrc} alt={item.data.redacted_content} loading={index < 20 ? "eager" : "lazy"} class="object-cover w-full h-full" />
-            <div class="absolute inset-0 flex items-center justify-center bg-content-0 opacity-0 hover:opacity-80 soft-transition">
-              <p class="p-4 text-base font-semibold text-center text-content-4 opacity-0 group-hover:opacity-100 soft-transition lowercase text-ellipsis">{item.data.redacted_content}</p>
+    style="--masonry-item-width: 20rem; --masonry-list-column-gap: 1rem; --masonry-list-row-gap: 1rem; --masonry-item-max-span: 1;"
+    class="mx-auto max-w-9/10 sm:max-w-3/4"
+  >
+    {
+      itemsWithImageImports.map((item, index) => (
+        <masonry-item
+          id={item.id}
+          data-pagefind-body
+          data-pagefind-title="${item.data.redacted_content}"
+          data-pagefind-url="/gratitudes#${item.slug}"
+          class={`overflow-hidden rounded-xl ${
+            item.imgSrc
+              ? "h-auto w-full"
+              : "bg-surface-2 hover:bg-surface-3 soft-transition flex flex-col justify-between"
+          }`}
+        >
+          {item.imgSrc ? (
+            <div class="group relative h-full">
+              <Image
+                src={item.imgSrc}
+                alt={item.data.redacted_content}
+                loading={index < 20 ? "eager" : "lazy"}
+                class="h-full w-full object-cover"
+              />
+              <div class="bg-content-0 soft-transition absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-80">
+                <p class="text-content-4 soft-transition p-4 text-center text-base font-semibold text-ellipsis lowercase opacity-0 group-hover:opacity-100">
+                  {item.data.redacted_content}
+                </p>
+              </div>
+              <p class="text-content-1 absolute right-2 bottom-2 px-2 py-1 font-mono text-base font-semibold">
+                {formatDate(item.data.relevant_date)}
+              </p>
             </div>
-            <p class="absolute bottom-2 right-2 px-2 py-1 text-base font-mono font-semibold text-content-1">
-              {formatDate(item.data.relevant_date)}
-            </p>
-          </div>
-        ) : (
-          <div class="flex items-center justify-center flex-grow p-4">
-            <p class="text-base font-light text-center text-content-2 group-hover:text-content-0 soft-transition text-ellipsis lowercase">{item.data.redacted_content}</p>
-          </div>
-          <p class="px-2 py-2 text-base text-right font-mono font-semibold text-content-3">
-            {formatDate(item.data.relevant_date)}
-          </p>
-        )}
-      </masonry-item>
-    ))}
+          ) : (
+            <>
+              <div class="flex flex-grow items-center justify-center p-4">
+                <p class="text-content-2 group-hover:text-content-0 soft-transition text-center text-base font-light text-ellipsis lowercase">
+                  {item.data.redacted_content}
+                </p>
+              </div>
+              <p class="text-content-3 px-2 py-2 text-right font-mono text-base font-semibold">
+                {formatDate(item.data.relevant_date)}
+              </p>
+            </>
+          )}
+        </masonry-item>
+      ))
+    }
   </masonry-list>
 
   <script>
@@ -88,13 +108,18 @@ const itemsWithImageImports = await Promise.all(
     class MasonryList extends HTMLElement {
       #patched = false;
 
-      get patched() { return this.#patched; }
+      get patched() {
+        return this.#patched;
+      }
       connectedCallback() {
         const style = getComputedStyle(this);
         if (style.gridTemplateRows === "masonry") return;
         this.#patched = true;
         this.style.gridAutoRows = "0px";
-        this.style.setProperty("--masonry-list-row-gap", `${Math.round(parseFloat(style.rowGap))}`);
+        this.style.setProperty(
+          "--masonry-list-row-gap",
+          `${Math.round(parseFloat(style.rowGap))}`,
+        );
         this.style.setProperty("row-gap", "1px", "important");
       }
     }
@@ -116,7 +141,9 @@ const itemsWithImageImports = await Promise.all(
         this.#layout();
       }
       /* @ts-ignore */
-      disconnectedCallback() { this.#observer?.disconnect(); }
+      disconnectedCallback() {
+        this.#observer?.disconnect();
+      }
     }
 
     if (typeof window !== "undefined") {
@@ -126,27 +153,35 @@ const itemsWithImageImports = await Promise.all(
   </script>
 </BaseLayout>
 
-
 <style>
-/* Responsive columns for masonry-list */
-masonry-list {
-  display: grid;
-  column-gap: var(--masonry-list-column-gap, 1rem);
-  row-gap: var(--masonry-list-row-gap, 1rem);
-  grid-template-columns: repeat(auto-fit, minmax(min(30ch, var(--masonry-item-width, 15rem)), 1fr));
-  grid-auto-flow: dense;
-}
-@media (max-width: 40rem) {
-  masonry-list { grid-template-columns: repeat(2, 1fr); }
-}
-@media (min-width: 40rem) and (max-width: 64rem) {
-  masonry-list { grid-template-columns: repeat(3, 1fr); }
-}
-@media (min-width: 64rem) {
-  masonry-list { grid-template-columns: repeat(4, 1fr); }
-}
-masonry-item {
-  align-self: start;
-  grid-column-end: span var(--masonry-item-span, 1);
-}
+  /* Responsive columns for masonry-list */
+  masonry-list {
+    display: grid;
+    column-gap: var(--masonry-list-column-gap, 1rem);
+    row-gap: var(--masonry-list-row-gap, 1rem);
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(min(30ch, var(--masonry-item-width, 15rem)), 1fr)
+    );
+    grid-auto-flow: dense;
+  }
+  @media (max-width: 40rem) {
+    masonry-list {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 40rem) and (max-width: 64rem) {
+    masonry-list {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  @media (min-width: 64rem) {
+    masonry-list {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  masonry-item {
+    align-self: start;
+    grid-column-end: span var(--masonry-item-span, 1);
+  }
 </style>

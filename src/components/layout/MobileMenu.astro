@@ -1,0 +1,71 @@
+---
+// src/components/MobileMenu.astro
+import { Icon } from "astro-icon/components";
+export interface MenuItem {
+  label: string;
+  icon?: string;
+  children: { label: string; href: string }[];
+}
+
+type Props = {
+  navItems: MenuItem[];
+  mode: "icons" | "dropdown";
+  menuClasses?: string;
+};
+
+const { navItems, mode = "icons", menuClasses = "" } = Astro.props;
+const mobileClasses =
+  "block font-header text-base font-light text-content-3 soft-transition hover:font-semibold hover:text-content-2";
+---
+
+{
+  mode === "icons" && (
+    <div class="flex items-center gap-3 md:hidden">
+      <div class="group relative">
+        <Icon
+          name="mdi--magnify"
+          id="search-trigger-mobile"
+          class="text-content-3 hover:text-content-2 soft-transition h-6 w-6"
+          style="cursor:pointer;"
+        />
+      </div>
+      <button class="focus-outline-rounded" id="mobile-menu-toggle">
+        <Icon
+          name="mdi--menu"
+          class="text-content-3 soft-transition hover:text-content-2 h-6 w-6"
+          id="mobile-menu-icon"
+        />
+      </button>
+    </div>
+  )
+}
+
+{
+  mode === "dropdown" && (
+    <div
+      id="mobile-menu"
+      class={`bg-surface-2 max-h-0 translate-y-3 overflow-hidden opacity-0 transition-all duration-600 ease-in-out md:hidden ${menuClasses}`}
+    >
+      <nav class="border-content-4 w-full border-t py-4">
+        <ul class="grid grid-cols-3 gap-x-8 gap-y-4 text-center">
+          {navItems.map((item) => (
+            <li class="space-y-2">
+              <div class="font-header text-content-2 text-base font-semibold tracking-wide">
+                {item.label}
+              </div>
+              <ul class="space-y-1.5">
+                {item.children.map((child) => (
+                  <li>
+                    <a href={child.href} class={mobileClasses}>
+                      {child.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </div>
+  )
+}

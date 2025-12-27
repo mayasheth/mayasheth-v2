@@ -7,7 +7,7 @@ export const NAV_ITEMS = [
       { label: "gratitudes", href: "/gratitudes" },
       { label: "media", href: "/media" },
       { label: "quotes", href: "/quotes" },
-    ]
+    ],
   },
   {
     label: "portfolio",
@@ -16,7 +16,7 @@ export const NAV_ITEMS = [
       { label: "research", href: "/portfolio/research" },
       { label: "artwork", href: "/portfolio/artwork" },
       { label: "design", href: "/portfolio/design" },
-    ]
+    ],
   },
   {
     label: "etc.",
@@ -25,6 +25,6 @@ export const NAV_ITEMS = [
       { label: "musings", href: "/musings" },
       { label: "notebook", href: "/notebook" },
       { label: "worldly", href: "/media/around-the-world" },
-    ]
-  }
+    ],
+  },
 ];

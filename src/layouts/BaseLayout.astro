@@ -1,15 +1,20 @@
 ---
-import Navigation from '@/components/Navigation.astro';
-import Footer from '@/components/Footer.astro';
-import Analytics from '@vercel/analytics/astro';
-import '@/styles/index.css';
+import Navigation from "@/components/layout/Navigation.astro";
+import NavigationHome from "@/components/layout/NavigationHome.astro";
+import Footer from "@/components/layout/Footer.astro";
+import FooterMinimal from "@/components/layout/FooterMinimal.astro";
+import Analytics from "@vercel/analytics/astro";
+import "@/styles/index.css";
 
 export type Props = {
   titleShort: string;
   titleFull?: string;
-}
+  variant?: "default" | "home";
+};
 
-const { titleShort, titleFull }: Props = Astro.props;
+const { titleShort, titleFull, variant = "default" }: Props = Astro.props;
+
+const isHome = variant === "home";
 ---
 
 <html lang="en">
@@ -20,25 +25,31 @@ const { titleShort, titleFull }: Props = Astro.props;
     <meta name="generator" content={Astro.generator} />
 
     <!-- fetch Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300..600&family=Schibsted+Grotesk:ital,wght@0,375..600;1,375..600&family=Inconsolata:wght@300..600&display=swap&family=Playfair:ital,opsz,wght@0,5..1200,300..900;1,5..1200,300..900&display=swap"
       rel="stylesheet"
     />
 
-    <title> {titleShort} </title>
+    <title>{titleShort}</title>
     <Analytics />
   </head>
 
-  <body data-pagefind-body>
+  <body data-pagefind-body={!isHome || undefined}>
     <script type="module" src="/scripts/search-modal.js"></script>
     <script type="module" src="/scripts/mobile-menu.js"></script>
-    <Navigation />
-    <div class="flex min-h-dvh flex-col items-center bg-surface-0 pb-4">
+    {isHome ? <NavigationHome /> : <Navigation />}
+    <div
+      class:list={[
+        "bg-surface-0 flex min-h-dvh flex-col items-center pb-4",
+        { "md:ml-54 lg:ml-68": isHome },
+      ]}
+    >
       {titleFull && <h1 class="pt-6"> {titleFull} </h1>}
-      <slot /> {/* page-specific content goes */}
+      <slot />
+      {/* page-specific content goes */}
     </div>
-    <Footer />
+    {isHome ? <FooterMinimal /> : <Footer />}
   </body>
 </html>

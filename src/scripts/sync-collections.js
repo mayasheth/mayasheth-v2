@@ -7,19 +7,19 @@
 //
 // Run via:  git submodule update --init --remote && npm run sync
 
-import { readdir, readFile, writeFile, mkdir, stat, cp, rm } from 'fs/promises';
-import { existsSync, readFileSync } from 'fs';
-import { join, dirname, relative, resolve, extname, basename } from 'path';
-import { fileURLToPath } from 'url';
-import matter from 'gray-matter';
+import { readdir, readFile, writeFile, mkdir, stat, cp, rm } from "fs/promises";
+import { existsSync, readFileSync } from "fs";
+import { join, dirname, relative, resolve, extname, basename } from "path";
+import { fileURLToPath } from "url";
+import matter from "gray-matter";
 
-const __dirname   = dirname(fileURLToPath(import.meta.url));
-const VAULT_ROOT  = join(__dirname, '../vault-content');
-const SRC_FROM    = join(VAULT_ROOT, '300-collections');
-const CONTENT_DST = join(__dirname, '../content/300-collections');
-const DATA_DST    = join(__dirname, '../data');
-const PUBLIC_DST  = join(__dirname, '../../public/collections/300-collections');
-const CACHE_FILE  = join(__dirname, '../.sync-cache.json');
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const VAULT_ROOT = join(__dirname, "../vault-content");
+const SRC_FROM = join(VAULT_ROOT, "300-collections");
+const CONTENT_DST = join(__dirname, "../content/300-collections");
+const DATA_DST = join(__dirname, "../data");
+const PUBLIC_DST = join(__dirname, "../../public/collections/300-collections");
+const CACHE_FILE = join(__dirname, "../.sync-cache.json");
 
 // const VAULT_ROOT  = join(__dirname, '../src/vault-content');                 // submodule root
 // const SRC_FROM    = join(VAULT_ROOT, '300-collections');                      // source collections
@@ -29,21 +29,30 @@ const CACHE_FILE  = join(__dirname, '../.sync-cache.json');
 // const CACHE_FILE  = join(__dirname, '../.sync-cache.json');
 
 // These use Astro <Image /> (images in src/content for import)
-const CONTENT_IMAGE_COLLECTIONS = ['gratitudes', 'portfolio']; // <-- edit as needed
+const CONTENT_IMAGE_COLLECTIONS = ["gratitudes", "portfolio"]; // <-- edit as needed
 
 // Collections to aggregate (JSON only)
-const AGGREGATE_COLLECTIONS = ['gratitudes', 'quotes'];
+const AGGREGATE_COLLECTIONS = ["gratitudes", "quotes"];
 
 // Frontmatter fields that may contain paths to images
-const LINKISH_FIELDS = ['image', 'images', 'banner', 'cover', 'thumbnail', 'hero', 'gallery'];
+const LINKISH_FIELDS = [
+  "image",
+  "images",
+  "banner",
+  "cover",
+  "thumbnail",
+  "hero",
+  "gallery",
+];
 
-const isHidden = (n) => n.startsWith('.');
-const isMd     = (p) => /\.md$/i.test(p);
-const isImg    = (p) => /\.(png|jpe?g|gif|webp|svg|avif|heic)$/i.test(p);
-const isHttp   = (s) => /^https?:\/\//i.test(s);
-const isAbs    = (s) => s.startsWith('/');
+const isHidden = (n) => n.startsWith(".");
+const isMd = (p) => /\.md$/i.test(p);
+const isImg = (p) => /\.(png|jpe?g|gif|webp|svg|avif|heic)$/i.test(p);
+const isHttp = (s) => /^https?:\/\//i.test(s);
+const isAbs = (s) => s.startsWith("/");
 
-const loadCache = () => (existsSync(CACHE_FILE) ? JSON.parse(readFileSync(CACHE_FILE, 'utf8')) : {});
+const loadCache = () =>
+  existsSync(CACHE_FILE) ? JSON.parse(readFileSync(CACHE_FILE, "utf8")) : {};
 const saveCache = (c) => writeFile(CACHE_FILE, JSON.stringify(c, null, 2));
 
 async function walk(dir, base, out = []) {
@@ -59,19 +68,24 @@ async function walk(dir, base, out = []) {
   return out;
 }
 
-async function ensureDir(p) { await mkdir(dirname(p), { recursive: true }); }
+async function ensureDir(p) {
+  await mkdir(dirname(p), { recursive: true });
+}
 
 // Copy images for Astro content (<Image />) collections
 async function copyToContent(absSrc, collectionName) {
-  const relWithinCollection = relative(join(SRC_FROM, collectionName), absSrc).replace(/\\/g, '/');
+  const relWithinCollection = relative(
+    join(SRC_FROM, collectionName),
+    absSrc,
+  ).replace(/\\/g, "/");
   const dstAbs = join(CONTENT_DST, collectionName, relWithinCollection);
   await ensureDir(dstAbs);
   await cp(absSrc, dstAbs, { force: true });
-  return `../${relWithinCollection}`;  // Update returned path accordingly
+  return `../${relWithinCollection}`; // Update returned path accordingly
 }
 
 async function copyCollectionImagesContent(collection) {
-  const srcDir = join(SRC_FROM, collection, 'images');
+  const srcDir = join(SRC_FROM, collection, "images");
   if (!existsSync(srcDir)) return 0;
   const files = await walk(srcDir, srcDir);
   let copied = 0;
@@ -85,7 +99,10 @@ async function copyCollectionImagesContent(collection) {
 
 // ---- public helpers (aggregated images) ----
 async function copyToPublic(absSrc, collectionName) {
-  const relWithinCollection = relative(join(SRC_FROM, collectionName), absSrc).replace(/\\/g, '/');
+  const relWithinCollection = relative(
+    join(SRC_FROM, collectionName),
+    absSrc,
+  ).replace(/\\/g, "/");
   const dstAbs = join(PUBLIC_DST, collectionName, relWithinCollection);
   await ensureDir(dstAbs);
   await cp(absSrc, dstAbs, { force: true });
@@ -107,11 +124,11 @@ async function copyCollectionImagesPublic(collection) {
 // Rewrite frontmatter fields that may contain relative image paths (aggregated only)
 async function rewriteFmValue(fromFileAbs, value, collectionName, target) {
   const transform = async (v) => {
-    if (typeof v !== 'string') return v;
+    if (typeof v !== "string") return v;
     if (isHttp(v) || isAbs(v)) return v;
     const abs = resolve(dirname(fromFileAbs), v);
     if (!abs.startsWith(SRC_FROM) || !isImg(abs)) return v;
-    if (target === 'content') {
+    if (target === "content") {
       // Rewrite to relative path expected by Astro import (relative to the .astro file)
       return await copyToContent(abs, collectionName);
     } else {
@@ -130,31 +147,37 @@ async function rewriteFmValue(fromFileAbs, value, collectionName, target) {
 
 // ---------- aggregation path (gratitudes/quotes) ----------
 async function aggregateCollection(collection) {
-  const srcDir  = join(SRC_FROM, collection);
+  const srcDir = join(SRC_FROM, collection);
   const jsonOut = join(DATA_DST, `${collection}.json`);
 
-  const target = CONTENT_IMAGE_COLLECTIONS.includes(collection) ? 'content' : 'public';
+  const target = CONTENT_IMAGE_COLLECTIONS.includes(collection)
+    ? "content"
+    : "public";
 
   // Gather ALL md files every run to avoid empty JSON on "no changes"
   const files = (await walk(srcDir, srcDir)).filter(({ abs }) => isMd(abs));
 
   if (files.length === 0) {
     await ensureDir(jsonOut);
-    await writeFile(jsonOut, '[]\n', 'utf8');
-    console.log(`📦 aggregated ${collection}: 0 items (no .md files found) → ${jsonOut}`);
+    await writeFile(jsonOut, "[]\n", "utf8");
+    console.log(
+      `📦 aggregated ${collection}: 0 items (no .md files found) → ${jsonOut}`,
+    );
     return;
   }
 
   const items = [];
   for (const { abs, rel } of files) {
-    const raw = await readFile(abs, 'utf8');
-    const fm  = matter(raw);
+    const raw = await readFile(abs, "utf8");
+    const fm = matter(raw);
 
     const data = { ...fm.data };
 
     if (data.publish === false) continue;
     const name = basename(rel, extname(rel));
-    const slug = /^(index|readme)$/i.test(name) ? basename(dirname(rel)) || name : name;
+    const slug = /^(index|readme)$/i.test(name)
+      ? basename(dirname(rel)) || name
+      : name;
 
     for (const k of LINKISH_FIELDS) {
       if (data[k] !== undefined) {
@@ -165,26 +188,31 @@ async function aggregateCollection(collection) {
       id: slug,
       slug,
       collection,
-      ...data
+      ...data,
     });
   }
 
   // Copy ALL images for the aggregated collection to src/content OR public
   let imgCount;
-  if (target === 'content') {
+  if (target === "content") {
     imgCount = await copyCollectionImagesContent(collection);
   } else {
     imgCount = await copyCollectionImagesPublic(collection);
   }
 
-  items.sort((a, b) =>
-    String(b.created ?? '').localeCompare(String(a.created ?? '')) ||
-    String(b.last_modified ?? '').localeCompare(String(a.last_modified ?? ''))
+  items.sort(
+    (a, b) =>
+      String(b.created ?? "").localeCompare(String(a.created ?? "")) ||
+      String(b.last_modified ?? "").localeCompare(
+        String(a.last_modified ?? ""),
+      ),
   );
 
   await ensureDir(jsonOut);
-  await writeFile(jsonOut, JSON.stringify(items, null, 2) + '\n', 'utf8');
-  console.log(`📦 aggregated ${collection}: ${items.length} items → ${jsonOut} (images copied: ${imgCount})`);
+  await writeFile(jsonOut, JSON.stringify(items, null, 2) + "\n", "utf8");
+  console.log(
+    `📦 aggregated ${collection}: ${items.length} items → ${jsonOut} (images copied: ${imgCount})`,
+  );
 }
 
 // ---------- mirror path (all other collections) ----------
@@ -194,18 +222,18 @@ async function mirrorCollection(collection) {
 
   await mkdir(dstDir, { recursive: true });
 
-  const cache    = loadCache();
+  const cache = loadCache();
   const srcFiles = await walk(srcDir, srcDir);
   const dstFiles = existsSync(dstDir) ? await walk(dstDir, dstDir) : [];
 
-  const srcSet = new Set(srcFiles.map(f => f.rel));
+  const srcSet = new Set(srcFiles.map((f) => f.rel));
 
   // copy/update
   let copied = 0;
   for (const { abs, rel } of srcFiles) {
-    const s     = await stat(abs);
-    const key   = `mir:${collection}/${rel}`;
-    const dstAbs= join(dstDir, rel);
+    const s = await stat(abs);
+    const key = `mir:${collection}/${rel}`;
+    const dstAbs = join(dstDir, rel);
 
     if (cache[key] === s.mtimeMs && existsSync(dstAbs)) continue;
 
@@ -236,17 +264,17 @@ async function mirrorCollection(collection) {
 
 async function main() {
   if (!existsSync(SRC_FROM)) {
-    console.log('ℹ️  No 300-collections present; skipping.');
+    console.log("ℹ️  No 300-collections present; skipping.");
     return;
   }
-  await mkdir(DATA_DST,    { recursive: true });
-  await mkdir(PUBLIC_DST,  { recursive: true });
+  await mkdir(DATA_DST, { recursive: true });
+  await mkdir(PUBLIC_DST, { recursive: true });
   await mkdir(CONTENT_DST, { recursive: true });
 
   // discover top-level collections
   const tops = (await readdir(SRC_FROM, { withFileTypes: true }))
-    .filter(d => d.isDirectory() && !isHidden(d.name))
-    .map(d => d.name);
+    .filter((d) => d.isDirectory() && !isHidden(d.name))
+    .map((d) => d.name);
 
   for (const coll of tops) {
     if (AGGREGATE_COLLECTIONS.includes(coll)) {
@@ -257,4 +285,7 @@ async function main() {
   }
 }
 
-main().catch((e) => { console.error(e); process.exit(1); });
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

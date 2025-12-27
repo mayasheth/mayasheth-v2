@@ -1,28 +1,38 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import { getCollection, type CollectionEntry } from 'astro:content';
-import MediaInfoGallery from "@/components/MediaInfoGallery.astro"
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getCollection, type CollectionEntry } from "astro:content";
+import MediaInfoGallery from "@/components/content/MediaInfoGallery.astro";
 
 const titleShort = "media";
 const titleFull = "media";
 
-const ratings = ['not-good', 'okay', 'good', 'fantastic', 'all-time-influential'];
+const ratings = [
+  "not-good",
+  "okay",
+  "good",
+  "fantastic",
+  "all-time-influential",
+];
 const ratingValue = (rating: string): number => ratings.indexOf(rating);
 
-// load media collection and sort by rating and then date 
-const media = (await getCollection('media')).sort((a, b) => {
+// load media collection and sort by rating and then date
+const media = (await getCollection("media")).sort((a, b) => {
   const ratingDiff = ratingValue(b.data.rating) - ratingValue(a.data.rating);
-  if (ratingDiff !== 0) { return ratingDiff; }
+  if (ratingDiff !== 0) {
+    return ratingDiff;
+  }
   // If same rating, sort by relevant_date descending
-  return (new Date(b.data.relevant_date) > new Date(a.data.relevant_date) ? 1 : -1)
+  return new Date(b.data.relevant_date) > new Date(a.data.relevant_date)
+    ? 1
+    : -1;
 });
 
-const groupedMedia: Record<string, CollectionEntry<'media'>[]> = ratings.reduce(
-  (acc: Record<string, CollectionEntry<'media'>[]>, rating: string) => {
+const groupedMedia: Record<string, CollectionEntry<"media">[]> = ratings.reduce(
+  (acc: Record<string, CollectionEntry<"media">[]>, rating: string) => {
     acc[rating] = [];
     return acc;
   },
-  {}
+  {},
 );
 
 for (const entry of media) {
@@ -34,30 +44,41 @@ for (const entry of media) {
 
 const ratingHeadings: Record<string, string> = {
   "all-time-influential": "all-time influential",
-  "fantastic": "fantastic",
-  "good": "good",
-  "okay": "okay",
+  fantastic: "fantastic",
+  good: "good",
+  okay: "okay",
   "not-good": "not so good",
 };
 ---
 
-<BaseLayout titleShort={titleShort} titleFull={titleFull}>  
-  <span class="flex flex-col text-center pb-6"> 
+<BaseLayout titleShort={titleShort} titleFull={titleFull}>
+  <span class="flex flex-col pb-6 text-center">
     <p class="text-content-1">(books, podcasts, articles, & the rest)</p>
-    <a class="font-base text-base text-content-2 hover:text-content-3 font-semibold soft-transition focus-outline-rounded" href="https://www.goodreads.com/user/show/31600461-maya-sheth" target="_blank"> goodreads </a>
-  </span>  
-  
+    <a
+      class="font-base text-content-2 hover:text-content-3 soft-transition focus-outline-rounded text-base font-semibold"
+      href="https://www.goodreads.com/user/show/31600461-maya-sheth"
+      target="_blank"
+    >
+      goodreads
+    </a>
+  </span>
 
-  {ratings.slice().reverse().map(rating => (
-    groupedMedia[rating].length > 0 && (
-      <section class="mb-6" id={rating}>
-        <h2 class="mb-2">{ratingHeadings[rating]}</h2>
-        <div class="grid max-w-9/10 mx-auto grid-cols-2 gap-2 md:gap-4 lg:max-w-4/5 md:grid-cols-3 xl:grid-cols-4">
-          {groupedMedia[rating].map(media => (
-            <MediaInfoGallery mediaEntry={media} />
-          ))}
-        </div>
-      </section>
-    )
-  ))}
+  {
+    ratings
+      .slice()
+      .reverse()
+      .map(
+        (rating) =>
+          groupedMedia[rating].length > 0 && (
+            <section class="mb-6" id={rating}>
+              <h2 class="mb-2">{ratingHeadings[rating]}</h2>
+              <div class="mx-auto grid max-w-9/10 grid-cols-2 gap-2 md:grid-cols-3 md:gap-4 lg:max-w-4/5 xl:grid-cols-4">
+                {groupedMedia[rating].map((media) => (
+                  <MediaInfoGallery mediaEntry={media} />
+                ))}
+              </div>
+            </section>
+          ),
+      )
+  }
 </BaseLayout>

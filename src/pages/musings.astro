@@ -1,24 +1,24 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import { getCollection, type CollectionEntry } from 'astro:content';
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getCollection, type CollectionEntry } from "astro:content";
 
 const titleShort = "musings";
 const titleFull = "musings";
 
-// load collection and sort by date 
-const notebook = (await getCollection('notebook')).sort((a, b) => {
-  return (new Date(b.data.created) > new Date(a.data.created) ? 1 : -1)
+// load collection and sort by date
+const notebook = (await getCollection("notebook")).sort((a, b) => {
+  return new Date(b.data.created) > new Date(a.data.created) ? 1 : -1;
 });
 
 // filter to musings
-const notebookFiltered = notebook.filter(item => 
-  ('musings_edition' in item.data)
+const notebookFiltered = notebook.filter(
+  (item) => "musings_edition" in item.data,
 );
 
 // format and organize tags:
 function removePrefix(tag: string, prefix: string): string {
-  if (!tag) return '';
-  if (tag.startsWith(prefix + '/')) {
+  if (!tag) return "";
+  if (tag.startsWith(prefix + "/")) {
     return tag.substring(prefix.length + 1);
   }
   return tag;
@@ -26,7 +26,7 @@ function removePrefix(tag: string, prefix: string): string {
 
 const tagsToRemove: string[] = []; // Add tags to remove if needed
 
-const notebookProcessed = notebookFiltered.map(item => {
+const notebookProcessed = notebookFiltered.map((item) => {
   const tags: string[] = item.data.tags ?? [];
   const typeTags: string[] = [];
   const contentTags: string[] = [];
@@ -35,14 +35,14 @@ const notebookProcessed = notebookFiltered.map(item => {
     // skip tags to remove
     if (tagsToRemove.includes(tag)) continue;
 
-    if (tag.startsWith('journal/')) {
-      typeTags.push(removePrefix(tag, 'journal'));
-    } else if (tag.startsWith('media/')) {
-      typeTags.push(removePrefix(tag, 'media'));
-    } else if (tag.startsWith('value/')) {
-      contentTags.push(removePrefix(tag, 'value'));
-    } else if (tag.startsWith('concept/')) {
-      contentTags.push(removePrefix(tag, 'concept'));
+    if (tag.startsWith("journal/")) {
+      typeTags.push(removePrefix(tag, "journal"));
+    } else if (tag.startsWith("media/")) {
+      typeTags.push(removePrefix(tag, "media"));
+    } else if (tag.startsWith("value/")) {
+      contentTags.push(removePrefix(tag, "value"));
+    } else if (tag.startsWith("concept/")) {
+      contentTags.push(removePrefix(tag, "concept"));
     }
   }
 
@@ -52,47 +52,54 @@ const notebookProcessed = notebookFiltered.map(item => {
       ...item.data,
       typeTags,
       contentTags,
-    }
+    },
   };
 });
 
 function formatDate(date: Date): string {
   const newDate = new Date(date);
   const year = newDate.getFullYear();
-  const month = String(newDate.getMonth() + 1).padStart(2, '0');
-  const day = String(newDate.getDate()).padStart(2, '0');
+  const month = String(newDate.getMonth() + 1).padStart(2, "0");
+  const day = String(newDate.getDate()).padStart(2, "0");
   return `${year}/${month}/${day}`;
 }
-
 ---
 
 <BaseLayout titleShort={titleShort} titleFull={titleFull}>
-  <p class="pb-0 text-content-1 text-center"> (musings, updates, and other such words on what i've been reading / listening to lately) </p>
-  <p class="pb-6 text-content-2 text-center">
-    sign up 
-      <a
-        class="font-semibold text-content-3 hover:text-content-4 hover:scale-103 soft-transition focus-outline-rounded"
-        href="https://airtable.com/appGBfUyNL8QylEWG/shrbJMCacQzWPrCLY"
-        target="_blank">
-        here
-      </a>
-      to receive sporadic musings in your inbox
+  <p class="text-content-1 pb-0 text-center">
+    (musings, updates, and other such words on what i've been reading /
+    listening to lately)
+  </p>
+  <p class="text-content-2 pb-6 text-center">
+    sign up
+    <a
+      class="text-content-3 hover:text-content-4 soft-transition focus-outline-rounded font-semibold hover:scale-103"
+      href="https://airtable.com/appGBfUyNL8QylEWG/shrbJMCacQzWPrCLY"
+      target="_blank"
+    >
+      here
+    </a>
+    to receive sporadic musings in your inbox
   </p>
 
-  
-  {notebookFiltered.map(item => (
-    <span class="inline-flex align-baseline">
-      <p class="text-content-2 pr-2 font-semibold">#{item.data.musings_edition}</p>
-      <a
-        href={`/notebook/${item.id}`}
-        rel="noopener"
-        class="w-50 md:w-90 truncate items-center justify-center font-base font-light lowercase text-content-3 hover:text-content-2 hover:font-semibold soft-transition focus-outline-rounded"
-        aria-label={`source for ${item.data.title}`}
-      >
-        {item.data.title}
-      </a>
-      <p class="font-mono text-sm my-auto text-content-4 pl-4 font-semibold">{formatDate(item.data.created)}</p>
-    </span>
-  ))}
-
+  {
+    notebookFiltered.map((item) => (
+      <span class="inline-flex align-baseline">
+        <p class="text-content-2 pr-2 font-semibold">
+          #{item.data.musings_edition}
+        </p>
+        <a
+          href={`/notebook/${item.id}`}
+          rel="noopener"
+          class="font-base text-content-3 hover:text-content-2 soft-transition focus-outline-rounded w-50 items-center justify-center truncate font-light lowercase hover:font-semibold md:w-90"
+          aria-label={`source for ${item.data.title}`}
+        >
+          {item.data.title}
+        </a>
+        <p class="text-content-4 my-auto pl-4 font-mono text-sm font-semibold">
+          {formatDate(item.data.created)}
+        </p>
+      </span>
+    ))
+  }
 </BaseLayout>

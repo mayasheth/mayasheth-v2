@@ -1,6 +1,6 @@
 // media-info-helpers.ts
 
-import type { CollectionEntry } from 'astro:content';
+import type { CollectionEntry } from "astro:content";
 
 // Is image URL?
 export function isImage(url?: string): boolean {
@@ -10,16 +10,16 @@ export function isImage(url?: string): boolean {
 
 // Format tag: removes 'media/'
 export function formatTag(tag: string): string {
-  if (!tag) return '';
-  return tag.replace('media/', '');
+  if (!tag) return "";
+  return tag.replace("media/", "");
 }
 
 // Get formatted date: yyyy/mm/dd
 export function formatDate(date: Date): string {
   const newDate = new Date(date);
   const year = newDate.getFullYear();
-  const month = String(newDate.getMonth() + 1).padStart(2, '0');
-  const day = String(newDate.getDate()).padStart(2, '0');
+  const month = String(newDate.getMonth() + 1).padStart(2, "0");
+  const day = String(newDate.getDate()).padStart(2, "0");
   return `${year}/${month}/${day}`;
 }
 

@@ -1,0 +1,164 @@
+---
+// MediaInfoPage.astro
+
+import type { CollectionEntry } from "astro:content";
+import { Icon } from "astro-icon/components";
+import {
+  isImage,
+  formatTag,
+  formatDate,
+  getFormatIcon,
+} from "@/lib/helpers/media-info-helpers";
+
+export interface Props {
+  mediaEntry: CollectionEntry<"media">;
+}
+
+const { mediaEntry } = Astro.props;
+
+// Tags logic
+const tagsToRemove: string[] = ["type/notes"];
+const conceptTags: string[] = [];
+const otherTags: string[] = [...(mediaEntry.data.tags ?? [])]
+  .map(formatTag)
+  .filter((tag) => {
+    if (tag.startsWith("concept/")) {
+      conceptTags.push(tag.replace("concept/", ""));
+      return false;
+    }
+    return !tagsToRemove.includes(tag);
+  });
+otherTags.push(mediaEntry.data.format);
+
+const format = Array.isArray(mediaEntry.data.format)
+  ? mediaEntry.data.format[0]
+  : mediaEntry.data.format;
+const formatIcon = getFormatIcon(format);
+---
+
+<div class="flex items-center justify-center py-8">
+  <div
+    class="media-info bg-surface-1 mx-auto flex w-full max-w-3xl flex-col items-stretch gap-4 rounded-xl px-4 py-8 md:gap-8 lg:flex-row"
+  >
+    <!-- Image -->
+    <div class="flex items-center justify-center">
+      {
+        mediaEntry.data.link_to_source ? (
+          isImage(mediaEntry.data.link_to_source) ? (
+            <img
+              src={mediaEntry.data.link_to_source}
+              alt={`cover for ${mediaEntry.data.title}`}
+              class="my-auto max-h-48 w-auto md:max-h-64 lg:max-h-100"
+            />
+          ) : (
+            <div class="flex flex-wrap justify-center">
+              <a
+                href={mediaEntry.data.link_to_source}
+                target="_blank"
+                rel="noopener"
+                class="focus-outline-rounded inline-flex items-center justify-center rounded-full"
+                aria-label={`source for ${mediaEntry.data.title}`}
+              >
+                <Icon
+                  name={formatIcon}
+                  class="text-content-3 hover:text-content-2 soft-transition h-16 w-auto hover:scale-105 lg:h-auto lg:w-16"
+                />
+              </a>
+            </div>
+          )
+        ) : (
+          <span class="inline-flex items-center justify-center rounded-full">
+            <Icon
+              name={formatIcon}
+              class="text-surface-4 h-16 w-auto lg:h-auto lg:w-16"
+            />
+          </span>
+        )
+      }
+    </div>
+
+    <!-- Info box -->
+    <section class="flex w-full flex-col justify-center">
+      <div class="flex flex-col justify-center">
+        {
+          mediaEntry.data.year_published ? (
+            <p class="font-heading text-content-1 text-center text-lg font-semibold tracking-wide">
+              <span class="italic">{mediaEntry.data.title}</span> (
+              {mediaEntry.data.year_published})
+            </p>
+          ) : (
+            <p class="font-heading text-content-1 text-center text-lg font-semibold tracking-wide italic">
+              {mediaEntry.data.title}
+            </p>
+          )
+        }
+        {
+          mediaEntry.data.subtitle && (
+            <p class="font-heading text-content-2 text-center text-base font-semibold italic">
+              {mediaEntry.data.subtitle}
+            </p>
+          )
+        }
+        <p class="font-base text-content-3 text-center text-base font-semibold">
+          {mediaEntry.data.author}
+        </p>
+      </div>
+
+      <!-- Tags -->
+      <div
+        class="align-center mx-6 mt-4 flex flex-row flex-wrap justify-center gap-2 text-center md:flex-col md:items-center md:gap-3"
+      >
+        <div>
+          <span class="font-header text-content-4 py-1 text-sm font-semibold">
+            rating</span
+          >
+          <span
+            class="bg-surface-2 hover:bg-surface-3 font-base text-content-3 hover:text-content-2 soft-transition mx-1 rounded-full px-2 py-1 text-sm uppercase"
+          >
+            {mediaEntry.data.rating}
+          </span>
+        </div>
+        <div>
+          <span class="font-header text-content-4 py-1 text-sm font-semibold"
+            >type</span
+          >
+          {
+            otherTags.map((t) => (
+              <span class="bg-surface-2 hover:bg-surface-3 font-base text-content-3 hover:text-content-2 soft-transition mx-1 rounded-full px-2 py-1 text-sm uppercase">
+                {t}
+              </span>
+            ))
+          }
+        </div>
+        {
+          conceptTags.length > 0 && (
+            <div>
+              <span class="font-header text-content-4 py-1 text-sm font-semibold">
+                concepts
+              </span>
+              {conceptTags.map((t) => (
+                <span class="bg-surface-2 hover:bg-surface-3 font-base text-content-3 hover:text-content-2 soft-transition mx-1 rounded-full px-2 py-1 text-sm uppercase">
+                  {t}
+                </span>
+              ))}
+            </div>
+          )
+        }
+      </div>
+
+      <!-- Commentary -->
+      <div class="w-full">
+        {
+          mediaEntry.data.commentary && (
+            <div class="text-content-1 font-base bg-surface-2 mt-4 max-h-32 overflow-y-auto overscroll-auto rounded-lg p-4 text-sm font-light md:max-h-60">
+              <span class="text-content-3 pr-2 font-mono font-semibold">
+                {formatDate(mediaEntry.data.relevant_date)}
+              </span>
+              {mediaEntry.data.commentary}
+            </div>
+          )
+        }
+      </div>
+    </section>
+  </div>
+</div>

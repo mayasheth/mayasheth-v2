@@ -1,0 +1,105 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { Icon } from "astro-icon/components";
+
+export interface Props {
+  notebookEntry: CollectionEntry<"notebook">;
+}
+
+const { notebookEntry } = Astro.props;
+
+// format and organize tags:
+function removePrefix(tag: string, prefix: string): string {
+  if (!tag) return "";
+  if (tag.startsWith(prefix + "/")) {
+    return tag.substring(prefix.length + 1);
+  }
+  return tag;
+}
+
+const tagsToRemove: string[] = []; // Add tags to remove if needed
+const typeTags: string[] = [];
+const contentTags: string[] = [];
+
+[...notebookEntry.data.tags].forEach((tag) => {
+  if (tag.startsWith("journal/")) {
+    typeTags.push(removePrefix(tag, "journal"));
+  } else if (tag.startsWith("media/")) {
+    typeTags.push(removePrefix(tag, "media"));
+  } else if (tag.startsWith("value/")) {
+    contentTags.push(removePrefix(tag, "value"));
+  } else if (tag.startsWith("concept/")) {
+    contentTags.push(removePrefix(tag, "concept"));
+  }
+});
+
+function formatDate(date: Date): string {
+  const newDate = new Date(date);
+  const year = newDate.getFullYear();
+  const month = String(newDate.getMonth() + 1).padStart(2, "0");
+  const day = String(newDate.getDate()).padStart(2, "0");
+  return `${year}/${month}/${day}`;
+}
+---
+
+<section
+  class={`notebook-info rounded-xl bg-surface-1 px-6 py-4 mx-auto min-w-xs
+            flex flex-col items-stretch max-w-9/10 md:max-w-2/3`}
+>
+  <span
+    class="font-header text-content-1 text-center text-xl font-semibold tracking-wide lowercase"
+  >
+    {notebookEntry.data.title}
+  </span>
+
+  {
+    typeof notebookEntry.data.musings_edition === "number" && (
+      <span class="font-header text-content-2 text-center text-lg font-semibold lowercase">
+        Maya's Musing #{notebookEntry.data.musings_edition}
+      </span>
+    )
+  }
+
+  {
+    typeTags.length > 0 && (
+      <div class="mt-4 flex flex-wrap items-center justify-center gap-y-2 text-center">
+        <span class="font-header text-content-4 py-1 text-sm font-semibold">
+          type
+        </span>
+        {typeTags.map((t) => (
+          <span class="bg-surface-2 hover:bg-surface-3 font-base text-content-3 hover:text-content-2 soft-transition mx-1 rounded-full px-2 py-1 text-sm uppercase">
+            {t}
+          </span>
+        ))}
+      </div>
+    )
+  }
+
+  {
+    contentTags.length > 0 && (
+      <div class="mt-4 flex flex-wrap items-center justify-center gap-y-2 text-center">
+        <span class="font-header text-content-4 py-1 text-sm font-semibold">
+          content
+        </span>
+        {contentTags.map((t) => (
+          <span class="bg-surface-2 hover:bg-surface-3 font-base text-content-3 hover:text-content-2 soft-transition mx-1 rounded-full px-2 py-1 text-sm uppercase">
+            {t}
+          </span>
+        ))}
+      </div>
+    )
+  }
+
+  <div class="mt-4 flex flex-col text-center">
+    <span class="font-header text-content-4 text-sm font-semibold">
+      created <span class="text-content-3 font-mono text-sm font-semibold"
+        >{formatDate(notebookEntry.data.created)}</span
+      >
+    </span>
+    <span class="font-header text-content-4 text-sm font-semibold">
+      modified <span class="text-content-3 font-mono text-sm font-semibold"
+        >{formatDate(notebookEntry.data.last_modified)}</span
+      >
+    </span>
+  </div>
+</section>
