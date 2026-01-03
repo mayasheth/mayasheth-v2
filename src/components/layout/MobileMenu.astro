@@ -20,7 +20,7 @@ const mobileClasses =
 
 {
   mode === "icons" && (
-    <div class="flex items-center gap-3 md:hidden">
+    <div class="flex items-center gap-4 md:hidden">
       <div class="group relative">
         <Icon
           name="mdi--magnify"
@@ -53,7 +53,7 @@ const mobileClasses =
               <div class="font-header text-content-2 text-base font-semibold tracking-wide">
                 {item.label}
               </div>
-              <ul class="space-y-1.5">
+              <ul class="space-y-2">
                 {item.children.map((child) => (
                   <li>
                     <a href={child.href} class={mobileClasses}>

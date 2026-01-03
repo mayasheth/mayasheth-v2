@@ -1,21 +1,19 @@
 ---
-import BaseLayout from "@/layouts/BaseLayout.astro";
-import { getCollection } from "astro:content";
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
 
 const titleShort = "quotes";
 const titleFull = "words that resonate";
 
-const quotes = await getCollection("quotes");
+const quotes = await getCollection('quotes');
 
 // Extract unique tags from all quotes
-const allTags = [
-  ...new Set(quotes.flatMap((q) => q.data.tags || []).map(formatTag)),
-].sort();
+const allTags = [...new Set(quotes.flatMap(q => q.data.tags || []).map(formatTag))].sort();
 
 function formatTag(tag: string): string {
-  if (!tag) return "";
-  const cleaned = tag.replace(/\/$/, "");
-  const parts = cleaned.split("/");
+  if (!tag) return '';
+  const cleaned = tag.replace(/\/$/, '');
+  const parts = cleaned.split('/');
   const lastPart = parts[parts.length - 1];
 
   let formatted = lastPart;
@@ -30,50 +28,39 @@ function formatTag(tag: string): string {
 <BaseLayout titleShort={titleShort} titleFull={titleFull}>
   <div class="container mx-auto px-4 py-6">
     <!-- Sort controls -->
-    <div
-      class="flex flex-wrap items-center justify-center gap-1.5 pb-4 text-base md:gap-3"
-    >
-      <span class="font-base text-content-0 font-semibold">sort by</span>
-      {
-        ["random", "newest", "oldest"].map((sort) => (
-          <a
-            href={`?sort=${sort}`}
-            data-sort={sort}
-            class="sort-button font-base soft-transition focus-outline rounded-full px-2.5 py-1 text-base font-light md:px-4 md:py-2"
-          >
-            {sort}
-          </a>
-        ))
-      }
+    <div class="pb-4 flex justify-center items-center gap-2 md:gap-4 flex-wrap text-base">
+      <span class="font-base font-semibold text-content-0">sort by</span>
+      {['random', 'newest', 'oldest'].map((sort) => (
+        <a 
+          href={`?sort=${sort}`}
+          data-sort={sort}
+          class="sort-button px-2.5 py-1 md:px-4 md:py-2 rounded-full text-base font-base font-light soft-transition focus-outline"
+        >
+          {sort}
+        </a>
+      ))}
     </div>
 
     <!-- Filter controls -->
-    <div
-      class="flex flex-wrap items-center justify-center gap-1.5 pb-6 text-base md:gap-3"
-    >
-      <span class="font-base text-content-0 font-semibold">filter to</span>
-      {
-        allTags.map((tag) => (
+    <div class="pb-6 flex justify-center items-center gap-2 md:gap-4 flex-wrap text-base">
+      <span class="font-base font-semibold text-content-0">filter to</span>
+        {allTags.map((tag) => (
           <button
-            class="filter-button font-base soft-transition focus-outline rounded-full px-2 py-1 text-base font-light lowercase md:px-3 md:py-2"
+            class="filter-button px-2 py-1 md:px-3 md:py-2 rounded-full text-base font-base font-light lowercase soft-transition focus-outline"
             data-tag={tag}
           >
             {tag}
           </button>
-        ))
-      }
+        ))}
     </div>
 
     <!-- Quotes Container -->
-    <div
-      id="quotes-container"
-      class="columns-1 gap-4 space-y-4 pb-6 md:columns-2 lg:columns-3"
-    >
+    <div id="quotes-container" class="pb-6 columns-1 md:columns-2 lg:columns-3 gap-4 space-y-4">
       <!-- Quotes will be inserted here by JavaScript -->
     </div>
   </div>
 
-  <script define:vars={{ quotes, allTags }}>
+  <script define:vars={{quotes, allTags}}>
     // Get URL parameters
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
@@ -83,19 +70,15 @@ function formatTag(tag: string): string {
     // Sort function
     function sortQuotes(quotes, sortParam) {
       let sortedQuotes = [...quotes];
-      if (sortParam === "random") {
+      if (sortParam === 'random') {
         quotes.sort(() => Math.random() - 0.5);
-      } else if (sortParam === "newest") {
-        quotes.sort(
-          (a, b) =>
-            new Date(b.data.last_modified ?? b.data.created).getTime() -
-            new Date(a.data.last_modified ?? a.data.created).getTime(),
+      } else if (sortParam === 'newest') {
+        quotes.sort((a, b) =>
+          new Date(b.data.last_modified ?? b.data.created).getTime() - new Date(a.data.last_modified ?? a.data.created).getTime()
         );
-      } else if (sortParam === "oldest") {
-        sortedQuotes.sort(
-          (a, b) =>
-            new Date(a.data.last_modified ?? a.data.created).getTime() -
-            new Date(b.data.last_modified ?? b.data.created).getTime(),
+      } else if (sortParam === 'oldest') {
+        sortedQuotes.sort((a, b) =>
+          new Date(a.data.last_modified ?? a.data.created).getTime() - new Date(b.data.last_modified ?? b.data.created).getTime()
         );
       }
       return sortedQuotes;
@@ -104,29 +87,27 @@ function formatTag(tag: string): string {
     // Filter function
     function filterQuotes(quotes, filters) {
       if (filters.size === 0) return quotes;
-      return quotes.filter((q) =>
-        Array.from(filters).every(
-          (filter) =>
-            q.data.tags && q.data.tags.some((tag) => formatTag(tag) === filter),
-        ),
+      return quotes.filter(q => 
+        Array.from(filters).every(filter => 
+          q.data.tags && q.data.tags.some(tag => formatTag(tag) === filter)
+        )
       );
+
     }
 
     function escapeHtml(text) {
       return text
-        .replace(/&/g, "&amp;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
     }
-
+  
     // Render quotes
     function renderQuotes(quotes) {
-      const container = document.getElementById("quotes-container");
-      container.innerHTML = quotes
-        .map(
-          (q) => `
+      const container = document.getElementById('quotes-container');
+      container.innerHTML = quotes.map(q => `
         <article
           class="break-inside-avoid mb-4 rounded-xl p-6 bg-surface-1"
         >
@@ -138,119 +119,65 @@ function formatTag(tag: string): string {
             </p>
           </blockquote>
           <span class="mt-8 text-right">
-            ${
-              q.data.primary_source
-                ? `
+            ${q.data.primary_source ? `
               <div class="text-content-0 font-base text-base font-semibold lowercase">
                 ${escapeHtml(q.data.primary_source)}
               </div>
-            `
-                : ""
-            }
-            ${
-              q.data.secondary_source
-                ? `
+            ` : ''}
+            ${q.data.secondary_source ? `
               <div class="text-content-1 font-base text-sm font-light italic lowercase mt-1">
                 via ${escapeHtml(q.data.secondary_source)}
               </div>
-            `
-                : ""
-            }
+            ` : ''}
           </span>
-          ${
-            q.data.tags && q.data.tags.length
-              ? `
+          ${q.data.tags && q.data.tags.length ? `
             <div class="mt-4 flex flex-wrap gap-2 justify-center">
-              ${q.data.tags
-                .map(
-                  (t) => `
+              ${q.data.tags.map(t => `
                 <span class="rounded-full bg-surface-2 hover:bg-surface-3 px-2 py-1 font-base text-sm text-content-3 hover:text-content-2 soft-transition uppercase">
                   ${escapeHtml(formatTag(t))}
                 </span>
-              `,
-                )
-                .join("")}
+              `).join('')}
             </div>
-          `
-              : ""
-          }
-          ${
-            q.data.commentary
-              ? `
+          ` : ''}
+          ${q.data.commentary ? `
             <p class="mt-4 text-sm font-base font-light text-content-4 text-center lowercase">
               ${escapeHtml(q.data.commentary)}
             </p>
-          `
-              : ""
-          }
+          ` : ''}
         </article>
-      `,
-        )
-        .join("");
+      `).join('');
     }
 
     // Update sort buttons
     function updateSortButtons(currentSort) {
-      document.querySelectorAll(".sort-button").forEach((button) => {
-        if (button.getAttribute("data-sort") === currentSort) {
-          button.classList.add(
-            "bg-surface-3",
-            "hover:bg-surface-4",
-            "text-content-1",
-          );
-          button.classList.remove(
-            "bg-surface-1",
-            "hover:bg-surface-2",
-            "text-content-2",
-          );
+      document.querySelectorAll('.sort-button').forEach(button => {
+        if (button.getAttribute('data-sort') === currentSort) {
+          button.classList.add('bg-surface-3', 'hover:bg-surface-4', 'text-content-1');
+          button.classList.remove('bg-surface-1', 'hover:bg-surface-2', 'text-content-2');
         } else {
-          button.classList.add(
-            "bg-surface-1",
-            "hover:bg-surface-2",
-            "text-content-2",
-          );
-          button.classList.remove(
-            "bg-surface-3",
-            "hover:bg-surface-4",
-            "text-content-1",
-          );
+          button.classList.add('bg-surface-1', 'hover:bg-surface-2', 'text-content-2');
+          button.classList.remove('bg-surface-3', 'hover:bg-surface-4', 'text-content-1');
         }
       });
     }
 
     // Update filter buttons
     function updateFilterButtons() {
-      document.querySelectorAll(".filter-button").forEach((button) => {
-        const tag = button.getAttribute("data-tag");
+      document.querySelectorAll('.filter-button').forEach(button => {
+        const tag = button.getAttribute('data-tag');
         if (activeFilters.has(tag)) {
-          button.classList.add(
-            "bg-surface-3",
-            "hover:bg-surface-4",
-            "text-content-1",
-          );
-          button.classList.remove(
-            "bg-surface-1",
-            "hover:bg-surface-2",
-            "text-content-2",
-          );
+          button.classList.add('bg-surface-3', 'hover:bg-surface-4', 'text-content-1');
+          button.classList.remove('bg-surface-1', 'hover:bg-surface-2', 'text-content-2');
         } else {
-          button.classList.add(
-            "bg-surface-1",
-            "hover:bg-surface-2",
-            "text-content-2",
-          );
-          button.classList.remove(
-            "bg-surface-3",
-            "hover:bg-surface-4",
-            "text-content-1",
-          );
+          button.classList.add('bg-surface-1', 'hover:bg-surface-2', 'text-content-2');
+          button.classList.remove('bg-surface-3', 'hover:bg-surface-4', 'text-content-1');
         }
       });
     }
 
     // Apply sort and filter
     function applySortAndFilter() {
-      const sortParam = params.sort || "random";
+      const sortParam = params.sort || 'random';
       let filteredAndSortedQuotes = filterQuotes(quotes, activeFilters);
       filteredAndSortedQuotes = sortQuotes(filteredAndSortedQuotes, sortParam);
       renderQuotes(filteredAndSortedQuotes);
@@ -262,20 +189,20 @@ function formatTag(tag: string): string {
     applySortAndFilter();
 
     // Add click event listeners to sort buttons
-    document.querySelectorAll(".sort-button").forEach((button) => {
-      button.addEventListener("click", (e) => {
+    document.querySelectorAll('.sort-button').forEach(button => {
+      button.addEventListener('click', (e) => {
         e.preventDefault();
-        const newSort = button.getAttribute("data-sort");
-        history.pushState(null, "", `?sort=${newSort}`);
+        const newSort = button.getAttribute('data-sort');
+        history.pushState(null, '', `?sort=${newSort}`);
         params.sort = newSort;
         applySortAndFilter();
       });
     });
 
     // Add click event listeners to filter buttons
-    document.querySelectorAll(".filter-button").forEach((button) => {
-      button.addEventListener("click", () => {
-        const tag = button.getAttribute("data-tag");
+    document.querySelectorAll('.filter-button').forEach(button => {
+      button.addEventListener('click', () => {
+        const tag = button.getAttribute('data-tag');
         if (activeFilters.has(tag)) {
           activeFilters.delete(tag);
         } else {
@@ -286,35 +213,32 @@ function formatTag(tag: string): string {
     });
 
     // Handle browser back/forward
-    window.addEventListener("popstate", () => {
+    window.addEventListener('popstate', () => {
       const newParams = new URLSearchParams(window.location.search);
-      params.sort = newParams.get("sort") || "random";
+      params.sort = newParams.get('sort') || 'random';
       applySortAndFilter();
     });
 
     // Helper functions
     function getQuoteClass(text) {
       const length = text.length;
-      if (length < 60)
-        return "font-serif text-2xl font-extrabold text-content-4 hover:text-content-3 leading-tight soft-transition focus-outline-rounded";
-      if (length < 100)
-        return "font-serif text-xl font-bold text-content-3 hover:text-content-2 leading-tight soft-transition focus-outline-rounded";
-      if (length < 140)
-        return "font-base text-lg font-medium text-content-2 hover:text-content-1 soft-transition focus-outline-rounded";
-      return "font-base text-base font-light text-content-1 hover:text-content-0 soft-transition focus-outline-rounded";
+      if (length < 60) return 'font-serif text-2xl font-extrabold text-content-4 hover:text-content-3 leading-tight soft-transition focus-outline-rounded';
+      if (length < 100) return 'font-serif text-xl font-bold text-content-3 hover:text-content-2 leading-tight soft-transition focus-outline-rounded';
+      if (length < 140) return 'font-base text-lg font-medium text-content-2 hover:text-content-1 soft-transition focus-outline-rounded';
+      return 'font-base text-base font-light text-content-1 hover:text-content-0 soft-transition focus-outline-rounded';
     }
 
     function formatTag(tag) {
-      if (!tag) return "";
-      const cleaned = tag.replace(/\/$/, "");
-      const parts = cleaned.split("/");
+      if (!tag) return '';
+      const cleaned = tag.replace(/\/$/, '');
+      const parts = cleaned.split('/');
       const lastPart = parts[parts.length - 1];
 
       let formatted = lastPart;
       if (lastPart == "quote-inspiration") {
         formatted = "to illustrate!";
       }
-
+      
       return formatted || tag;
     }
   </script>

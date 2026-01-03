@@ -1,0 +1,56 @@
+---
+// Tag.astro - Reusable tag/pill component
+
+export interface Props {
+  /** Visual variant */
+  variant?: "default" | "filter" | "subtle";
+  /** Text case */
+  textCase?: "uppercase" | "lowercase" | "normal";
+  /** Whether to render as a button (for filter tags) */
+  as?: "span" | "button";
+  /** Additional classes */
+  class?: string;
+  /** Data attributes for filter functionality */
+  [key: `data-${string}`]: string | undefined;
+}
+
+const {
+  variant = "default",
+  textCase = "uppercase",
+  as: Element = "span",
+  class: className = "",
+  ...rest
+} = Astro.props;
+
+// Base classes shared by all variants
+const baseClasses = "font-base soft-transition rounded-full px-2 py-1 text-sm";
+
+// Variant-specific classes
+const variantClasses = {
+  default:
+    "bg-surface-2 hover:bg-surface-3 text-content-3 hover:text-content-2",
+  filter:
+    "bg-surface-1 hover:bg-surface-3 text-content-2 hover:text-content-1 focus-outline",
+  subtle: "bg-surface-1 text-content-3 hover:text-content-2",
+};
+
+// Text case classes
+const caseClasses = {
+  uppercase: "uppercase",
+  lowercase: "lowercase",
+  normal: "",
+};
+
+const classes = [
+  baseClasses,
+  variantClasses[variant],
+  caseClasses[textCase],
+  className,
+]
+  .filter(Boolean)
+  .join(" ");
+---
+
+<Element class={classes} {...rest}>
+  <slot />
+</Element>

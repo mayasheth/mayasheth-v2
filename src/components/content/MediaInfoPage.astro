@@ -9,6 +9,7 @@ import {
   formatDate,
   getFormatIcon,
 } from "@/lib/helpers/media-info-helpers";
+import Tag from "@/components/ui/Tag.astro";
 
 export interface Props {
   mediaEntry: CollectionEntry<"media">;
@@ -61,7 +62,7 @@ const formatIcon = getFormatIcon(format);
               >
                 <Icon
                   name={formatIcon}
-                  class="text-content-3 hover:text-content-2 soft-transition h-16 w-auto hover:scale-105 lg:h-auto lg:w-16"
+                  class="text-content-3 hover:text-content-2 soft-transition hover-pop h-16 w-auto lg:h-auto lg:w-16"
                 />
               </a>
             </div>
@@ -106,17 +107,13 @@ const formatIcon = getFormatIcon(format);
 
       <!-- Tags -->
       <div
-        class="align-center mx-6 mt-4 flex flex-row flex-wrap justify-center gap-2 text-center md:flex-col md:items-center md:gap-3"
+        class="align-center mx-6 mt-4 flex flex-row flex-wrap justify-center gap-2 text-center md:flex-col md:items-center md:gap-4"
       >
         <div>
           <span class="font-header text-content-4 py-1 text-sm font-semibold">
             rating</span
           >
-          <span
-            class="bg-surface-2 hover:bg-surface-3 font-base text-content-3 hover:text-content-2 soft-transition mx-1 rounded-full px-2 py-1 text-sm uppercase"
-          >
-            {mediaEntry.data.rating}
-          </span>
+          <Tag class="mx-1">{mediaEntry.data.rating}</Tag>
         </div>
         <div>
           <span class="font-header text-content-4 py-1 text-sm font-semibold"
@@ -124,9 +121,7 @@ const formatIcon = getFormatIcon(format);
           >
           {
             otherTags.map((t) => (
-              <span class="bg-surface-2 hover:bg-surface-3 font-base text-content-3 hover:text-content-2 soft-transition mx-1 rounded-full px-2 py-1 text-sm uppercase">
-                {t}
-              </span>
+              <Tag class="mx-1">{t}</Tag>
             ))
           }
         </div>
@@ -137,9 +132,7 @@ const formatIcon = getFormatIcon(format);
                 concepts
               </span>
               {conceptTags.map((t) => (
-                <span class="bg-surface-2 hover:bg-surface-3 font-base text-content-3 hover:text-content-2 soft-transition mx-1 rounded-full px-2 py-1 text-sm uppercase">
-                  {t}
-                </span>
+                <Tag class="mx-1">{t}</Tag>
               ))}
             </div>
           )

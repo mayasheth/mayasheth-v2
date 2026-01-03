@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { type ResearchArticle } from "@/lib/schemas";
+import { Tag } from "@/components/ui/Tag";
 
 interface Props {
   article: ResearchArticle;
@@ -143,22 +144,17 @@ const ArticleEntry: React.FC<Props> = ({ article }) => {
 
       <div className="mt-2 flex gap-2">
         {article.abstract && (
-          <button
-            onClick={() => setShowAbstract(!showAbstract)}
-            className="bg-surface-2 hover:bg-surface-3 font-base text-content-3 hover:text-content-2 soft-transition rounded-full px-2 py-1 text-sm uppercase"
-          >
-            abstract
-          </button>
+          <Tag onClick={() => setShowAbstract(!showAbstract)}>abstract</Tag>
         )}
         {article.doi && (
-          <a
+          <Tag
+            as="a"
             href={`https://doi.org/${article.doi}`}
             target="_blank"
             rel="noopener"
-            className="bg-surface-2 hover:bg-surface-3 font-base text-content-3 hover:text-content-2 soft-transition rounded-full px-2 py-1 text-sm uppercase"
           >
             doi
-          </a>
+          </Tag>
         )}
       </div>
       <div

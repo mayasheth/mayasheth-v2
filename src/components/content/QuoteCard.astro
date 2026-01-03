@@ -1,5 +1,6 @@
 ---
 import { getCollection } from "astro:content";
+import Tag from "@/components/ui/Tag.astro";
 
 // Props
 export interface Props {
@@ -70,9 +71,7 @@ if (!quote) {
     include_extra && quote.tags && quote.tags.length && (
       <div class="mt-4 flex flex-wrap justify-center gap-2">
         {quote.tags.map((tag) => (
-          <span class="bg-surface-2 hover:bg-surface-3 font-base text-content-3 hover:text-content-2 soft-transition rounded-full px-2 py-1 text-sm uppercase">
-            {formatTag(tag)}
-          </span>
+          <Tag>{formatTag(tag)}</Tag>
         ))}
       </div>
     )

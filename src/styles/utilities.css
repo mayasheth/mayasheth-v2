@@ -3,6 +3,13 @@
     @apply transition-all duration-400
   }
 
+  /* Hover scale utility - value defined in tokens.css */
+  .hover-pop {
+    &:hover {
+      transform: scale(var(--scale-hover));
+    }
+  }
+
   .focus-outline {
     @apply focus-visible:ring-[3px] focus-visible:ring-content-3 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-1 focus-visible:outline-none;
   }
@@ -15,16 +22,12 @@
     @apply focus-visible:border-[1.5px] focus-visible:border-content-3 focus-visible:outline-none transition-all duration-200;
   }
 
-  .min-size-mobile {
-    @apply min-w-[44px] min-h-[44px];
-  }
-
   .markdown-content {
     @apply text-pretty
   }
 
   .markdown-content a {
-    @apply font-semibold text-content-2 hover:text-content-3 hover:scale-103;
+    @apply font-semibold text-content-2 hover:text-content-3 hover:scale-105;
     @apply focus-visible:ring-[3px] focus-visible:ring-content-3 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-1 focus-visible:outline-none rounded-md;
     @apply transition-all duration-400
   }
@@ -65,7 +68,7 @@
   }
 
   .markdown-content blockquote a {
-    @apply font-semibold text-content-3 hover:text-content-4 hover:scale-103;
+    @apply font-semibold text-content-3 hover:text-content-4 hover:scale-105;
     @apply focus-visible:ring-[3px] focus-visible:ring-content-3 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-1 focus-visible:outline-none rounded-md;
     @apply transition-all duration-400
   }

@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import { Icon } from "astro-icon/components";
+import Tag from "@/components/ui/Tag.astro";
 
 export interface Props {
   notebookEntry: CollectionEntry<"notebook">;
@@ -44,7 +45,7 @@ function formatDate(date: Date): string {
 
 <section
   class={`notebook-info rounded-xl bg-surface-1 px-6 py-4 mx-auto min-w-xs
-            flex flex-col items-stretch max-w-9/10 md:max-w-2/3`}
+            flex flex-col items-stretch max-w-3/4 md:max-w-2/3`}
 >
   <span
     class="font-header text-content-1 text-center text-xl font-semibold tracking-wide lowercase"
@@ -67,9 +68,7 @@ function formatDate(date: Date): string {
           type
         </span>
         {typeTags.map((t) => (
-          <span class="bg-surface-2 hover:bg-surface-3 font-base text-content-3 hover:text-content-2 soft-transition mx-1 rounded-full px-2 py-1 text-sm uppercase">
-            {t}
-          </span>
+          <Tag class="mx-1">{t}</Tag>
         ))}
       </div>
     )
@@ -82,9 +81,7 @@ function formatDate(date: Date): string {
           content
         </span>
         {contentTags.map((t) => (
-          <span class="bg-surface-2 hover:bg-surface-3 font-base text-content-3 hover:text-content-2 soft-transition mx-1 rounded-full px-2 py-1 text-sm uppercase">
-            {t}
-          </span>
+          <Tag class="mx-1">{t}</Tag>
         ))}
       </div>
     )

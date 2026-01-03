@@ -13,6 +13,7 @@ import {
 } from "@/lib/markdown/markdown-rewriters";
 import { formatDate } from "@/lib/helpers/media-info-helpers";
 import { Icon } from "astro-icon/components";
+import Tag from "@/components/ui/Tag.astro";
 
 export const prerender = true;
 
@@ -70,7 +71,7 @@ if (atwEntry.data.music_link) {
 <BaseLayout titleShort={atwEntry.data.location.toLowerCase()}>
   {/* HEADER with location, location tag, and status */}
   <section
-    class="bg-surface-1 mt-6 flex max-w-full min-w-xs flex-col rounded-xl px-6 pt-4 pb-6 text-center text-pretty md:max-w-2/3 md:min-w-sm lg:max-w-2/5 lg:min-w-md"
+    class="bg-surface-1 mt-6 flex max-w-full min-w-xs flex-col rounded-xl p-4 text-center text-pretty md:max-w-2/3 md:min-w-sm md:p-6 lg:max-w-2/5 lg:min-w-md"
   >
     {/* Location summary  */}
     <div class="flex flex-wrap items-baseline justify-center gap-2">
@@ -139,12 +140,12 @@ if (atwEntry.data.music_link) {
   </section>
 
   <div
-    class="mt-6 flex flex-col justify-center gap-6 md:max-w-4/5 md:flex-row md:gap-4 lg:max-w-2/3"
+    class="mt-6 flex flex-col justify-center gap-6 md:max-w-3/4 md:flex-row md:gap-4 lg:max-w-2/3"
   >
     {/* BOOK CARD */}
     {
       (atwEntry.data.book_status === "DONE" || atwEntry.data.book_ideas) && (
-        <section class="bg-surface-1 flex basis-3/5 flex-col rounded-xl px-6 pt-4 pb-6">
+        <section class="bg-surface-1 flex basis-3/5 flex-col rounded-xl p-4 md:p-6">
           <h2 class="mb-2"> book </h2>
 
           {atwEntry.data.book_status === "DONE" && (
@@ -189,9 +190,7 @@ if (atwEntry.data.music_link) {
                   </p>
                   <div class="flex flex-col gap-2">
                     {atwEntry.data.book_tags!.map((t) => (
-                      <span class="bg-surface-2 hover:bg-surface-3 font-base text-content-3 hover:text-content-2 soft-transition mx-auto rounded-full px-2 py-1 text-sm uppercase">
-                        {t}
-                      </span>
+                      <Tag class="mx-auto">{t}</Tag>
                     ))}
                   </div>
                 </div>
@@ -210,7 +209,7 @@ if (atwEntry.data.music_link) {
                   >
                     <Icon
                       name="mdi--more-circle-outline"
-                      class="text-content-3 hover:text-content-2 soft-transition h-7 w-7 hover:scale-105"
+                      class="text-content-3 hover:text-content-2 soft-transition hover-pop h-7 w-7"
                     />
                   </a>
                 </div>
@@ -245,7 +244,7 @@ if (atwEntry.data.music_link) {
     {/* MUSIC CARD */}
     {
       atwEntry.data.music_status === "DONE" && (
-        <section class="bg-surface-1 my-auto flex basis-2/5 flex-col items-center rounded-xl px-6 pt-4 pb-6">
+        <section class="bg-surface-1 my-auto flex basis-2/5 flex-col items-center rounded-xl p-4 md:p-6">
           <h2 class="mb-2">music</h2>
 
           {spotify_embed_url !== null ? (
@@ -299,8 +298,8 @@ if (atwEntry.data.music_link) {
 
   {/* ADDITIONAL CONTENT */}
   <article
-    class="mx-auto max-w-full items-center py-10 md:col-span-4 md:max-w-3/5 lg:max-w-2/3"
+    class="mx-auto max-w-full items-center py-10 md:col-span-4 md:max-w-1/2 lg:max-w-2/3"
   >
-    <div class="markdown-content px-8 md:px-4" set:html={html} />
+    <div class="markdown-content px-4 md:px-6" set:html={html} />
   </article>
 </BaseLayout>

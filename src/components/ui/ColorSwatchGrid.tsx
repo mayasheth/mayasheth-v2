@@ -56,7 +56,7 @@ function Swatch({
       }}
       disabled={disabled}
       className={[
-        "group focus-outline soft-transition relative h-8 w-8 rounded-md ring-1 ring-transparent hover:scale-110 sm:h-10 sm:w-10",
+        "group focus-outline soft-transition hover-pop relative h-8 w-8 rounded-md ring-1 ring-transparent sm:h-10 sm:w-10",
         isBgMatch ? "border-content-0 border-1 border-dotted" : "",
         disabled ? "cursor-not-allowed opacity-60" : "",
       ].join(" ")}

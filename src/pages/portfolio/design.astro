@@ -59,12 +59,12 @@ const wideItems = designItemsWithImports.filter(
     work)
   </p>
 
-  <div class="container mx-auto w-full px-4 pb-6 md:max-w-4/5 lg:max-w-3/5">
+  <div class="container mx-auto w-full px-4 pb-6 md:max-w-3/4 lg:max-w-2/3">
     {/* wide items */}
     <div class="mx-auto mb-6 flex flex-col items-center gap-6">
       {
         wideItems.map((item) => (
-          <div class="bg-surface-1 flex flex-col items-center rounded-xl px-4 py-4 text-center md:max-w-9/10 md:py-6 lg:max-w-2/3 lg:px-6 lg:py-8">
+          <div class="bg-surface-1 flex flex-col items-center rounded-xl p-4 text-center md:max-w-3/4 md:p-6 lg:max-w-2/3">
             <span class="font-header text-content-1 text-center text-xl font-semibold tracking-wide lowercase">
               {item.title} ({item.created.getFullYear()})
             </span>
@@ -81,7 +81,7 @@ const wideItems = designItemsWithImports.filter(
               </a>
             )}
 
-            <div class="bg-surface-3 mt-4 flex max-h-[16rem] max-w-full flex-col gap-4 overflow-y-auto rounded-xl p-2 md:max-w-8/10 md:p-4">
+            <div class="bg-surface-3 mt-4 flex max-h-[16rem] max-w-full flex-col gap-4 overflow-y-auto rounded-xl p-2 md:max-w-3/4 md:p-4">
               {item.imgDataArr.map(
                 (imgData, idx) =>
                   imgData && (
@@ -92,7 +92,7 @@ const wideItems = designItemsWithImports.filter(
                       width={1200}
                       height={800}
                       sizes="(max-width: 800px) 100vw, (max-width: 1200px) 33vw, 25vw"
-                      style="width:100%; height:auto;"
+                      class="h-auto w-full"
                     />
                   ),
               )}
@@ -108,7 +108,7 @@ const wideItems = designItemsWithImports.filter(
     >
       {
         narrowItems.map((item) => (
-          <div class="bg-surface-1 flex w-full flex-col items-center rounded-xl px-4 py-6 text-center">
+          <div class="bg-surface-1 flex w-full flex-col items-center rounded-xl p-4 text-center md:p-6">
             <span class="font-header text-content-1 text-center text-xl font-semibold tracking-wide lowercase">
               {item.title} ({item.created.getFullYear()})
             </span>
@@ -125,7 +125,7 @@ const wideItems = designItemsWithImports.filter(
               </a>
             )}
 
-            <div class="bg-surface-3 mt-4 flex max-h-[16rem] max-w-2/5 flex-col gap-4 overflow-y-auto rounded-xl p-6 md:max-w-4/5">
+            <div class="bg-surface-3 mt-4 flex max-h-[16rem] max-w-2/5 flex-col gap-4 overflow-y-auto rounded-xl p-2 md:max-w-3/4 md:p-4">
               {item.imgDataArr.map(
                 (imgData, idx) =>
                   imgData && (
@@ -136,7 +136,7 @@ const wideItems = designItemsWithImports.filter(
                       width={600}
                       height={400}
                       sizes="(max-width: 800px) 100vw, (max-width: 1200px) 33vw, 25vw"
-                      style="width:100%; height:auto;"
+                      class="h-auto w-full"
                     />
                   ),
               )}

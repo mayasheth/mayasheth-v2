@@ -55,6 +55,57 @@
   --font-weight-semibold: 450;
   --font-weight-bold: 600;
   --font-weight-extrabold: 750;
+
+  /* Interaction scale - adjust to experiment with hover effects */
+  --scale-hover: 1.05;
+
+  /*
+   * ===========================================
+   * SPACING CONVENTIONS (using Tailwind scale)
+   * ===========================================
+   *
+   * GAP VALUES:
+   *   gap-2 (0.5rem)  - Tight: inline elements, icon+text, tags
+   *   gap-4 (1rem)    - Normal: list items, card content, form fields
+   *   gap-6 (1.5rem)  - Loose: sections, major content blocks
+   *
+   * RESPONSIVE GAPS:
+   *   Mobile → Desktop ratio: double the value
+   *   Example: gap-2 md:gap-4, gap-4 md:gap-6
+   *
+   * PADDING:
+   *   p-4 (1rem)      - Cards, compact containers
+   *   p-6 (1.5rem)    - Sections, spacious containers
+   *   px-4 py-6       - Asymmetric (more vertical breathing room)
+   *
+   * MARGIN:
+   *   mt-2/mb-2       - Tight vertical separation
+   *   mt-4/mb-4       - Normal vertical separation
+   *   mt-6/mb-6       - Section separation
+   *
+   * ===========================================
+   * MAX-WIDTH CONVENTIONS (Hybrid System)
+   * ===========================================
+   *
+   * STRUCTURAL (fixed - for nav, footer, page wrappers):
+   *   max-w-7xl (80rem)  - Full layouts with sidebar/ToC
+   *   max-w-6xl (72rem)  - Nav, footer, wide page containers
+   *
+   * CONTENT (fractional - scales with container):
+   *   Standard:  (default) → md:max-w-3/4 → lg:max-w-2/3
+   *   Narrow:    (default) → md:max-w-2/3 → lg:max-w-1/2
+   *   Focused:   (default) → md:max-w-1/2 → lg:max-w-2/5
+   *
+   * ALLOWED FRACTIONAL VALUES:
+   *   max-w-full  (100%)  - Mobile default
+   *   max-w-3/4   (75%)   - Standard desktop content
+   *   max-w-2/3   (67%)   - Narrower content
+   *   max-w-1/2   (50%)   - Focused/narrow content
+   *   max-w-2/5   (40%)   - Very narrow (single items)
+   *
+   * MODALS:
+   *   max-w-lg (32rem) → md:max-w-2xl (42rem)
+   */
 }
 
 @theme inline {
