@@ -4,12 +4,14 @@ import { Icon } from "astro-icon/components";
 const { id = "search-trigger", size = "h-6 w-6", label } = Astro.props;
 ---
 
-<div class="group relative flex items-center">
+<button
+  id={id}
+  class="group relative flex items-center focus-outline-rounded"
+  aria-label="Open search"
+>
   <Icon
     name="mdi--magnify"
-    id={id}
-    class={`${size} text-content-3 hover:text-content-2 soft-transition group-has-[:focus]:text-content-2 group-has-[:focus]:scale-110 soft-transition`}
-    style="cursor:pointer;"
+    class={`${size} text-content-3 group-hover:text-content-2 group-focus:text-content-2 group-focus:scale-110 soft-transition`}
   />
   {
     label && (
@@ -18,4 +20,4 @@ const { id = "search-trigger", size = "h-6 w-6", label } = Astro.props;
       </span>
     )
   }
-</div>
+</button>

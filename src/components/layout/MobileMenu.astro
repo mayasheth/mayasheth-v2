@@ -15,21 +15,29 @@ type Props = {
 
 const { navItems, mode = "icons", menuClasses = "" } = Astro.props;
 const mobileClasses =
-  "block font-header text-base font-light text-content-3 soft-transition hover:font-semibold hover:text-content-2";
+  "block font-header text-base font-light text-content-3 soft-transition hover:font-semibold hover:text-content-2 focus-outline-rounded";
 ---
 
 {
   mode === "icons" && (
     <div class="flex items-center gap-4 md:hidden">
-      <div class="group relative">
+      <button
+        id="search-trigger-mobile"
+        class="focus-outline-rounded"
+        aria-label="Open search"
+      >
         <Icon
           name="mdi--magnify"
-          id="search-trigger-mobile"
           class="text-content-3 hover:text-content-2 soft-transition h-6 w-6"
-          style="cursor:pointer;"
         />
-      </div>
-      <button class="focus-outline-rounded" id="mobile-menu-toggle">
+      </button>
+      <button
+        class="focus-outline-rounded"
+        id="mobile-menu-toggle"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+      >
         <Icon
           name="mdi--menu"
           class="text-content-3 soft-transition hover:text-content-2 h-6 w-6"
@@ -56,7 +64,7 @@ const mobileClasses =
               <ul class="space-y-2">
                 {item.children.map((child) => (
                   <li>
-                    <a href={child.href} class={mobileClasses}>
+                    <a href={child.href} class={`mobile-menu-link ${mobileClasses}`}>
                       {child.label}
                     </a>
                   </li>
