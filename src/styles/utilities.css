@@ -81,6 +81,33 @@
     @apply text-content-2
   }
 
-  
+  /* Paw print animation for error pages */
+  .paw {
+    position: absolute;
+    opacity: 0;
+    animation: paw-appear 6s ease-in-out infinite;
+    animation-delay: var(--paw-delay, 0s);
+    pointer-events: none;
+    color: var(--color-content-3);
+  }
+
+  @keyframes paw-appear {
+    0% {
+      opacity: 0;
+      transform: rotate(var(--paw-rotation, 0deg)) scale(calc(var(--paw-scale, 1) * 0.7)) scaleX(var(--paw-mirror, 1));
+    }
+    8% {
+      opacity: 0.5;
+      transform: rotate(var(--paw-rotation, 0deg)) scale(var(--paw-scale, 1)) scaleX(var(--paw-mirror, 1));
+    }
+    25% {
+      opacity: 0.5;
+      transform: rotate(var(--paw-rotation, 0deg)) scale(var(--paw-scale, 1)) scaleX(var(--paw-mirror, 1));
+    }
+    100% {
+      opacity: 0;
+      transform: rotate(var(--paw-rotation, 0deg)) scale(calc(var(--paw-scale, 1) * 0.95)) scaleX(var(--paw-mirror, 1));
+    }
+  }
 
 }
