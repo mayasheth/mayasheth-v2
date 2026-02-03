@@ -1,27 +1,5 @@
 // src/utils/markdown-rewriters.ts
 
-/**
- * Rewrites markdown image paths to use public URLs for Astro.
- */
-export function rewriteImagePaths(
-  markdown: string,
-  currentCollection: string,
-): string {
-  return markdown.replace(
-    /!\[([^\]]*)\]\((?!http|\/\/|\/collections\/)([^)]+)\)/g,
-    (match, alt, url) => {
-      const cleanedUrl = url.replace(/^[./]+/, "");
-      let publicUrl;
-      if (cleanedUrl.startsWith("300-collections/")) {
-        publicUrl = `/collections/${cleanedUrl}`;
-      } else {
-        publicUrl = `/collections/300-collections/${currentCollection}/${cleanedUrl}`;
-      }
-      return `![${alt}](${publicUrl})`;
-    },
-  );
-}
-
 import { getCollection, type CollectionEntry } from "astro:content";
 
 // REWRITE IMAGE PATHS SEARCHING AVAILABLE IN PUBLIC
@@ -54,34 +32,16 @@ export function buildImageMap(imagePaths: string[]): Map<string, string> {
   const map = new Map<string, string>();
   for (const url of imagePaths) {
     const base = url.split("/").pop();
-    if (base) map.set(base, url);
+    if (base) {
+      if (map.has(base)) {
+        console.warn(
+          `Duplicate image filename: ${base} (${map.get(base)} vs ${url})`,
+        );
+      }
+      map.set(base, url);
+    }
   }
   return map;
-}
-
-/**
- * Rewrite image links in markdown to use public URLs, based on files found in the public folder.
- *
- * Usage:
- *   const updatedMarkdown = await rewriteImagePathsWithMap(markdown, 'public');
- */
-export async function rewriteImagePathsWithMap(
-  markdown: string,
-  publicDir: string = "public",
-): Promise<string> {
-  const imagePaths = await walkImages(publicDir);
-  const imageMap = buildImageMap(imagePaths);
-
-  // Main rewrite logic
-
-  return markdown.replace(
-    /!\[([^\]]*)\]\((?!http|\/\/|\/collections\/)([^)]+)\)/g,
-    (match, alt, url) => {
-      const base = url.split("/").pop();
-      const publicUrl = base && imageMap.get(base) ? imageMap.get(base) : url;
-      return `![${alt}](${publicUrl})`;
-    },
-  );
 }
 
 // REWRITERS
@@ -101,9 +61,13 @@ function getBaseSlug(path: string): string {
 
 // Build map: { baseFileName: fullSlug }
 const COLLECTIONS = ["media", "notebook", "atw", "quotes"];
+let cachedSlugMap: Record<string, string> | null = null;
+
 export async function getBaseSlugMap(
   collections: string[] = COLLECTIONS,
 ): Promise<Record<string, string>> {
+  if (cachedSlugMap) return cachedSlugMap;
+
   const map: Record<string, string> = {};
   for (const collection of collections) {
     const entries = await (getCollection as any)(collection);
@@ -116,29 +80,8 @@ export async function getBaseSlugMap(
       }
     });
   }
+  cachedSlugMap = map;
   return map;
-}
-
-export async function rewriteMarkdownLinksBase(
-  markdown: string,
-  collections: string[] = COLLECTIONS,
-): Promise<string> {
-  const slugMap = await getBaseSlugMap(collections);
-
-  return markdown.replace(
-    // Match markdown links to .md files
-    /\[([^\]]+)\]\((?!http|\/\/)([^)]+?\.md)\)/g,
-    (match, text, url) => {
-      // Extract the base file name from the link url
-      const baseSlug = url.split("/").pop()?.replace(/\.md$/, "") ?? "";
-      const absPath = slugMap[baseSlug];
-      if (absPath) {
-        return `[${text}](${absPath})`;
-      }
-      // Fallback: just strip .md and leave as is
-      return `[${text}](${url.replace(/\.md$/, "")})`;
-    },
-  );
 }
 
 export async function getInternalLink(

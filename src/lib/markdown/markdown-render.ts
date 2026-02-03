@@ -9,9 +9,6 @@ import type { Root } from "mdast";
 // IMAGE REWRITER: expects (url, alt) => url
 // LINK REWRITER: expects async (url, text) => url
 
-// headings to push into
-const headings: { text: string; depth: number; id?: string }[] = [];
-
 // After remark-rehype (i.e. in hast, not mdast)
 function headingExtractor(
   headings: { text: string; depth: number; id?: string }[],
