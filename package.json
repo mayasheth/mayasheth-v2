@@ -7,7 +7,9 @@
     "prebuild": "scripts/submodule-auth.sh && npm run sync",
     "build": "npm run prebuild && astro build && node src/scripts/generate-page-carbon.js",
     "preview": "npm run astro build && npx -y pagefind --site dist --serve",
-    "astro": "astro"
+    "astro": "astro",
+    "lint:content": "tsx src/scripts/lint-content.js",
+    "lint:vault": "tsx --env-file=.env src/scripts/lint-content.js --vault"
   },
   "dependencies": {
     "@astrojs/react": "^4.4.0",
@@ -43,6 +45,7 @@
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
 }
