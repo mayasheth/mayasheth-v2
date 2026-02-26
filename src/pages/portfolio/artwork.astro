@@ -58,6 +58,7 @@ const artworkItemsWithImports = await Promise.all(
             class="filter-button px-2 py-1 md:px-3 md:py-2 rounded-full bg-surface-1 text-content-2 text-base font-base font-light lowercase soft-transition focus-outline"
             data-tag={tag}
             type="button"
+            aria-pressed="false"
           >
             {tag}
           </button>
@@ -70,7 +71,9 @@ const artworkItemsWithImports = await Promise.all(
       {
         artworkItemsWithImports.map((item, index) => (
           <masonry-item
-            class="group relative mb-2 h-auto w-full rounded-md md:mb-3"
+            tabindex="0"
+            role="button"
+            class="group relative mb-2 h-auto w-full cursor-pointer rounded-md md:mb-3"
             data-tags={item.art_tags?.map(formatTag).join(",") ?? ""}
             data-title={item.title ?? ""}
             data-description={item.description ?? ""}
@@ -148,9 +151,11 @@ const artworkItemsWithImports = await Promise.all(
         buttons.forEach((b) => {
           const bTag = b.getAttribute("data-tag");
           if (activeFilter === bTag) {
+            b.setAttribute("aria-pressed", "true");
             b.classList.add("bg-surface-3", "hover:bg-surface-4", "text-content-1");
             b.classList.remove("bg-surface-1", "hover:bg-surface-2", "text-content-2");
           } else {
+            b.setAttribute("aria-pressed", "false");
             b.classList.add("bg-surface-1", "hover:bg-surface-2", "text-content-2");
             b.classList.remove("bg-surface-3", "hover:bg-surface-4", "text-content-1");
           }
@@ -176,7 +181,7 @@ const artworkItemsWithImports = await Promise.all(
       let lastFocused: any;
 
       document.querySelectorAll("masonry-item").forEach((item) => {
-        item.addEventListener("click", function (e) {
+        function openModal(e: Event) {
           e.preventDefault();
           lastFocused = item;
           // Read data attributes
@@ -238,9 +243,15 @@ const artworkItemsWithImports = await Promise.all(
           modalContent
             .querySelector("#modal-close")
             .addEventListener("click", closeModal);
+        }
+
+        item.addEventListener("click", openModal);
+        item.addEventListener("keydown", (e) => {
+          if ((e as KeyboardEvent).key === "Enter" || (e as KeyboardEvent).key === " ") {
+            openModal(e);
+          }
         });
       });
-
       // Background click closes modal
       /* @ts-ignore */
       modal.addEventListener("mousedown", function (e) {
