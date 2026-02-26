@@ -3,12 +3,33 @@
 ## In progress
 - [ ] Accessibility improvements (recent commits show ongoing work)
 
+## Accessibility review findings
+Priority fixes:
+- [ ] Make artwork gallery items keyboard accessible (add tabindex="0", role="button", keydown handler) (source: review of portfolio/artwork.astro:72-108)
+- [ ] Add aria-pressed to filter buttons to indicate active state (source: review of portfolio/artwork.astro:57-64)
+- [ ] Fix malformed HTML: extra </p> tag (source: review of index.astro:138)
+- [ ] Add type="button" to nav dropdown triggers (source: review of Navigation.astro:34)
+
+Other fixes:
+- [ ] Ensure modal image alt text is never empty (source: review of portfolio/artwork.astro:200)
+- [ ] Change logo alt="paw-logo" to descriptive text or empty string (source: review of Navigation.astro:19, NavigationHome.astro:19,61)
+- [ ] Fix data-pagefind-title/url template literal syntax in gratitudes (source: review of gratitudes.astro:62-63)
+- [ ] Add aria-label="Main navigation" to desktop nav (source: review of Navigation.astro:28)
+- [ ] Add aria-label="Table of contents" to TOC nav (source: review of media/[id].astro:66)
+- [ ] Add aria-hidden="true" to decorative icons (source: review of Footer.astro:27)
+- [ ] Add aria-labelledby to gallery modal (source: review of portfolio/artwork.astro:117)
+
+## Media page redesign (in progress)
+- [ ] All-time-influential tier: continue tweaking (ongoing)
+- [ ] Review all tiers on real data once content is fully loaded
 
 ## Backlog
+- [ ] Once `display: grid-lanes` ships in all major browsers, remove the JS polyfill from `MasonryGrid.astro` (the entire `<script>` block and `masonry-item` custom element)
+
+
 - [ ] Complete README documentation
 - [ ] Review mobile responsiveness
 - [ ] Add indicator that "cmd+K" can be used to search
-- [ ] Check accessibility with [a11y.cs](https://ffoodd.github.io/a11y.css/)
 
 ## Ideas
 - [ ] Dark mode toggle

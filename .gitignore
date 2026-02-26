@@ -32,3 +32,6 @@ src/data/gratitudes.json
 src/data/quotes.json
 src/data/artwork.json
 page-carbon.json
+
+# Local docs/demos
+docs/

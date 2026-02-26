@@ -60,6 +60,22 @@ function formatTag(tag: string): string {
     </div>
   </div>
 
+  <style is:global>
+    @supports (display: grid-lanes) {
+      #quotes-container {
+        display: grid-lanes;
+        grid-template-columns: repeat(1, 1fr);
+        gap: 1rem;
+      }
+      @media (min-width: 768px) {
+        #quotes-container { grid-template-columns: repeat(2, 1fr); }
+      }
+      @media (min-width: 1024px) {
+        #quotes-container { grid-template-columns: repeat(3, 1fr); }
+      }
+    }
+  </style>
+
   <script define:vars={{quotes, allTags}}>
     // Get URL parameters
     const urlSearchParams = new URLSearchParams(window.location.search);

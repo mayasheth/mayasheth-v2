@@ -1,7 +1,13 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { getCollection, type CollectionEntry } from "astro:content";
-import MediaInfoGallery from "@/components/content/MediaInfoGallery.astro";
+import { Icon } from "astro-icon/components";
+import Tag from "@/components/ui/Tag.astro";
+import {
+  isImage,
+  formatTag,
+  getFormatIcon,
+} from "@/lib/helpers/media-info-helpers";
 
 const titleShort = "media";
 const titleFull = "media";
@@ -15,13 +21,9 @@ const ratings = [
 ];
 const ratingValue = (rating: string): number => ratings.indexOf(rating);
 
-// load media collection and sort by rating and then date
 const media = (await getCollection("media")).sort((a, b) => {
   const ratingDiff = ratingValue(b.data.rating) - ratingValue(a.data.rating);
-  if (ratingDiff !== 0) {
-    return ratingDiff;
-  }
-  // If same rating, sort by relevant_date descending
+  if (ratingDiff !== 0) return ratingDiff;
   return new Date(b.data.relevant_date) > new Date(a.data.relevant_date)
     ? 1
     : -1;
@@ -40,6 +42,13 @@ for (const entry of media) {
   if (groupedMedia[rating]) {
     groupedMedia[rating].push(entry);
   }
+}
+
+function getConceptTags(entry: CollectionEntry<"media">): string[] {
+  return (entry.data.tags ?? [])
+    .map(formatTag)
+    .filter((t) => t.startsWith("concept/"))
+    .map((t) => t.replace("concept/", ""));
 }
 
 const ratingHeadings: Record<string, string> = {
@@ -63,22 +72,216 @@ const ratingHeadings: Record<string, string> = {
     </a>
   </span>
 
+  <!-- ALL-TIME INFLUENTIAL -->
   {
-    ratings
-      .slice()
-      .reverse()
-      .map(
-        (rating) =>
-          groupedMedia[rating].length > 0 && (
-            <section class="mb-6" id={rating}>
-              <h2 class="mb-2">{ratingHeadings[rating]}</h2>
-              <div class="mx-auto grid max-w-3/4 grid-cols-2 gap-2 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
-                {groupedMedia[rating].map((media) => (
-                  <MediaInfoGallery mediaEntry={media} />
-                ))}
-              </div>
-            </section>
-          ),
-      )
+    groupedMedia["all-time-influential"].length > 0 && (
+      <section class="mx-auto mb-12 max-w-6xl px-4" id="all-time-influential">
+        <div class="mb-4 flex items-center gap-4">
+          <span class="shrink-0 font-base text-base font-semibold uppercase tracking-widest text-content-4">
+            {ratingHeadings["all-time-influential"]}
+          </span>
+          <hr class="flex-1 border-0 border-t border-surface-3" />
+        </div>
+        <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+          {groupedMedia["all-time-influential"].map((entry) => {
+            const conceptTags = getConceptTags(entry);
+            const format = Array.isArray(entry.data.format)
+              ? entry.data.format[0]
+              : entry.data.format;
+            const formatIcon = getFormatIcon(format);
+            const hasImage = isImage(entry.data.link_to_source ?? "");
+            const year = new Date(entry.data.relevant_date).getFullYear();
+            return (
+              <a
+                href={`/media/${entry.id}`}
+                class="group grid grid-cols-[6rem_1fr] sm:grid-cols-[9rem_1fr] gap-4 rounded-xl bg-surface-1 p-4 no-underline text-inherit soft-transition hover:bg-surface-2 hover:-translate-y-px focus-outline-rounded"
+              >
+                <div class="aspect-[2/3] self-start shrink-0 overflow-hidden rounded-sm bg-surface-2">
+                  {hasImage ? (
+                    <img
+                      src={entry.data.link_to_source!}
+                      alt={`cover for ${entry.data.title}`}
+                      class="h-full w-full object-contain"
+                    />
+                  ) : (
+                    <div class="flex h-full w-full items-center justify-center">
+                      <Icon
+                        name={formatIcon}
+                        class="text-surface-4 h-10 w-10"
+                      />
+                    </div>
+                  )}
+                </div>
+                <div class="flex h-full flex-col gap-2">
+                  <div class="flex flex-col gap-0.5">
+                    <p class="font-base text-base font-medium italic leading-tight text-content-1">
+                      {entry.data.title}
+                    </p>
+                    <p class="font-base text-sm text-content-2">
+                      {entry.data.author}
+                    </p>
+                    <p class="text-content-4">
+                      <span class="font-base text-sm font-bold tracking-widest">READ</span>
+                      <span class="font-base text-sm ml-1">{year}</span>
+                    </p>
+                  </div>
+                  {entry.data.commentary && (
+                    <p class="max-h-24 overflow-y-auto text-sm font-light leading-snug text-content-3">
+                      {entry.data.commentary}
+                    </p>
+                  )}
+                  {conceptTags.length > 0 && (
+                    <div class="mt-auto flex flex-wrap gap-1 pt-2">
+                      {conceptTags.map((t) => (
+                        <Tag class="group-hover:bg-surface-3 group-hover:text-content-2">
+                          {t}
+                        </Tag>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      </section>
+    )
+  }
+
+  <!-- FANTASTIC -->
+  {
+    groupedMedia["fantastic"].length > 0 && (
+      <section class="mx-auto mb-12 max-w-6xl px-4" id="fantastic">
+        <div class="mb-4 flex items-center gap-4">
+          <span class="shrink-0 font-base text-base font-semibold uppercase tracking-widest text-content-4">
+            {ratingHeadings["fantastic"]}
+          </span>
+          <hr class="flex-1 border-0 border-t border-surface-3" />
+        </div>
+        <div class="grid grid-cols-2 gap-x-4 gap-y-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          {groupedMedia["fantastic"].map((entry) => {
+            const format = Array.isArray(entry.data.format)
+              ? entry.data.format[0]
+              : entry.data.format;
+            const formatIcon = getFormatIcon(format);
+            const hasImage = isImage(entry.data.link_to_source ?? "");
+            return (
+              <a
+                href={`/media/${entry.id}`}
+                class="group flex flex-col items-center gap-3 no-underline text-inherit focus-outline-rounded"
+              >
+                <div class="aspect-[2/3] w-full max-w-32 overflow-hidden rounded bg-surface-2 soft-transition group-hover:-translate-y-[3px]">
+                  {hasImage ? (
+                    <img
+                      src={entry.data.link_to_source!}
+                      alt={`cover for ${entry.data.title}`}
+                      class="h-full w-full object-contain"
+                    />
+                  ) : (
+                    <div class="flex h-full w-full items-center justify-center">
+                      <Icon
+                        name={formatIcon}
+                        class="text-surface-4 h-10 w-10"
+                      />
+                    </div>
+                  )}
+                </div>
+                <div class="flex w-full flex-col gap-0 text-center">
+                  <p class="font-base line-clamp-2 text-sm sm:text-base font-medium italic leading-tight text-content-1">
+                    {entry.data.title}
+                  </p>
+                  <p class="font-base text-sm text-content-2">
+                    {entry.data.author}
+                  </p>
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      </section>
+    )
+  }
+
+  <!-- GOOD -->
+  {
+    groupedMedia["good"].length > 0 && (
+      <section class="mx-auto mb-12 max-w-6xl px-4" id="good">
+        <div class="mb-4 flex items-center gap-4">
+          <span class="shrink-0 font-base text-base font-semibold uppercase tracking-widest text-content-4">
+            {ratingHeadings["good"]}
+          </span>
+          <hr class="flex-1 border-0 border-t border-surface-3" />
+        </div>
+        <div class="grid grid-cols-1 gap-x-8 md:grid-cols-2 lg:grid-cols-3">
+          {groupedMedia["good"].map((entry) => (
+            <a
+              href={`/media/${entry.id}`}
+              class="group flex flex-col border-b border-surface-2 py-2 no-underline text-inherit focus-outline-rounded"
+            >
+              <span class="line-clamp-1 font-base text-sm italic text-content-2 soft-transition group-hover:text-content-0">
+                {entry.data.title}
+              </span>
+              <span class="truncate font-base text-sm text-content-4">
+                {entry.data.author}
+              </span>
+            </a>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  <!-- OKAY -->
+  {
+    groupedMedia["okay"].length > 0 && (
+      <section class="mx-auto mb-12 max-w-6xl px-4" id="okay">
+        <div class="mb-4 flex items-center gap-4">
+          <span class="shrink-0 font-base text-base font-semibold uppercase tracking-widest text-content-4">
+            {ratingHeadings["okay"]}
+          </span>
+          <hr class="flex-1 border-0 border-t border-surface-3" />
+        </div>
+        <div class="columns-1 gap-x-8 sm:columns-2 lg:columns-3">
+          {groupedMedia["okay"].map((entry) => (
+            <a
+              href={`/media/${entry.id}`}
+              class="group flex flex-col break-inside-avoid border-b border-surface-2 py-1.5 no-underline text-inherit focus-outline-rounded"
+            >
+              <span class="line-clamp-1 font-base text-sm italic text-content-3 soft-transition group-hover:text-content-2">
+                {entry.data.title}
+              </span>
+              <span class="truncate font-base text-sm text-surface-4">
+                {entry.data.author}
+              </span>
+            </a>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  <!-- NOT SO GOOD -->
+  {
+    groupedMedia["not-good"].length > 0 && (
+      <section class="mx-auto mb-12 max-w-6xl px-4" id="not-good">
+        <div class="mb-4 flex items-center gap-4">
+          <span class="shrink-0 font-base text-base font-semibold uppercase tracking-widest text-content-4">
+            {ratingHeadings["not-good"]}
+          </span>
+          <hr class="flex-1 border-0 border-t border-surface-3" />
+        </div>
+        <div class="flex flex-wrap gap-x-6 gap-y-1">
+          {groupedMedia["not-good"].map((entry) => (
+            <a
+              href={`/media/${entry.id}`}
+              class="font-base text-sm italic no-underline text-content-3 soft-transition hover:text-content-2 focus-outline-rounded"
+            >
+              {entry.data.title}
+              <span class="not-italic ml-1">— {entry.data.author}</span>
+            </a>
+          ))}
+        </div>
+      </section>
+    )
   }
 </BaseLayout>
