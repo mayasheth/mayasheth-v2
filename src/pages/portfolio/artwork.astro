@@ -51,11 +51,11 @@ const artworkItemsWithImports = await Promise.all(
     <div
       class="mx-auto flex max-w-3/4 flex-wrap items-center justify-center gap-2 pb-6 text-base md:gap-4"
     >
-      <span class="font-base text-content-0 font-semibold">filter to</span>
+      <span class="font-base text-content-0 font-semibold">filter</span>
       {
         allTags.map((tag) => (
           <button
-            class="filter-button px-2 py-1 md:px-3 md:py-2 rounded-full bg-surface-1 text-content-2 text-base font-base font-light lowercase soft-transition focus-outline"
+            class="filter-button px-2 py-1 rounded-full bg-surface-1 text-content-2 text-sm font-base font-light lowercase soft-transition focus-outline"
             data-tag={tag}
             type="button"
             aria-pressed="false"
@@ -222,8 +222,8 @@ const artworkItemsWithImports = await Promise.all(
                   ${tags
                     .map(
                       (tag) => `<span
-                    class="rounded-full bg-surface-2 hover:bg-surface-3 px-2 py-1 font-base text-sm
-                    text-content-3 hover:text-content-2 soft-transition uppercase">
+                    class="inline-block rounded-full bg-surface-2 hover:bg-surface-3 px-1.5 py-0.5 font-base text-[0.65rem]
+                    text-content-3 hover:text-content-2 soft-transition uppercase mr-1 mb-1">
                     ${tag}</span>`,
                     )
                     .join("")}
