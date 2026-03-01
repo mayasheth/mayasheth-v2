@@ -1,261 +1,238 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
 
 const titleShort = "quotes";
 const titleFull = "words that resonate";
 
-const quotes = await getCollection('quotes');
-
-// Extract unique tags from all quotes
-const allTags = [...new Set(quotes.flatMap(q => q.data.tags || []).map(formatTag))].sort();
-
 function formatTag(tag: string): string {
-  if (!tag) return '';
-  const cleaned = tag.replace(/\/$/, '');
-  const parts = cleaned.split('/');
-  const lastPart = parts[parts.length - 1];
-
-  let formatted = lastPart;
-  if (lastPart == "quote-inspiration") {
-    formatted = "to illustrate!";
-  }
-
-  return formatted || tag;
+  if (!tag) return "";
+  const parts = tag.replace(/\/$/, "").split("/");
+  const last = parts[parts.length - 1];
+  return last === "quote-inspiration" ? "to illustrate!" : last || tag;
 }
+
+const rawQuotes = await getCollection("quotes");
+
+const allTags = [
+  ...new Set(
+    rawQuotes
+      .flatMap((q) => (q.data.tags ?? []).map(formatTag))
+      .filter(Boolean),
+  ),
+].sort();
+
+const quoteData = rawQuotes.map((q) => ({
+  id: q.id,
+  text: q.data.words,
+  source: q.data.primary_source,
+  secondary: q.data.secondary_source ?? null,
+  tags: (q.data.tags ?? []).map(formatTag).filter(Boolean),
+  commentary: q.data.commentary ?? null,
+  date: (q.data.last_modified ?? q.data.created).toISOString(),
+}));
 ---
 
 <BaseLayout titleShort={titleShort} titleFull={titleFull}>
-  <div class="container mx-auto px-4 py-6">
-    <!-- Sort controls -->
-    <div class="pb-4 flex justify-center items-center gap-2 md:gap-4 flex-wrap text-base">
-      <span class="font-base font-semibold text-content-0">sort by</span>
-      {['random', 'newest', 'oldest'].map((sort) => (
-        <a 
-          href={`?sort=${sort}`}
-          data-sort={sort}
-          class="sort-button px-2.5 py-1 md:px-4 md:py-2 rounded-full text-base font-base font-light soft-transition focus-outline"
+  <div class="w-full">
+    <div class="max-w-6xl mx-auto px-8 pb-16">
+      <!-- controls bar -->
+      <div class="flex items-center justify-between flex-wrap gap-2 py-3 border-b border-surface-2 mb-2">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="font-base text-sm font-semibold text-content-0">sort</span>
+          <button class="ctrl-btn bg-surface-3 text-content-1 font-base text-sm font-light px-3 py-1 rounded-full soft-transition" data-sort="random">random</button>
+          <button class="ctrl-btn bg-surface-1 text-content-2 hover:bg-surface-2 font-base text-sm font-light px-3 py-1 rounded-full soft-transition" data-sort="newest">newest</button>
+          <button class="ctrl-btn bg-surface-1 text-content-2 hover:bg-surface-2 font-base text-sm font-light px-3 py-1 rounded-full soft-transition" data-sort="oldest">oldest</button>
+        </div>
+        <a
+          href="/quotes/surprise-me"
+          class="bg-surface-1 text-content-2 hover:bg-surface-2 font-base text-sm font-light px-3 py-1 rounded-full soft-transition whitespace-nowrap no-underline"
         >
-          {sort}
+          surprise me!
         </a>
-      ))}
-    </div>
+      </div>
 
-    <!-- Filter controls -->
-    <div class="pb-6 flex justify-center items-center gap-2 md:gap-4 flex-wrap text-base">
-      <span class="font-base font-semibold text-content-0">filter to</span>
+      <!-- filter row -->
+      <div class="flex flex-wrap gap-1.5 items-center pt-2 pb-3 border-b border-surface-2 mb-3">
+        <span class="font-base text-sm font-semibold text-content-0 mr-1">filter</span>
         {allTags.map((tag) => (
           <button
-            class="filter-button px-2 py-1 md:px-3 md:py-2 rounded-full text-base font-base font-light lowercase soft-transition focus-outline"
+            class="filter-tag-btn bg-surface-1 text-content-2 hover:bg-surface-2 font-base text-sm font-light px-2 py-1 rounded-full soft-transition lowercase"
             data-tag={tag}
           >
             {tag}
           </button>
         ))}
-    </div>
+      </div>
 
-    <!-- Quotes Container -->
-    <div id="quotes-container" class="pb-6 columns-1 md:columns-2 lg:columns-3 gap-4 space-y-4">
-      <!-- Quotes will be inserted here by JavaScript -->
+      <div class="classifieds-grid" id="classifieds-grid"></div>
+      <p class="hidden font-mono text-sm text-content-4 uppercase tracking-widest py-12 text-center" id="no-results">
+        no quotes match this filter
+      </p>
     </div>
   </div>
 
   <style is:global>
-    @supports (display: grid-lanes) {
-      #quotes-container {
-        display: grid-lanes;
-        grid-template-columns: repeat(1, 1fr);
-        gap: 1rem;
-      }
-      @media (min-width: 768px) {
-        #quotes-container { grid-template-columns: repeat(2, 1fr); }
-      }
-      @media (min-width: 1024px) {
-        #quotes-container { grid-template-columns: repeat(3, 1fr); }
-      }
+    /* ── classifieds columns (no Tailwind utility for CSS columns) ── */
+    .classifieds-grid {
+      columns: 1;
+      column-gap: 2rem;
+      column-rule: 1px solid var(--color-surface-2);
     }
+    @media (min-width: 640px)  { .classifieds-grid { columns: 2; } }
+    @media (min-width: 1024px) { .classifieds-grid { columns: 3; } }
   </style>
 
-  <script define:vars={{quotes, allTags}}>
-    // Get URL parameters
-    const urlSearchParams = new URLSearchParams(window.location.search);
-    const params = Object.fromEntries(urlSearchParams.entries());
-
-    let activeFilters = new Set();
-
-    // Sort function
-    function sortQuotes(quotes, sortParam) {
-      let sortedQuotes = [...quotes];
-      if (sortParam === 'random') {
-        quotes.sort(() => Math.random() - 0.5);
-      } else if (sortParam === 'newest') {
-        quotes.sort((a, b) =>
-          new Date(b.data.last_modified ?? b.data.created).getTime() - new Date(a.data.last_modified ?? a.data.created).getTime()
-        );
-      } else if (sortParam === 'oldest') {
-        sortedQuotes.sort((a, b) =>
-          new Date(a.data.last_modified ?? a.data.created).getTime() - new Date(b.data.last_modified ?? b.data.created).getTime()
-        );
-      }
-      return sortedQuotes;
-    }
-
-    // Filter function
-    function filterQuotes(quotes, filters) {
-      if (filters.size === 0) return quotes;
-      return quotes.filter(q => 
-        Array.from(filters).every(filter => 
-          q.data.tags && q.data.tags.some(tag => formatTag(tag) === filter)
-        )
-      );
-
-    }
+  <script define:vars={{ quoteData }}>
+    // ── Style constants ────────────────────────────────────────────────
+    const S = {
+      // classifieds entry
+      entry:       "break-inside-avoid py-2.5 border-b border-surface-2",
+      entryLink:   "block no-underline text-inherit hover:text-content-0 soft-transition",
+      meta:        "font-base text-sm mt-1 leading-relaxed",
+      metaSource:  "text-content-2 font-semibold lowercase",
+      metaVia:     "text-content-3 font-medium lowercase",
+      tags:        "block mt-3 -ml-1.5",
+      tag:         "inline-block font-base soft-transition rounded-full px-1.5 py-0.5 text-[0.65rem] bg-surface-2 hover:bg-surface-3 text-content-3 hover:text-content-2 uppercase mr-1 mb-1",
+      commentary:  "font-base text-sm italic font-light text-content-3 mt-3 leading-snug opacity-85 lowercase",
+      // quote text tiers
+      qShort:      "font-serif text-lg font-bold text-content-1 leading-tight lowercase",
+      qMedShort:   "font-header text-base font-medium text-content-2 lowercase",
+      qMedium:     "font-base text-sm font-medium text-content-3 lowercase",
+      qLong:       "font-base text-sm font-light text-content-2 lowercase",
+      // button active/inactive states
+      btnActive:   "bg-surface-3 text-content-1",
+      btnInactive: "bg-surface-1 text-content-2 hover:bg-surface-2",
+    };
 
     function escapeHtml(text) {
-      return text
-        .replace(/&/g, '&amp;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-    }
-  
-    // Render quotes
-    function renderQuotes(quotes) {
-      const container = document.getElementById('quotes-container');
-      container.innerHTML = quotes.map(q => `
-        <article
-          class="break-inside-avoid mb-4 rounded-xl p-6 bg-surface-1"
-        >
-          <blockquote>
-            <p class="${getQuoteClass(q.data.words)} text-pretty lowercase">
-              <a href="/quotes/${q.id}" rel="noopener" aria-label="link to quote page" class="focus-outline-rounded">
-              ${escapeHtml(q.data.words)}
-              </a>
-            </p>
-          </blockquote>
-          <span class="mt-8 text-right">
-            ${q.data.primary_source ? `
-              <div class="text-content-0 font-base text-base font-semibold lowercase">
-                ${escapeHtml(q.data.primary_source)}
-              </div>
-            ` : ''}
-            ${q.data.secondary_source ? `
-              <div class="text-content-1 font-base text-sm font-light italic lowercase mt-1">
-                via ${escapeHtml(q.data.secondary_source)}
-              </div>
-            ` : ''}
-          </span>
-          ${q.data.tags && q.data.tags.length ? `
-            <div class="mt-4 flex flex-wrap gap-2 justify-center">
-              ${q.data.tags.map(t => `
-                <span class="rounded-full bg-surface-2 hover:bg-surface-3 px-2 py-1 font-base text-sm text-content-3 hover:text-content-2 soft-transition uppercase">
-                  ${escapeHtml(formatTag(t))}
-                </span>
-              `).join('')}
-            </div>
-          ` : ''}
-          ${q.data.commentary ? `
-            <p class="mt-4 text-sm font-base font-light text-content-4 text-center lowercase">
-              ${escapeHtml(q.data.commentary)}
-            </p>
-          ` : ''}
-        </article>
-      `).join('');
+      if (!text) return "";
+      return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
     }
 
-    // Update sort buttons
-    function updateSortButtons(currentSort) {
-      document.querySelectorAll('.sort-button').forEach(button => {
-        if (button.getAttribute('data-sort') === currentSort) {
-          button.classList.add('bg-surface-3', 'hover:bg-surface-4', 'text-content-1');
-          button.classList.remove('bg-surface-1', 'hover:bg-surface-2', 'text-content-2');
-        } else {
-          button.classList.add('bg-surface-1', 'hover:bg-surface-2', 'text-content-2');
-          button.classList.remove('bg-surface-3', 'hover:bg-surface-4', 'text-content-1');
-        }
-      });
+    function getQuoteClass(text) {
+      const n = text.length;
+      if (n < 60)  return S.qShort;
+      if (n < 100) return S.qMedShort;
+      if (n < 160) return S.qMedium;
+      return S.qLong;
     }
 
-    // Update filter buttons
+    function abbrev(str, max) {
+      return str.length > max ? str.slice(0, max - 1) + "…" : str;
+    }
+
+    let currentSort = "random";
+    let activeFilters = new Set();
+
+    // ── Classifieds ────────────────────────────────────────────────────
+
+    function setActive(btn, active) {
+      S.btnActive.split(" ").forEach((c) => btn.classList.toggle(c, active));
+      S.btnInactive.split(" ").forEach((c) => btn.classList.toggle(c, !active));
+    }
+
     function updateFilterButtons() {
-      document.querySelectorAll('.filter-button').forEach(button => {
-        const tag = button.getAttribute('data-tag');
-        if (activeFilters.has(tag)) {
-          button.classList.add('bg-surface-3', 'hover:bg-surface-4', 'text-content-1');
-          button.classList.remove('bg-surface-1', 'hover:bg-surface-2', 'text-content-2');
-        } else {
-          button.classList.add('bg-surface-1', 'hover:bg-surface-2', 'text-content-2');
-          button.classList.remove('bg-surface-3', 'hover:bg-surface-4', 'text-content-1');
-        }
+      document.querySelectorAll(".filter-tag-btn").forEach((btn) => {
+        setActive(btn, activeFilters.has(btn.dataset.tag));
       });
     }
 
-    // Apply sort and filter
-    function applySortAndFilter() {
-      const sortParam = params.sort || 'random';
-      let filteredAndSortedQuotes = filterQuotes(quotes, activeFilters);
-      filteredAndSortedQuotes = sortQuotes(filteredAndSortedQuotes, sortParam);
-      renderQuotes(filteredAndSortedQuotes);
-      updateSortButtons(sortParam);
+    function updateSortButtons() {
+      document.querySelectorAll(".ctrl-btn[data-sort]").forEach((btn) => {
+        setActive(btn, btn.dataset.sort === currentSort);
+      });
+    }
+
+    function sortedQuotes() {
+      let list = [...quoteData];
+      if (activeFilters.size > 0)
+        list = list.filter((q) =>
+          [...activeFilters].every((f) => q.tags.includes(f)),
+        );
+      if (currentSort === "random") list.sort(() => Math.random() - 0.5);
+      else if (currentSort === "newest")
+        list.sort((a, b) => (b.date > a.date ? 1 : -1));
+      else if (currentSort === "oldest")
+        list.sort((a, b) => (a.date > b.date ? 1 : -1));
+      return list;
+    }
+
+    function renderClassifieds() {
+      const grid = document.getElementById("classifieds-grid");
+      const noResults = document.getElementById("no-results");
+      const list = sortedQuotes();
+      if (!list.length) {
+        grid.innerHTML = "";
+        noResults.classList.remove("hidden");
+        return;
+      }
+      noResults.classList.add("hidden");
+      grid.innerHTML = list
+        .map((q) => {
+          const cls = getQuoteClass(q.text);
+          const tagBtns = q.tags
+            .map((t) => `<button class="${S.tag}" data-tag-filter="${escapeHtml(t)}">${escapeHtml(t)}</button>`)
+            .join("");
+          const via = q.secondary
+            ? ` <span class="${S.metaVia}">via ${escapeHtml(q.secondary)}</span>`
+            : "";
+          const note = q.commentary
+            ? `<p class="${S.commentary}">${escapeHtml(q.commentary)}</p>`
+            : "";
+          return `<div class="${S.entry}">
+            <a class="${S.entryLink}" href="/quotes/${q.id}">
+              <p class="${cls}">&ldquo;${escapeHtml(q.text)}&rdquo;</p>
+              <footer class="${S.meta}">
+                <span class="${S.metaSource}">${escapeHtml(q.source)}</span>${via}
+              </footer>
+            </a>
+            <span class="${S.tags}">${tagBtns}</span>${note}
+          </div>`;
+        })
+        .join("");
+    }
+
+    document.querySelectorAll(".ctrl-btn[data-sort]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        currentSort = btn.dataset.sort;
+        updateSortButtons();
+        renderClassifieds();
+      });
+    });
+
+    document.querySelectorAll(".filter-tag-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const tag = btn.dataset.tag;
+        activeFilters.has(tag) ? activeFilters.delete(tag) : activeFilters.add(tag);
+        updateFilterButtons();
+        renderClassifieds();
+      });
+    });
+
+    // ── Tag-in-quote filter buttons ────────────────────────────────────
+    document.getElementById("classifieds-grid").addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-tag-filter]");
+      if (!btn) return;
+      const tag = btn.dataset.tagFilter;
+      activeFilters.clear();
+      activeFilters.add(tag);
+      updateFilterButtons();
+      renderClassifieds();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    // ── Init ───────────────────────────────────────────────────────────
+    const urlTag = new URLSearchParams(window.location.search).get("tag");
+    if (urlTag && allTags.includes(urlTag)) {
+      activeFilters.add(urlTag);
       updateFilterButtons();
     }
-
-    // Initial render
-    applySortAndFilter();
-
-    // Add click event listeners to sort buttons
-    document.querySelectorAll('.sort-button').forEach(button => {
-      button.addEventListener('click', (e) => {
-        e.preventDefault();
-        const newSort = button.getAttribute('data-sort');
-        history.pushState(null, '', `?sort=${newSort}`);
-        params.sort = newSort;
-        applySortAndFilter();
-      });
-    });
-
-    // Add click event listeners to filter buttons
-    document.querySelectorAll('.filter-button').forEach(button => {
-      button.addEventListener('click', () => {
-        const tag = button.getAttribute('data-tag');
-        if (activeFilters.has(tag)) {
-          activeFilters.delete(tag);
-        } else {
-          activeFilters.add(tag);
-        }
-        applySortAndFilter();
-      });
-    });
-
-    // Handle browser back/forward
-    window.addEventListener('popstate', () => {
-      const newParams = new URLSearchParams(window.location.search);
-      params.sort = newParams.get('sort') || 'random';
-      applySortAndFilter();
-    });
-
-    // Helper functions
-    function getQuoteClass(text) {
-      const length = text.length;
-      if (length < 60) return 'font-serif text-2xl font-extrabold text-content-4 hover:text-content-3 leading-tight soft-transition focus-outline-rounded';
-      if (length < 100) return 'font-serif text-xl font-bold text-content-3 hover:text-content-2 leading-tight soft-transition focus-outline-rounded';
-      if (length < 140) return 'font-base text-lg font-medium text-content-2 hover:text-content-1 soft-transition focus-outline-rounded';
-      return 'font-base text-base font-light text-content-1 hover:text-content-0 soft-transition focus-outline-rounded';
-    }
-
-    function formatTag(tag) {
-      if (!tag) return '';
-      const cleaned = tag.replace(/\/$/, '');
-      const parts = cleaned.split('/');
-      const lastPart = parts[parts.length - 1];
-
-      let formatted = lastPart;
-      if (lastPart == "quote-inspiration") {
-        formatted = "to illustrate!";
-      }
-      
-      return formatted || tag;
-    }
+    renderClassifieds();
   </script>
 </BaseLayout>
