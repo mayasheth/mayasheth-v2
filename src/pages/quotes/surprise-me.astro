@@ -1,0 +1,206 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+import { Icon } from "astro-icon/components";
+
+function formatTag(tag: string): string {
+  if (!tag) return "";
+  const parts = tag.replace(/\/$/, "").split("/");
+  const last = parts[parts.length - 1];
+  return last === "quote-inspiration" ? "to illustrate!" : last || tag;
+}
+
+const rawQuotes = await getCollection("quotes");
+
+const quoteData = rawQuotes.map((q) => ({
+  id: q.id,
+  text: q.data.words,
+  source: q.data.primary_source,
+  secondary: q.data.secondary_source ?? null,
+  tags: (q.data.tags ?? []).map(formatTag).filter(Boolean),
+  commentary: q.data.commentary ?? null,
+  date: (q.data.last_modified ?? q.data.created).toISOString(),
+}));
+---
+
+<BaseLayout titleShort="surprise me">
+  <div class="flex flex-col items-center justify-center flex-1 w-full px-4 pb-8">
+    <div class="w-full max-w-5xl">
+      <h1 class="pt-6 mb-4">words that resonate</h1>
+
+      <!-- topbar -->
+      <div class="flex items-baseline justify-end mb-4">
+        <a
+          href="/quotes"
+          class="flex items-center gap-1 font-mono text-sm text-content-4 hover:text-content-2 soft-transition tracking-widest uppercase"
+        >
+          <Icon name="mdi--chevron-up" class="h-4 w-4 -rotate-90" />back to browse
+        </a>
+      </div>
+
+      <!-- table -->
+      <div class="border border-surface-3 overflow-hidden">
+        <div class="grid grid-cols-[2.5rem_1fr_18rem] px-4 py-1.5 bg-surface-1 font-mono text-sm tracking-[0.18em] uppercase text-content-4 border-b border-surface-2 max-sm:grid-cols-[2rem_1fr_10rem]">
+          <span>#</span>
+          <span>words</span>
+          <span>source</span>
+        </div>
+        <div id="board-rows"></div>
+      </div>
+
+      <!-- footer -->
+      <div class="flex items-center justify-between mt-4 flex-wrap gap-2">
+        <span class="font-mono text-sm text-content-4 tracking-[0.12em] uppercase" id="board-count"></span>
+        <button
+          id="shuffle-btn"
+          class="bg-surface-3 hover:bg-surface-4 text-content-1 hover:text-content-0 font-base text-sm font-light px-4 py-1.5 rounded-full soft-transition disabled:opacity-35 disabled:cursor-not-allowed"
+        >
+          <Icon name="mdi--refresh" class="h-4 w-4 inline-block mr-1.5" />again
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <style is:global>
+    .board-row {
+      display: grid;
+      grid-template-columns: 2.5rem 1fr 18rem;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--color-surface-2);
+      transition: background 0.15s;
+      align-items: start;
+      text-decoration: none;
+      color: inherit;
+    }
+    .board-row:last-child { border-bottom: none; }
+    .board-row:hover { background: var(--color-surface-1); }
+    @media (max-width: 640px) {
+      .board-row { grid-template-columns: 2rem 1fr 10rem; }
+    }
+    .row-num {
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      color: var(--color-surface-4);
+      letter-spacing: 0.05em;
+    }
+    .row-quote {
+      font-family: var(--font-mono);
+      font-size: var(--text-base);
+      color: var(--color-content-2);
+      font-weight: var(--font-weight-light);
+      letter-spacing: 0.05em;
+      line-height: 1.2;
+      padding-right: 1rem;
+      text-transform: lowercase;
+    }
+    .row-source {
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      color: var(--color-content-3);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    @media (max-width: 640px) {
+      .row-source { white-space: normal; overflow: visible; text-overflow: clip; }
+    }
+    .board-row.flipping .row-quote  { color: var(--color-surface-4); }
+    .board-row.flipping .row-source { color: var(--color-surface-3); }
+  </style>
+
+  <script define:vars={{ quoteData }}>
+    const BOARD_SIZE = 7;
+    const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ·─░▒ ";
+    let isAnimating = false;
+
+    function abbrev(str, max) {
+      return str.length > max ? str.slice(0, max - 1) + "…" : str;
+    }
+
+    function noise(len) {
+      return Array.from({ length: len }, () => CHARS[Math.floor(Math.random() * CHARS.length)]).join("");
+    }
+
+    function buildBoardRows() {
+      const container = document.getElementById("board-rows");
+      container.innerHTML = "";
+      for (let i = 0; i < BOARD_SIZE; i++) {
+        const row = document.createElement("a");
+        row.className = "board-row";
+        row.href = "#";
+        row.innerHTML = `
+          <span class="row-num">${String(i + 1).padStart(2, "0")}</span>
+          <span class="row-quote">${noise(48)}</span>
+          <span class="row-source">${noise(18)}</span>`;
+        container.appendChild(row);
+      }
+    }
+
+    function scrambleTo(el, target, delay) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          const totalMs = 1000, frameMs = 28;
+          const frames = Math.ceil(totalMs / frameMs);
+          let frame = 0;
+          const tick = setInterval(() => {
+            const progress = frame / frames;
+            const resolved = Math.floor(progress * target.length);
+            let out = "";
+            for (let i = 0; i < target.length; i++)
+              out += i < resolved
+                ? target[i]
+                : CHARS[Math.floor(Math.random() * CHARS.length)];
+            el.textContent = out;
+            frame++;
+            if (frame > frames) {
+              clearInterval(tick);
+              el.textContent = target;
+              resolve();
+            }
+          }, frameMs);
+        }, delay);
+      });
+    }
+
+    async function renderBoard(pool) {
+      if (isAnimating) return;
+      isAnimating = true;
+      document.getElementById("shuffle-btn").disabled = true;
+
+      if (!pool) {
+        pool = [...quoteData].sort(() => Math.random() - 0.5).slice(0, BOARD_SIZE);
+      }
+
+      const rows = document.querySelectorAll(".board-row");
+      const promises = [];
+      rows.forEach((row, i) => {
+        if (i >= pool.length) return;
+        const q = pool[i];
+        row.href = `/quotes/${q.id}`;
+        row.classList.add("flipping");
+        const qEl = row.querySelector(".row-quote");
+        const sEl = row.querySelector(".row-source");
+        const p = Promise.all([
+          scrambleTo(qEl, q.text, i * 220),
+          scrambleTo(sEl, abbrev(q.source.toUpperCase(), 36), i * 220 + 120),
+        ]).then(() => row.classList.remove("flipping"));
+        promises.push(p);
+      });
+
+      await Promise.all(promises);
+      document.getElementById("board-count").textContent =
+        `showing ${pool.length} of ${quoteData.length}`;
+      isAnimating = false;
+      document.getElementById("shuffle-btn").disabled = false;
+    }
+
+    document.getElementById("shuffle-btn").addEventListener("click", () => {
+      renderBoard([...quoteData].sort(() => Math.random() - 0.5).slice(0, BOARD_SIZE));
+    });
+
+    buildBoardRows();
+    renderBoard();
+  </script>
+</BaseLayout>
