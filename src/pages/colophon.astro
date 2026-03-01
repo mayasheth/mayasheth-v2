@@ -20,7 +20,7 @@ const COLOR_TOKENS = [
 ];
 
 const linkClasses =
-  "text-content-4 font-semibold hover:text-content-3 hover:tracking-wide soft-transition focus-outline-rounded";
+  "hover-stable text-content-4 font-semibold hover:text-content-3 hover:tracking-wide soft-transition focus-outline-rounded";
 ---
 
 <BaseLayout titleShort={title} titleFull={title}>
@@ -39,11 +39,11 @@ const linkClasses =
     <p class="text-content-2 mt-4 text-center">
       the site is built from the ground up by me with coding guidance from
       gpt-4.1 & claude-4-sonnet, with later refactoring and optimization by claude-code.
-      all code is open source and available on <a
+      all code is open source and available on <span class="whitespace-nowrap"><a
         class={linkClasses}
         target="_blank"
-        href="https://github.com/mayasheth/mayasheth-v2">GitHub</a
-      >. all mistakes are my own; any feedback is welcome.
+        data-text="GitHub"
+        href="https://github.com/mayasheth/mayasheth-v2">GitHub</a>.</span> all mistakes are my own; any feedback is welcome.
     </p>
 
     <p class="text-content-3 mt-4 text-center">
@@ -58,45 +58,53 @@ const linkClasses =
   >
     <h2>design</h2>
     <p class="text-content-1 text-center">
-      headers are set in <a
+      headers are set in <span class="whitespace-nowrap"><a
         class={linkClasses}
         target="_blank"
+        data-text="Schibsted Grotesk"
         href="https://schibsted.com/about/schibsteds-visual-design/our-typeface/"
         >Schibsted Grotesk</a
-      >, interface text in <a
+      >,</span> interface text in <span class="whitespace-nowrap"><a
         class={linkClasses}
         target="_blank"
+        data-text="Montserrat"
         href="https://github.com/JulietaUla/Montserrat">Montserrat</a
-      >, monospace text in <a
+      >,</span> monospace text in <span class="whitespace-nowrap"><a
         class={linkClasses}
         target="_blank"
+        data-text="Inconsolata"
         href="https://levien.com/type/myfonts/inconsolata.html">Inconsolata</a
-      >, & selected serif text in <a
+      >,</span> & selected serif text in <span class="whitespace-nowrap"><a
         class={linkClasses}
         target="_blank"
+        data-text="Playfair"
         href="https://github.com/clauseggers/Playfair">Playfair</a
-      >. all are erved by <a
+      >.</span> all are served by <span class="whitespace-nowrap"><a
         class={linkClasses}
         target="_blank"
+        data-text="Google Fonts"
         href="https://fonts.google.com/">Google Fonts</a
-      >. lowercase (mostly) everything because i like the vibe.
+      >.</span> lowercase (mostly) everything because i like the vibe.
     </p>
 
     <p class="text-content-2 mt-4 text-center">
-      brand icons were <a
+      brand icons from <a
         class={linkClasses}
         target="_blank"
+        data-text="Font Awesome"
         href="https://github.com/FortAwesome/Font-Awesome">Font Awesome</a
       >
-      and all others from <a
+      and all others from <span class="whitespace-nowrap"><a
         class={linkClasses}
         target="_blank"
+        data-text="Material Design"
         href="https://github.com/Templarian/MaterialDesign">Material Design</a
-      >, both via <a
+      >,</span> both via <span class="whitespace-nowrap"><a
         class={linkClasses}
         target="_blank"
+        data-text="Iconify"
         href="https://iconify.design/docs/">Iconify</a
-      >.
+      >.</span>
     </p>
 
     <p class="text-content-3 mt-4 mb-2 text-center">
@@ -105,9 +113,11 @@ const linkClasses =
         class={linkClasses}
         target="_blank"
         href="https://www.tints.dev/palette/v1:Y29yYWx8MjA0Yjg5fDgwMHxwfDB8MHwwfDEwMHxh"
+        data-text="tints.dev"
         >tints.dev</a
       > palette generator:
     </p>
+
     <ColorSwatchesGrid colors={COLOR_TOKENS} client:only="react" />
     <p class="text-content-3 text-center text-sm">click to copy OKLCH</p>
   </section>
@@ -118,36 +128,42 @@ const linkClasses =
   >
     <h2>tech</h2>
     <p class="text-content-1 text-center">
-      this site is built with <a
+      this site is built with <span class="whitespace-nowrap"><a
         class={linkClasses}
         target="_blank"
+        data-text="Astro"
         href="https://astro.build/">Astro</a
-      >,
-      <a class={linkClasses} target="_blank" href="https://react.dev/">React</a
-      >, & <a
+      >,</span>
+      <span class="whitespace-nowrap"><a class={linkClasses} target="_blank" data-text="React" href="https://react.dev/">React</a
+      >,</span> & <span class="whitespace-nowrap"><a
         class={linkClasses}
         target="_blank"
+        data-text="TypeScript"
         href="https://www.typescriptlang.org/">TypeScript</a
-      >, styled with <a
+      >,</span> styled with <span class="whitespace-nowrap"><a
         class={linkClasses}
         target="_blank"
+        data-text="Tailwind CSS"
         href="https://tailwindcss.com/">Tailwind CSS</a
-      >, and deployed on <a
+      >,</span> and deployed on <span class="whitespace-nowrap"><a
         class={linkClasses}
         target="_blank"
+        data-text="Vercel"
         href="https://vercel.com/">Vercel</a
-      >.
+      >.</span>
     </p>
 
     <p class="text-content-2 mt-4 text-center">
-      all content is written + curated in <a
+      all content is written + curated in <span class="whitespace-nowrap"><a
         class={linkClasses}
         target="_blank"
+        data-text="Obsidian"
         href="https://obsidian.md/">Obsidian</a
-      >, then synchronized + processed with
+      >,</span> then synchronized + processed with
       <a
         class={linkClasses}
         target="_blank"
+        data-text="Astro content collections"
         href="https://docs.astro.build/en/guides/content-collections/"
         >Astro content collections</a
       >
@@ -156,18 +172,20 @@ const linkClasses =
 
     <p class="text-content-3 mt-4 text-center md:flex md:flex-col">
       <span
-        >carbon emissions per view are estimated via <a
+        >carbon emissions per view are estimated via <span class="whitespace-nowrap"><a
           class={linkClasses}
           target="_blank"
+          data-text="Website Carbon"
           href="https://www.websitecarbon.com/">Website Carbon</a
-        >.</span
+        >.</span></span
       >
       <span
-        >site-wide search is powered by <a
+        >site-wide search is powered by <span class="whitespace-nowrap"><a
           class={linkClasses}
           href="https://pagefind.app/"
-          target="_blank">Pagefind</a
-        >.</span
+          target="_blank"
+          data-text="Pagefind">Pagefind</a
+        >.</span></span
       >
     </p>
   </section>

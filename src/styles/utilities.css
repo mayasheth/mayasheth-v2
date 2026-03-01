@@ -1,4 +1,19 @@
 @layer utilities {
+  /* Prevents layout shift when hover changes letter-spacing or font-weight.
+     Add data-text="<same text as link>" to the element. */
+  .hover-stable {
+    display: inline-block;
+    vertical-align: bottom;
+    &::after {
+      content: attr(data-text);
+      display: block;
+      letter-spacing: 0.025em; /* tracking-wide */
+      visibility: hidden;
+      height: 0;
+      overflow: hidden;
+    }
+  }
+
   .soft-transition {
     @apply transition-all duration-400
   }
