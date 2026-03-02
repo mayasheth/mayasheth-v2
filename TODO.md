@@ -1,30 +1,11 @@
 # TODO
 
-## Accessibility review findings
-Priority fixes:
-- [x] Make artwork gallery items keyboard accessible (add tabindex="0", role="button", keydown handler) (source: review of portfolio/artwork.astro:72-108)
-- [x] Add aria-pressed to filter buttons to indicate active state (source: review of portfolio/artwork.astro:57-64)
-- [x] Fix malformed HTML: extra </p> tag (source: review of index.astro:138)
-- [x] Add type="button" to nav dropdown triggers (source: review of Navigation.astro:34)
-
-Other fixes:
-- [ ] Ensure modal image alt text is never empty (source: review of portfolio/artwork.astro:200)
-- [ ] Change logo alt="paw-logo" to descriptive text or empty string (source: review of Navigation.astro:19, NavigationHome.astro:19,61)
-- [ ] Fix data-pagefind-title/url template literal syntax in gratitudes (source: review of gratitudes.astro:62-63)
-- [ ] Add aria-label="Main navigation" to desktop nav (source: review of Navigation.astro:28)
-- [ ] Add aria-label="Table of contents" to TOC nav (source: review of media/[id].astro:66)
-- [ ] Add aria-hidden="true" to decorative icons (source: review of Footer.astro:27)
-- [ ] Add aria-labelledby to gallery modal (source: review of portfolio/artwork.astro:117)
 
 ## Backlog
 - [ ] Restyle individual quote pages (demos exist in docs/)
-- [ ] Redesign home page
+- [ ] Redesign home page (demos in docs/)
 - [ ] Redesign gratitudes page
-- [ ] Fix nav hover layout shift for font-weight changes (hover:font-semibold; hover-stable utility only handles letter-spacing)
 - [ ] Add accent color to styles and implement throughout site
-- [ ] Complete README documentation
-- [ ] Review mobile responsiveness
-- [ ] Add indicator that "cmd+K" can be used to search
 - [ ] Once `display: grid-lanes` ships in all major browsers, remove the JS polyfill from `MasonryGrid.astro` (the entire `<script>` block and `masonry-item` custom element)
 
 ## Ideas
@@ -53,3 +34,13 @@ Other fixes:
   - Add /quotes/surprise-me scramble board page
 - [x] Standardize tag chip styling across quotes and artwork pages
 - [x] Reduce nav bar height (py-2 px-3)
+- [x] Accessibility review (full audit)
+  - Priority: keyboard nav on gallery, aria-pressed on filters, malformed HTML, button types
+  - ARIA: aria-label on main nav and TOC nav, aria-labelledby + role="dialog" on gallery modal, aria-hidden on decorative icons
+  - Alt text: empty alt on decorative logo imgs, non-empty fallback on modal img
+  - Bug fix: data-pagefind-title/url were literal strings instead of expressions in gratitudes.astro
+- [x] Review mobile responsiveness (fixed px-8 → px-4 sm:px-8 in quotes.astro)
+- [x] Add ⌘K indicator to search button (kbd hint on md+ screens)
+- [x] Fix nav hover layout shift for font-weight changes
+  - Added hover-stable-fw utility (reserves semibold width via ::after)
+  - Applied to nav button labels, dropdown links, and sidebar links
