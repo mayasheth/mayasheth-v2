@@ -116,6 +116,9 @@ const artworkItemsWithImports = await Promise.all(
 
   <div
     id="gallery-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-title"
     class="bg-surface-0/60 hide-modal fixed inset-0 z-50 flex items-center justify-center backdrop-blur-xs"
     tabindex="-1"
   >
@@ -202,8 +205,8 @@ const artworkItemsWithImports = await Promise.all(
               aria-label="Close">&times;
             </button>
             <div class="flex flex-col items-center gap-2">
-              <img src="${imgSrc}" alt="${title || desc}" class="max-h-[50vh] rounded-lg" />
-              <h2 class="mt-2 text-lg xl:text-xl text-content-0 lowercase text-pretty leading-none">${title}
+              <img src="${imgSrc}" alt="${title || desc || 'artwork'}" class="max-h-[50vh] rounded-lg" />
+              <h2 id="modal-title" class="mt-2 text-lg xl:text-xl text-content-0 lowercase text-pretty leading-none">${title}
                 <span class="font-mono text-base xl:text-lg text-content-3 ml-2">${year}</span>
               </h2>
               ${desc ? `<p class="text-center text-pretty text-sm md:text-base text-content-2 lowercase max-h-30 overflow-y-scroll">${desc}</p>` : ""}
@@ -236,7 +239,7 @@ const artworkItemsWithImports = await Promise.all(
           modal.classList.remove("hide-modal");
           // Focus close button for accessibility:
           /* @ts-ignore */
-          //setTimeout(() => { modalContent.querySelector("#modal-close").focus(); },100);
+          setTimeout(() => { modalContent.querySelector("#modal-close")?.focus(); }, 100);
 
           // Close button:
           /* @ts-ignore */

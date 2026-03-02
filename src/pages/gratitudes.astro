@@ -59,8 +59,8 @@ const itemsWithImageImports = await Promise.all(
         <masonry-item
           id={item.id}
           data-pagefind-body
-          data-pagefind-title="${item.data.redacted_content}"
-          data-pagefind-url="/gratitudes#${item.slug}"
+          data-pagefind-title={item.data.redacted_content}
+          data-pagefind-url={`/gratitudes#${item.id}`}
           class={`overflow-hidden rounded-xl ${
             item.imgSrc
               ? "h-auto w-full"

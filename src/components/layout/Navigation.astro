@@ -16,7 +16,7 @@ const dropdownClasses =
   <div class="mx-auto flex max-w-6xl items-center justify-between">
     <!-- Left: Logo and site Name -->
     <div class="flex items-end justify-center">
-      <img class="-mb-0.5 h-auto w-8" src="/tricolor-paw.svg" alt="paw-logo" />
+      <img class="-mb-0.5 h-auto w-8" src="/tricolor-paw.svg" alt="" />
       <a
         href="/"
         class="text-content-3 soft-transition hover:text-content-2 focus-outline-rounded ml-2 font-serif text-xl font-bold"
@@ -26,13 +26,14 @@ const dropdownClasses =
 
     <!-- Desktop menu -->
     <nav
+      aria-label="Main navigation"
       class="font-header text-content-3 hidden items-center space-x-6 text-base font-light tracking-wide md:flex"
     >
       {
         NAV_ITEMS.map((item) => (
           <div class="group relative">
             <button type="button" class={navbarClasses}>
-              {item.label}
+              <span class="hover-stable-fw" data-text={item.label}>{item.label}</span>
               {item.icon && (
                 <Icon
                   name={item.icon}
@@ -43,7 +44,7 @@ const dropdownClasses =
             <div class="bg-surface-1 ring-surface-3 absolute left-1/2 my-2 hidden w-auto -translate-x-1/2 rounded-md py-1 text-center ring-2 group-hover:block before:absolute before:inset-x-0 before:-top-2 before:h-2 before:content-['']">
               {item.children.map((child) => (
                 <a href={child.href} class={dropdownClasses}>
-                  {child.label}
+                  <span class="hover-stable-fw" data-text={child.label}>{child.label}</span>
                 </a>
               ))}
             </div>

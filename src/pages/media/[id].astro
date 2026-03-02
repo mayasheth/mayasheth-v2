@@ -63,7 +63,7 @@ const hasToC = toc.length > 1;
     {
       hasToC && (
         <div class="relative mx-auto px-4 pt-4 text-balance xl:pt-10 2xl:px-0">
-          <nav class="max-h-64 overflow-y-scroll md:sticky md:top-18 md:bottom-10 md:max-h-dvh">
+          <nav aria-label="Table of contents" class="max-h-64 overflow-y-scroll md:sticky md:top-18 md:bottom-10 md:max-h-dvh">
             <ul>
               {toc.map((heading) => (
                 <TOCHeading heading={heading} />
