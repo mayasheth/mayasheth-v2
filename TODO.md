@@ -4,7 +4,7 @@
 ## Backlog
 - [ ] Restyle individual quote pages (demos exist in docs/)
 - [ ] Redesign home page (demos in docs/)
-- [ ] Redesign gratitudes page
+- [ ] Check gratitudes page on mobile
 - [ ] Add accent color to styles and implement throughout site
 - [ ] Once `display: grid-lanes` ships in all major browsers, remove the JS polyfill from `MasonryGrid.astro` (the entire `<script>` block and `masonry-item` custom element)
 
@@ -18,6 +18,11 @@
   - https://oklch.fyi/color-palettes/arctic-frost
 
 ## Complete
+- [x] Redesign gratitudes page
+  - Orb/bubble grid layout using MasonryGrid (4 columns on desktop, 2–3 on mobile)
+  - Image orbs fill column width; text orbs sized dynamically via JS binary search to fit content as perfect circles
+  - Responsive padding and orb sizing across breakpoints
+  - Tap-to-reveal overlay on touch devices
 - [x] Markdown processing cleanup (code review findings)
   - Deleted dead `headings` variable in markdown-render.ts
   - Cached `getBaseSlugMap()` results to avoid repeated collection fetches
@@ -51,3 +56,10 @@
 - [x] Fix nav hover layout shift for font-weight changes
   - Added hover-stable-fw utility (reserves semibold width via ::after)
   - Applied to nav button labels, dropdown links, and sidebar links
+- [x] Artwork gallery image optimization and modal redesign
+  - Resize thumbnails to 600px wide via Astro Image, reduce eager loading to 8
+  - Placard modal layout: padded image, centered metadata, title/year stacked
+  - Left/right arrow navigation cycling through filtered set; keyboard arrow support
+  - Fade+slide transitions on open, close, and between items
+  - Focus outline on masonry-item grid cells
+  - Discourage image saving: pointer-events none, draggable=false, contextmenu blocked

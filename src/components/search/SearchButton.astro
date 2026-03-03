@@ -6,23 +6,25 @@ const { id = "search-trigger", size = "h-6 w-6", label } = Astro.props;
 
 <button
   id={id}
-  class="group relative flex items-center focus-outline-rounded"
+  class="group flex items-center rounded-full bg-surface-3 px-4 py-2 text-content-2 soft-transition hover:bg-surface-4 hover:text-content-1 focus-outline"
   aria-label="Open search (⌘K)"
 >
-  <Icon
-    name="mdi--magnify"
-    class={`${size} text-content-3 group-hover:text-content-2 group-focus:text-content-2 group-focus:scale-110 soft-transition`}
-  />
   {
     label ? (
-      <span class="font-header text-content-4 ml-2 text-base font-semibold tracking-wide">
-        {label}
-      </span>
+      <>
+        <Icon name="mdi--magnify" class={`${size} soft-transition`} />
+        <span class="font-header ml-2 text-base font-semibold tracking-wide">
+          {label}
+        </span>
+      </>
     ) : (
-      <span class="hidden md:inline-flex items-center ml-2 gap-0.5 text-content-3 soft-transition">
-        <Icon name="mdi--apple-keyboard-command" class="h-4 w-4" aria-hidden="true" />
-        <span class="font-mono text-base font-semibold leading-none">K</span>
-      </span>
+      <>
+        <Icon name="mdi--magnify" class="h-4 w-4" aria-hidden="true" />
+        <span class="flex items-center gap-0.5 ml-1.5" aria-hidden="true">
+          <Icon name="mdi--apple-keyboard-command" class="h-3.5 w-3.5" />
+          <span class="font-mono text-sm font-semibold leading-none">K</span>
+        </span>
+      </>
     )
   }
 </button>

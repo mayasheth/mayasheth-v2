@@ -10,10 +10,10 @@ const titleFull = "thank you, world";
 
 const gratitudes = await getCollection("gratitudes");
 
-// Sort newest relevant_date
 gratitudes.sort((a, b) =>
   new Date(b.data.relevant_date) > new Date(a.data.relevant_date) ? 1 : -1,
 );
+
 
 function formatDate(date: Date): string {
   const newDate = new Date(date);
@@ -23,7 +23,6 @@ function formatDate(date: Date): string {
   return `${year}/${month}/${day}`;
 }
 
-// Import images if present using Astro V4 dynamic asset import
 const imageImports = import.meta.glob<{ default: ImageMetadata }>(
   "../content/300-collections/gratitudes/images/*",
 );
@@ -32,10 +31,7 @@ const itemsWithImageImports = await Promise.all(
   gratitudes.map(async (item) => {
     let imgSrc = null;
     if (item.data.image) {
-      // item.image: '../images/filename.png'
-      // Remove '../images/' prefix – get IMAGE FILENAME
       const imageFileName = item.data.image.replace(/^\.\.\/images\//, "");
-      // Build the glob key: it must match exactly as the key in imageImports
       const globKey = `../content/300-collections/gratitudes/images/${imageFileName}`;
       if (imageImports[globKey]) {
         imgSrc = (await imageImports[globKey]()).default;
@@ -49,55 +45,116 @@ const itemsWithImageImports = await Promise.all(
 ---
 
 <BaseLayout titleShort={titleShort} titleFull={titleFull}>
-  <p class="text-content-1 pb-6 text-center">
+  <p class="text-content-1 pb-8 text-center font-base font-light">
     (smile-inducing, gratitude-provoking, and otherwise noteworthy moments)
   </p>
 
-  <MasonryGrid colsLg={4} class="mx-auto max-w-3/4">
+  <MasonryGrid cols={2} colsSm={3} colsLg={4} gap="0.75rem" class="mx-auto max-w-5xl px-4 pb-12">
     {
       itemsWithImageImports.map((item, index) => (
         <masonry-item
           id={item.id}
+          class="flex justify-center"
           data-pagefind-body
           data-pagefind-title={item.data.redacted_content}
           data-pagefind-url={`/gratitudes#${item.id}`}
-          class={`overflow-hidden rounded-xl ${
-            item.imgSrc
-              ? "h-auto w-full"
-              : "bg-surface-2 hover:bg-surface-3 soft-transition flex flex-col justify-between"
-          }`}
         >
           {item.imgSrc ? (
-            <div class="group relative h-full">
+            <div class="img-orb w-full aspect-square rounded-full overflow-hidden group relative">
               <Image
                 src={item.imgSrc}
                 alt={item.data.redacted_content}
-                loading={index < 20 ? "eager" : "lazy"}
+                width={300}
+                draggable="false"
+                loading={index < 12 ? "eager" : "lazy"}
                 class="h-full w-full object-cover"
               />
-              <div class="bg-content-0 soft-transition absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-80">
-                <p class="text-content-4 soft-transition p-4 text-center text-base font-semibold text-ellipsis lowercase opacity-0 group-hover:opacity-100">
+              <div class="img-orb-overlay absolute inset-0 flex flex-col items-center justify-center bg-surface-0/80 p-6 text-center opacity-0 soft-transition group-hover:opacity-100">
+                <p class="text-content-1 font-base font-light text-sm lowercase leading-tight line-clamp-5">
                   {item.data.redacted_content}
                 </p>
+                <span class="text-content-3 mt-1.5 font-mono text-[0.6rem]">
+                  {formatDate(item.data.relevant_date)}
+                </span>
               </div>
-              <p class="text-content-1 absolute right-2 bottom-2 px-2 py-1 font-mono text-base font-semibold">
-                {formatDate(item.data.relevant_date)}
-              </p>
             </div>
           ) : (
-            <>
-              <div class="flex flex-grow items-center justify-center p-4">
-                <p class="text-content-2 group-hover:text-content-0 soft-transition text-center text-base font-light text-ellipsis lowercase">
-                  {item.data.redacted_content}
-                </p>
-              </div>
-              <p class="text-content-3 px-2 py-2 text-right font-mono text-base font-semibold">
-                {formatDate(item.data.relevant_date)}
+            <div class="text-orb rounded-full overflow-hidden bg-surface-2 hover:bg-surface-3 soft-transition flex flex-col items-center justify-center gap-0.5 p-3 sm:p-5 lg:p-7">
+              <p class="text-sm text-content-2 text-center font-base font-light lowercase leading-snug">
+                {item.data.redacted_content}
               </p>
-            </>
+              <span class="text-content-3 mt-0.5 font-mono text-[0.6rem] leading-none">
+                {formatDate(item.data.relevant_date)}
+              </span>
+            </div>
           )}
         </masonry-item>
       ))
     }
   </MasonryGrid>
+
+  <script>
+    function sizeOrbs(): void {
+      const orbs = Array.from(
+        document.querySelectorAll(".text-orb") as NodeListOf<HTMLElement>
+      );
+      if (!orbs.length) return;
+
+      // Read: get max size (= column width) for each orb — one reflow
+      const maxSizes = orbs.map(
+        (orb) => (orb.closest("masonry-item") as HTMLElement)?.offsetWidth ?? 200
+      );
+      const minSize = 88;
+      const los = new Array(orbs.length).fill(minSize);
+      const his = [...maxSizes];
+
+      // Write: unconstrain height, set width to max so text wraps freely
+      orbs.forEach((orb, i) => {
+        orb.style.height = "auto";
+        orb.style.width = maxSizes[i] + "px";
+      });
+
+      // 8 binary search iterations, each costing one reflow (batched reads)
+      for (let iter = 0; iter < 8; iter++) {
+        // Write phase: all orbs get new trial width
+        orbs.forEach((orb, i) => {
+          orb.style.width = Math.round((los[i] + his[i]) / 2) + "px";
+        });
+        // Read phase: one reflow, then cached for remaining reads
+        orbs.forEach((orb, i) => {
+          const mid = Math.round((los[i] + his[i]) / 2);
+          if (orb.scrollHeight <= mid) his[i] = mid;
+          else los[i] = mid;
+        });
+      }
+
+      // Write: apply final size with breathing room (~12% of column), capped at column width
+      orbs.forEach((orb, i) => {
+        const extra = Math.round(maxSizes[i] * 0.12);
+        const size = Math.min(his[i] + extra, maxSizes[i]);
+        orb.style.width = size + "px";
+        orb.style.height = size + "px";
+      });
+    }
+
+    // Touch: tap to show/hide overlay on image orbs (no hover on mobile)
+    if (window.matchMedia("(hover: none)").matches) {
+      document.querySelectorAll(".img-orb").forEach((orb) => {
+        const overlay = orb.querySelector(".img-orb-overlay") as HTMLElement | null;
+        if (!overlay) return;
+        orb.addEventListener("click", () => {
+          const shown = overlay.style.opacity === "1";
+          overlay.style.opacity = shown ? "0" : "1";
+        });
+      });
+    }
+
+    // Run after layout settles; re-run on resize
+    requestAnimationFrame(() => requestAnimationFrame(sizeOrbs));
+    let _t: ReturnType<typeof setTimeout>;
+    window.addEventListener("resize", () => {
+      clearTimeout(_t);
+      _t = setTimeout(sizeOrbs, 150);
+    });
+  </script>
 </BaseLayout>
