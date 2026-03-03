@@ -73,20 +73,21 @@ const artworkItemsWithImports = await Promise.all(
           <masonry-item
             tabindex="0"
             role="button"
-            class="group relative mb-2 h-auto w-full cursor-pointer rounded-md md:mb-3"
+            class="group relative mb-2 h-auto w-full cursor-pointer rounded-md focus-outline-rounded md:mb-3"
             data-tags={item.art_tags?.map(formatTag).join(",") ?? ""}
             data-title={item.title ?? ""}
             data-description={item.description ?? ""}
             data-year={item.created ? item.created.getFullYear() : ""}
             data-inspiration={item.inspiration ?? ""}
-            data-imgsrc={item.imgData ? item.imgData.src : ""}
           >
             {item.imgData && (
               <>
                 <Image
                   src={item.imgData}
                   alt={item.description ?? item.title ?? "artwork"}
-                  loading={index < 20 ? "eager" : "lazy"}
+                  width={600}
+                  draggable="false"
+                  loading={index < 8 ? "eager" : "lazy"}
                   class="h-auto w-full rounded-md"
                 />
                 <div class="bg-content-0 soft-transition absolute inset-0 flex flex-col items-center justify-center rounded-md opacity-0 hover:opacity-90">
@@ -122,12 +123,24 @@ const artworkItemsWithImports = await Promise.all(
     class="bg-surface-0/60 hide-modal fixed inset-0 z-50 flex items-center justify-center backdrop-blur-xs"
     tabindex="-1"
   >
+    <button
+      id="modal-prev"
+      aria-label="Previous artwork"
+      class="absolute left-3 top-1/2 z-10 hidden -translate-y-1/2 rounded-full bg-surface-0/70 p-2 text-xl text-content-2 soft-transition hover:bg-surface-2 hover:text-content-1 focus-outline-rounded md:left-5 md:p-3"
+    >←</button>
+
     <div
       id="gallery-modal-content"
-      class="bg-surface-1 relative max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-xl p-6 md:max-w-2xl md:p-8"
+      class="bg-surface-1 relative max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-xl md:max-w-2xl"
     >
       <!-- Dynamic content injected by JS -->
     </div>
+
+    <button
+      id="modal-next"
+      aria-label="Next artwork"
+      class="absolute right-3 top-1/2 z-10 hidden -translate-y-1/2 rounded-full bg-surface-0/70 p-2 text-xl text-content-2 soft-transition hover:bg-surface-2 hover:text-content-1 focus-outline-rounded md:right-5 md:p-3"
+    >→</button>
   </div>
 
   <script>
@@ -181,102 +194,129 @@ const artworkItemsWithImports = await Promise.all(
     (function () {
       const modal = document.getElementById("gallery-modal");
       const modalContent = document.getElementById("gallery-modal-content");
-      let lastFocused: any;
+      const prevBtn = document.getElementById("modal-prev");
+      const nextBtn = document.getElementById("modal-next");
+      let lastFocused: Element | null = null;
+      let filteredItems: Element[] = [];
+      let currentIndex = 0;
 
-      document.querySelectorAll("masonry-item").forEach((item) => {
-        function openModal(e: Event) {
-          e.preventDefault();
-          lastFocused = item;
-          // Read data attributes
-          const imgSrc = item.getAttribute("data-imgsrc");
+      // Tailwind class strings consolidated for scanner
+      const S = {
+        closeBtn: "absolute top-3 right-3 px-2 text-xl md:text-2xl font-base font-semibold text-content-3 hover:text-content-2 hover-pop soft-transition focus-outline-rounded",
+        imgWrap:  "pt-4 px-4",
+        img:      "w-full rounded-xl object-contain max-h-[62vh] md:max-h-[46vh]",
+        meta:     "px-5 py-4 md:px-6 md:py-5 text-center",
+        title:    "font-header text-lg font-semibold text-content-1 lowercase leading-tight",
+        year:     "block mt-0.5 font-mono text-sm text-content-3",
+        desc:     "mt-2 text-sm font-base font-light text-content-2 lowercase",
+        inspoRow: "mt-2",
+        inspo:    "text-sm italic text-content-3 hover:text-content-2 soft-transition focus-outline-rounded",
+        tagsWrap: "mt-3 flex flex-wrap gap-1.5 justify-center",
+        tag:      "inline-block rounded-full bg-surface-2 hover:bg-surface-3 px-1.5 py-0.5 font-base text-[0.65rem] text-content-3 hover:text-content-2 soft-transition uppercase",
+      };
+
+      function showItem(index: number, animate = false) {
+        function doUpdate() {
+          currentIndex = index;
+          const item = filteredItems[index];
+          const imgSrc = item.querySelector("img")?.src ?? "";
           const title = item.getAttribute("data-title") || "";
           const desc = item.getAttribute("data-description") || "";
-          const tags =
-            item.getAttribute("data-tags")?.split(",").filter(Boolean) || [];
+          const tags = item.getAttribute("data-tags")?.split(",").filter(Boolean) || [];
           const year = item.getAttribute("data-year") || "";
           const inspiration = item.getAttribute("data-inspiration") || "";
 
-          // Build modal HTML (adapt/extend for your design)
           /* @ts-ignore */
           modalContent.innerHTML = `
-            <button id="modal-close"
-              class="absolute top-3 right-3 px-2 text-xl md:text-2xl font-base font-semibold text-content-3
-              hover:text-content-2 hover-pop soft-transition focus-outline-rounded"
-              aria-label="Close">&times;
-            </button>
-            <div class="flex flex-col items-center gap-2">
-              <img src="${imgSrc}" alt="${title || desc || 'artwork'}" class="max-h-[50vh] rounded-lg" />
-              <h2 id="modal-title" class="mt-2 text-lg xl:text-xl text-content-0 lowercase text-pretty leading-none">${title}
-                <span class="font-mono text-base xl:text-lg text-content-3 ml-2">${year}</span>
-              </h2>
-              ${desc ? `<p class="text-center text-pretty text-sm md:text-base text-content-2 lowercase max-h-30 overflow-y-scroll">${desc}</p>` : ""}
-              ${
-                inspiration
-                  ? `<p><a href="${inspiration}" target="_blank" rel="noopener"
-                class="font-semibold italic text-content-3 hover:text-content-4 hover:tracking-wide soft-transition focus-outline-rounded">
-                  inspiration
-              </a></p>`
-                  : ""
-              }
-              ${
-                tags.length
-                  ? `
-                <div class="mt-2 flex flex-wrap gap-2 justify-center">
-                  ${tags
-                    .map(
-                      (tag) => `<span
-                    class="inline-block rounded-full bg-surface-2 hover:bg-surface-3 px-1.5 py-0.5 font-base text-[0.65rem]
-                    text-content-3 hover:text-content-2 soft-transition uppercase mr-1 mb-1">
-                    ${tag}</span>`,
-                    )
-                    .join("")}
-                </div>`
-                  : ""
-              }
+            <button id="modal-close" aria-label="Close" class="${S.closeBtn}">&times;</button>
+            <div class="${S.imgWrap}">
+              <img src="${imgSrc}" alt="${title || desc || "artwork"}" class="${S.img}" draggable="false" />
+            </div>
+            <div class="${S.meta}">
+              <h2 id="modal-title" class="${S.title}">${title}</h2>
+              ${year ? `<span class="${S.year}">${year}</span>` : ""}
+              ${desc ? `<p class="${S.desc}">${desc}</p>` : ""}
+              ${inspiration ? `<div class="${S.inspoRow}"><a href="${inspiration}" target="_blank" rel="noopener" class="${S.inspo}">inspiration ↗</a></div>` : ""}
+              ${tags.length ? `<div class="${S.tagsWrap}">${tags.map((t: string) => `<span class="${S.tag}">${t}</span>`).join("")}</div>` : ""}
             </div>
           `;
           /* @ts-ignore */
-          modal.classList.remove("hide-modal");
-          // Focus close button for accessibility:
+          modalContent.querySelector("#modal-close")?.addEventListener("click", closeModal);
           /* @ts-ignore */
-          setTimeout(() => { modalContent.querySelector("#modal-close")?.focus(); }, 100);
+          if (animate) modalContent.style.opacity = "";
 
-          // Close button:
-          /* @ts-ignore */
-          modalContent
-            .querySelector("#modal-close")
-            .addEventListener("click", closeModal);
+          const showNav = filteredItems.length > 1;
+          prevBtn?.classList.toggle("hidden", !showNav);
+          nextBtn?.classList.toggle("hidden", !showNav);
         }
 
-        item.addEventListener("click", openModal);
-        item.addEventListener("keydown", (e) => {
-          if ((e as KeyboardEvent).key === "Enter" || (e as KeyboardEvent).key === " ") {
-            openModal(e);
-          }
-        });
-      });
-      // Background click closes modal
-      /* @ts-ignore */
-      modal.addEventListener("mousedown", function (e) {
-        if (e.target === modal) closeModal();
-      });
+        if (animate) {
+          /* @ts-ignore */
+          modalContent.style.opacity = "0";
+          setTimeout(doUpdate, 130);
+        } else {
+          doUpdate();
+        }
+      }
 
-      // Escape closes modal
-      document.addEventListener("keydown", function (e) {
+      function openModal(item: Element) {
+        filteredItems = [...document.querySelectorAll("masonry-item:not(.hidden)")];
+        currentIndex = filteredItems.indexOf(item);
+        lastFocused = item;
+        showItem(currentIndex);
         /* @ts-ignore */
-        if (!modal.classList.contains("hide-modal") && e.key === "Escape")
-          closeModal();
-      });
+        modal.classList.remove("hide-modal");
+        /* @ts-ignore */
+        setTimeout(() => { (modalContent.querySelector("#modal-close") as HTMLElement)?.focus(); }, 100);
+      }
 
       function closeModal() {
         /* @ts-ignore */
         modal.classList.add("hide-modal");
-        /* @ts-ignore */
-        modalContent.innerHTML = "";
-        if (lastFocused) {
-          lastFocused.focus();
-        }
+        if (lastFocused) (lastFocused as HTMLElement).focus();
+        setTimeout(() => {
+          /* @ts-ignore */
+          modalContent.innerHTML = "";
+          prevBtn?.classList.add("hidden");
+          nextBtn?.classList.add("hidden");
+        }, 200);
       }
+
+      document.querySelectorAll("masonry-item").forEach((item) => {
+        item.addEventListener("click", () => openModal(item));
+        item.addEventListener("keydown", (e) => {
+          if ((e as KeyboardEvent).key === "Enter" || (e as KeyboardEvent).key === " ") {
+            openModal(item);
+          }
+        });
+      });
+
+      prevBtn?.addEventListener("click", () => {
+        if (!filteredItems.length) return;
+        showItem((currentIndex - 1 + filteredItems.length) % filteredItems.length, true);
+      });
+      nextBtn?.addEventListener("click", () => {
+        if (!filteredItems.length) return;
+        showItem((currentIndex + 1) % filteredItems.length, true);
+      });
+
+      /* @ts-ignore */
+      modal.addEventListener("mousedown", (e) => { if (e.target === modal) closeModal(); });
+
+      document.addEventListener("keydown", (e) => {
+        /* @ts-ignore */
+        if (modal.classList.contains("hide-modal")) return;
+        if (e.key === "Escape") closeModal();
+        if (e.key === "ArrowLeft" && filteredItems.length > 1)
+          showItem((currentIndex - 1 + filteredItems.length) % filteredItems.length, true);
+        if (e.key === "ArrowRight" && filteredItems.length > 1)
+          showItem((currentIndex + 1) % filteredItems.length, true);
+      });
+
+      // Prevent right-click save on artwork images
+      document.addEventListener("contextmenu", (e) => {
+        if (e.target instanceof HTMLImageElement) e.preventDefault();
+      });
     })();
   </script>
 </BaseLayout>
@@ -293,5 +333,18 @@ const artworkItemsWithImports = await Promise.all(
   }
   #gallery-modal.hide-modal {
     opacity: 0;
+  }
+  #gallery-modal-content {
+    transition: transform 0.2s ease-out, opacity 0.15s ease;
+  }
+  #gallery-modal.hide-modal #gallery-modal-content {
+    transform: translateY(10px);
+  }
+  /* Discourage right-click save / drag-to-desktop */
+  masonry-item img,
+  #gallery-modal img {
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
   }
 </style>
