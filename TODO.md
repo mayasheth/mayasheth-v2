@@ -8,12 +8,12 @@
 - [ ] Add accent color to styles and implement throughout site
 - [ ] Once `display: grid-lanes` ships in all major browsers, remove the JS polyfill from `MasonryGrid.astro` (the entire `<script>` block and `masonry-item` custom element)
 
+
 ## Ideas
 - [ ] Dark mode toggle
 - [ ] Page for concepts and tags (manually curate which to include?)
 - [ ] Implement map page(s) for places lived, places travelled (flighty), around-the-world reading?
 - [ ] Add or link to actual CV (need to update/reformat)
-- [ ] Optimize toc highlighting with sectioning
 - Color palettes I like (for accents, edit current, light mode)
   - https://oklch.fyi/color-palettes/arctic-frost
 
@@ -40,6 +40,13 @@
   - Alt text: empty alt on decorative logo imgs, non-empty fallback on modal img
   - Bug fix: data-pagefind-title/url were literal strings instead of expressions in gratitudes.astro
 - [x] Review mobile responsiveness (fixed px-8 → px-4 sm:px-8 in quotes.astro)
+- [x] TOC code review fixes
+  - Moved HeadingHierarchy interface to toc-helpers.ts
+  - Skip h5/h6 headings instead of throwing during build
+  - Fixed hasToC: use headings.length > 1 instead of toc.length > 1
+  - Guard heading.id optional before rendering anchor
+  - Fixed scroll highlight: now tracks most-recently-passed heading when scrolled past all
+  - Removed unused render import
 - [x] Add ⌘K indicator to search button (kbd hint on md+ screens)
 - [x] Fix nav hover layout shift for font-weight changes
   - Added hover-stable-fw utility (reserves semibold width via ::after)

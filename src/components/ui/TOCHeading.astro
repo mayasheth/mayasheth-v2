@@ -1,6 +1,7 @@
 ---
 // github.com/rezahedi/rezahedi.dev/blob/main/src/components/TOCHeading.astro
-const { heading } = Astro.props;
+import type { HeadingHierarchy } from "@/lib/helpers/toc-helpers";
+const { heading }: { heading: HeadingHierarchy } = Astro.props;
 const indentClass =
   heading.depth === 2
     ? "pl-0"
@@ -9,27 +10,26 @@ const indentClass =
       : heading.depth === 4
         ? "pl-8"
         : "";
-
-export interface HeadingHierarchy {
-  text: string;
-  depth: number;
-  id?: string; // from rehype-slug
-  subheadings: HeadingHierarchy[];
-}
 ---
 
 <li class={`${indentClass} leading-2 pb-1`}>
-  <a
-    class="font-base text-content-3 focus-outline-rounded hover:text-content-2 soft-transition text-sm tracking-tight text-balance hover:font-semibold"
-    href={"#" + heading.id}
-    id={`toc-link-${heading.id}`}
-  >
-    {heading.text}
-  </a>
+  {heading.id ? (
+    <a
+      class="font-base text-content-3 focus-outline-rounded hover:text-content-2 soft-transition text-sm tracking-tight text-balance hover:font-semibold"
+      href={"#" + heading.id}
+      id={`toc-link-${heading.id}`}
+    >
+      {heading.text}
+    </a>
+  ) : (
+    <span class="font-base text-content-3 text-sm tracking-tight text-balance">
+      {heading.text}
+    </span>
+  )}
   {
     heading.subheadings.length > 0 && (
       <ul>
-        {heading.subheadings.map((subheading: any) => (
+        {heading.subheadings.map((subheading: HeadingHierarchy) => (
           <Astro.self heading={subheading} />
         ))}
       </ul>

@@ -1,8 +1,8 @@
 ---
 // pages/media/[id].astro
-import { getCollection, render, type CollectionEntry } from "astro:content";
+import { getCollection, type CollectionEntry } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { type HeadingHierarchy } from "@/components/ui/TOCHeading.astro";
+import { type HeadingHierarchy } from "@/lib/helpers/toc-helpers";
 import TOCHeading from "@/components/ui/TOCHeading.astro";
 import MediaInfoPage from "@/components/content/MediaInfoPage.astro";
 import { createHeadingHierarchy } from "@/lib/helpers/toc-helpers";
@@ -53,7 +53,7 @@ const { html, headings } = await renderMarkdownWithRewriters(markdown, {
 
 // 3. Set up TOC
 const toc: HeadingHierarchy[] = createHeadingHierarchy(headings ?? []);
-const hasToC = toc.length > 1;
+const hasToC = headings.length > 1;
 ---
 
 <BaseLayout titleShort={mediaEntry.data.title.toLowerCase()}>
@@ -95,29 +95,32 @@ const hasToC = toc.length > 1;
   ].map((e) => e.id);
 
   function highlightClosestHeading() {
-    // Find which heading is nearest to the top of viewport
-    let closest;
-    let min = Infinity;
+    // Find the heading closest to the top of the viewport:
+    // - Among headings at or below the fold: pick the one nearest the top (smallest positive rect.top)
+    // - Among headings scrolled past: pick the most recently passed one (largest negative rect.top)
+    // Prefer the at/below-fold group; fall back to the scrolled-past group.
+    let aboveId: string | undefined;
+    let belowId: string | undefined;
+    let minAbove = Infinity;
+    let maxBelow = -Infinity;
+
     headingIds.forEach((id) => {
       const el = document.getElementById(id);
-      if (el) {
-        const rect = el.getBoundingClientRect();
-        if (rect.top >= 0 && rect.top < min) {
-          min = rect.top;
-          closest = id;
-        }
+      if (!el) return;
+      const top = el.getBoundingClientRect().top;
+      if (top >= 0 && top < minAbove) {
+        minAbove = top;
+        aboveId = id;
+      } else if (top < 0 && top > maxBelow) {
+        maxBelow = top;
+        belowId = id;
       }
     });
-    // Remove active from all
-    document
-      .querySelectorAll(".toc-active")
-      .forEach((el) => el.classList.remove("toc-active"));
-    // Add active to closest
+
+    const closest = aboveId ?? belowId;
+    document.querySelectorAll(".toc-active").forEach((el) => el.classList.remove("toc-active"));
     if (closest) {
-      const activeLink = document.getElementById(`toc-link-${closest}`);
-      if (activeLink) {
-        activeLink.classList.add("toc-active");
-      }
+      document.getElementById(`toc-link-${closest}`)?.classList.add("toc-active");
     }
   }
   window.addEventListener("scroll", highlightClosestHeading, { passive: true });

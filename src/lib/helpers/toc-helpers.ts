@@ -1,5 +1,11 @@
-import { type HeadingHierarchy } from "@/components/ui/TOCHeading.astro";
 import type { MarkdownHeading } from "astro";
+
+export interface HeadingHierarchy {
+  text: string;
+  depth: number;
+  id?: string; // from rehype-slug
+  subheadings: HeadingHierarchy[];
+}
 
 export function createHeadingHierarchy(
   headings: (
@@ -17,10 +23,8 @@ export function createHeadingHierarchy(
   const stack: HeadingHierarchy[] = [];
 
   headings.forEach((heading) => {
-    if (heading.depth > 4)
-      throw Error(
-        `Depths greater than 4 not allowed:\n${JSON.stringify(heading, null, 2)}`,
-      );
+    // Skip headings deeper than h4 rather than crashing the build
+    if (heading.depth > 4) return;
 
     const node: HeadingHierarchy = { ...heading, subheadings: [] };
 
@@ -29,10 +33,8 @@ export function createHeadingHierarchy(
       stack.pop();
     }
     if (stack.length === 0) {
-      // Top-most heading at this point
       hierarchy.push(node);
     } else {
-      // Add as child to parent in stack
       stack[stack.length - 1].subheadings.push(node);
     }
     stack.push(node);
