@@ -137,8 +137,10 @@ const itemsWithImageImports = await Promise.all(
       });
     }
 
+    const isTouch = window.matchMedia("(hover: none)").matches;
+
     // Touch: tap to show/hide overlay on image orbs (no hover on mobile)
-    if (window.matchMedia("(hover: none)").matches) {
+    if (isTouch) {
       document.querySelectorAll(".img-orb").forEach((orb) => {
         const overlay = orb.querySelector(".img-orb-overlay") as HTMLElement | null;
         if (!overlay) return;
@@ -149,12 +151,125 @@ const itemsWithImageImports = await Promise.all(
       });
     }
 
+    // --- Physics: idle drift + mouse repulsion ---
+    const REPEL_RADIUS = 130;
+    const REPEL_STRENGTH = 1.4;
+    const SPRING_K = 0.07;
+    const DAMPING = 0.82;
+    const MAX_DISP = 20;
+
+    type PhysOrb = {
+      el: HTMLElement;
+      x: number; y: number;
+      vx: number; vy: number;
+      dax: number; day: number;
+      dfx: number; dfy: number;
+      dpx: number; dpy: number;
+    };
+
+    let orbStates: PhysOrb[] = [];
+    let mouseX = -9999;
+    let mouseY = -9999;
+    let rafId = 0;
+
+    function makeOrbState(el: HTMLElement, prev?: PhysOrb): PhysOrb {
+      // Override soft-transition's transition-all so transform updates are instant
+      el.style.transition = "background-color 400ms ease, opacity 400ms ease";
+      return {
+        el,
+        x: 0, y: 0, vx: 0, vy: 0,
+        dax: prev?.dax ?? 2 + Math.random() * 2,
+        day: prev?.day ?? 2 + Math.random() * 2,
+        dfx: prev?.dfx ?? (0.25 + Math.random() * 0.30) * 2 * Math.PI,
+        dfy: prev?.dfy ?? (0.25 + Math.random() * 0.30) * 2 * Math.PI,
+        dpx: prev?.dpx ?? Math.random() * 2 * Math.PI,
+        dpy: prev?.dpy ?? Math.random() * 2 * Math.PI,
+      };
+    }
+
+    function initPhysics(): void {
+      const allOrbs = Array.from(document.querySelectorAll<HTMLElement>(".text-orb, .img-orb"));
+      orbStates = allOrbs.map((el) => makeOrbState(el));
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(loop);
+    }
+
+    function reinitPhysics(): void {
+      const allOrbs = Array.from(document.querySelectorAll<HTMLElement>(".text-orb, .img-orb"));
+      const prevMap = new Map(orbStates.map((s) => [s.el, s]));
+      orbStates = allOrbs.map((el) => makeOrbState(el, prevMap.get(el)));
+    }
+
+    function loop(timestamp: number): void {
+      const t = timestamp / 1000;
+
+      // Read phase: batch all getBoundingClientRect calls before any writes
+      const rects = orbStates.map((s) => s.el.getBoundingClientRect());
+
+      // Compute + Write phase
+      for (let i = 0; i < orbStates.length; i++) {
+        const s = orbStates[i];
+        const rect = rects[i];
+
+        // Idle drift (sinusoidal, always runs including mobile)
+        const driftX = s.dax * Math.sin(t * s.dfx + s.dpx);
+        const driftY = s.day * Math.cos(t * s.dfy + s.dpy);
+
+        // Spring repulsion from cursor (non-touch only)
+        if (!isTouch) {
+          const cx = rect.left + rect.width / 2;
+          const cy = rect.top + rect.height / 2;
+          const dx = cx - mouseX;
+          const dy = cy - mouseY;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < REPEL_RADIUS && dist > 0) {
+            const force = (1 - dist / REPEL_RADIUS) * REPEL_STRENGTH;
+            s.vx += (dx / dist) * force;
+            s.vy += (dy / dist) * force;
+          }
+        }
+
+        // Spring return + damping
+        s.vx += -s.x * SPRING_K;
+        s.vy += -s.y * SPRING_K;
+        s.vx *= DAMPING;
+        s.vy *= DAMPING;
+        s.x += s.vx;
+        s.y += s.vy;
+        s.x = Math.max(-MAX_DISP, Math.min(MAX_DISP, s.x));
+        s.y = Math.max(-MAX_DISP, Math.min(MAX_DISP, s.y));
+
+        // Write transform (drift + spring displacement)
+        s.el.style.transform = `translate(${(s.x + driftX).toFixed(2)}px, ${(s.y + driftY).toFixed(2)}px)`;
+      }
+
+      rafId = requestAnimationFrame(loop);
+    }
+
+    // Mouse tracking (non-touch only); off-page coords disable repulsion
+    if (!isTouch) {
+      document.addEventListener("mousemove", (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+      document.addEventListener("mouseleave", () => { mouseX = -9999; mouseY = -9999; });
+    }
+
+    // Pause loop when tab is hidden, resume when visible
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) cancelAnimationFrame(rafId);
+      else rafId = requestAnimationFrame(loop);
+    });
+
     // Run after layout settles; re-run on resize
-    requestAnimationFrame(() => requestAnimationFrame(sizeOrbs));
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      sizeOrbs();
+      initPhysics();
+    }));
     let _t: ReturnType<typeof setTimeout>;
     window.addEventListener("resize", () => {
       clearTimeout(_t);
-      _t = setTimeout(sizeOrbs, 150);
+      _t = setTimeout(() => {
+        sizeOrbs();
+        reinitPhysics();
+      }, 150);
     });
   </script>
 </BaseLayout>
