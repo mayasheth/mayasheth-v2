@@ -60,7 +60,7 @@ const itemsWithImageImports = await Promise.all(
           data-pagefind-url={`/gratitudes#${item.id}`}
         >
           {item.imgSrc ? (
-            <div class="img-orb w-full aspect-square rounded-full overflow-hidden group relative">
+            <div class="img-orb w-full aspect-square rounded-full overflow-hidden group relative opacity-0">
               <Image
                 src={item.imgSrc}
                 alt={item.data.redacted_content}
@@ -79,7 +79,7 @@ const itemsWithImageImports = await Promise.all(
               </div>
             </div>
           ) : (
-            <div class="text-orb rounded-full overflow-hidden bg-surface-2 hover:bg-surface-3 soft-transition flex flex-col items-center justify-center gap-0.5 p-3 sm:p-5 lg:p-7">
+            <div class="text-orb rounded-full overflow-hidden soft-transition flex flex-col items-center justify-center gap-0.5 p-3 sm:p-5 lg:p-7 opacity-0">
               <p class="text-sm text-content-2 text-center font-base font-light lowercase leading-snug">
                 {item.data.redacted_content}
               </p>
@@ -92,6 +92,33 @@ const itemsWithImageImports = await Promise.all(
       ))
     }
   </MasonryGrid>
+
+  <style is:global>
+    /* Animate the radial gradient focal point per-orb.
+       @property is required so the browser can interpolate --gx/--gy. */
+    @property --gx { syntax: '<percentage>'; inherits: false; initial-value: 38%; }
+    @property --gy { syntax: '<percentage>'; inherits: false; initial-value: 32%; }
+
+    @keyframes drift-highlight {
+      0%   { --gx: 34%; --gy: 28%; }
+      25%  { --gx: 48%; --gy: 22%; }
+      55%  { --gx: 44%; --gy: 46%; }
+      80%  { --gx: 26%; --gy: 40%; }
+      100% { --gx: 34%; --gy: 28%; }
+    }
+
+    .text-orb {
+      background: radial-gradient(
+        circle at var(--gx) var(--gy),
+        var(--orb-hi, var(--color-surface-3)),
+        var(--orb-lo, var(--color-surface-1))
+      );
+      animation: drift-highlight var(--orb-dur, 6s) ease-in-out infinite;
+      animation-delay: var(--orb-delay, 0s);
+    }
+
+    .text-orb:hover { filter: brightness(1.28); }
+  </style>
 
   <script>
     function sizeOrbs(): void {
@@ -174,7 +201,7 @@ const itemsWithImageImports = await Promise.all(
 
     function makeOrbState(el: HTMLElement, prev?: PhysOrb): PhysOrb {
       // Override soft-transition's transition-all so transform updates are instant
-      el.style.transition = "background-color 400ms ease, opacity 400ms ease";
+      el.style.transition = "opacity 400ms ease, filter 300ms ease";
       return {
         el,
         x: 0, y: 0, vx: 0, vy: 0,
@@ -258,10 +285,37 @@ const itemsWithImageImports = await Promise.all(
       else rafId = requestAnimationFrame(loop);
     });
 
+    // Assign per-orb gradient colours and animation timing (runs once at init)
+    function stylizeOrbs(): void {
+      const orbs = Array.from(document.querySelectorAll<HTMLElement>(".text-orb"));
+      // Gradient tiers: [hi-lightness, hi-chroma, lo-lightness, lo-chroma]
+      const tiers = [
+        [41,   0.10, 14.2, 0.07],  // bright + deep
+        [38.2, 0.10, 22.8, 0.07],  // mid
+        [38.2, 0.09, 14.2, 0.07],  // mid + deep
+        [34,   0.09, 27,   0.09],  // low contrast
+      ] as const;
+      orbs.forEach(el => {
+        const baseHue = 230 + Math.random() * 18;              // 230–248°
+        const hiHue   = baseHue + (Math.random() - 0.5) * 8;  // ±4° jitter
+        const loHue   = hiHue + 8 + Math.random() * 6;        // lo is 8–14° deeper
+        const [hiL, hiC, loL, loC] = tiers[Math.floor(Math.random() * tiers.length)];
+        el.style.setProperty("--orb-hi", `oklch(${hiL}% ${hiC} ${hiHue.toFixed(1)})`);
+        el.style.setProperty("--orb-lo", `oklch(${loL}% ${loC} ${loHue.toFixed(1)})`);
+        el.style.setProperty("--orb-dur",   `${(5 + Math.random() * 3).toFixed(1)}s`);
+        el.style.setProperty("--orb-delay", `-${(Math.random() * 8).toFixed(1)}s`);
+      });
+    }
+
     // Run after layout settles; re-run on resize
     requestAnimationFrame(() => requestAnimationFrame(() => {
       sizeOrbs();
-      initPhysics();
+      stylizeOrbs();
+      initPhysics(); // sets opacity transition on each orb
+      // Reveal orbs in the next frame so the transition actually fires (0→1)
+      requestAnimationFrame(() => {
+        orbStates.forEach(s => { s.el.style.opacity = "1"; });
+      });
     }));
     let _t: ReturnType<typeof setTimeout>;
     window.addEventListener("resize", () => {
