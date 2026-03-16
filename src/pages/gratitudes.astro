@@ -14,15 +14,6 @@ gratitudes.sort((a, b) =>
   new Date(b.data.relevant_date) > new Date(a.data.relevant_date) ? 1 : -1,
 );
 
-
-// Mobile orb size tier based on text length (Tailwind scans these static strings)
-function mobileOrbWidth(text: string): string {
-  const len = text.length;
-  if (len <= 20) return "[@media(hover:none)]:w-[55%]";
-  if (len <= 45) return "[@media(hover:none)]:w-[76%]";
-  return "[@media(hover:none)]:w-full";
-}
-
 function formatDate(date: Date): string {
   const newDate = new Date(date);
   const year = newDate.getFullYear();
@@ -57,49 +48,93 @@ const itemsWithImageImports = await Promise.all(
     (smile-inducing, gratitude-provoking, and otherwise noteworthy moments)
   </p>
 
-  <MasonryGrid cols={2} colsSm={3} colsLg={4} gap="0.75rem" class="mx-auto max-w-5xl px-4 pb-12">
-    {
-      itemsWithImageImports.map((item, index) => (
-        <masonry-item
-          id={item.id}
-          class="flex justify-center"
-          data-pagefind-body
-          data-pagefind-title={item.data.redacted_content}
-          data-pagefind-url={`/gratitudes#${item.id}`}
-        >
-          {item.imgSrc ? (
-            <div class="img-orb w-full aspect-square rounded-full overflow-hidden group relative opacity-0 [@media(hover:none)]:!opacity-100">
-              <Image
-                src={item.imgSrc}
-                alt={item.data.redacted_content}
-                width={300}
-                draggable="false"
-                loading={index < 4 ? "eager" : "lazy"}
-                class="h-full w-full object-cover"
-              />
-              <div class="img-orb-overlay absolute inset-0 flex flex-col items-center justify-center bg-surface-0/80 p-6 text-center opacity-0 soft-transition group-hover:opacity-100">
-                <p class="text-content-1 font-base font-light text-sm lowercase leading-tight line-clamp-5">
+  {/* ── Mobile card layout (< 640px) ── */}
+  <div class="sm:hidden" data-pagefind-ignore>
+    <MasonryGrid cols={2} colsSm={2} colsLg={2} gap="0.75rem" class="mx-auto max-w-5xl px-4 pb-12">
+      {
+        itemsWithImageImports.map((item) => (
+          <masonry-item id={`m-${item.id}`} class="flex justify-center">
+            {item.imgSrc ? (
+              <div class="mobile-img-card rounded-xl overflow-hidden relative w-full group">
+                <Image
+                  src={item.imgSrc}
+                  alt={item.data.redacted_content}
+                  width={200}
+                  draggable="false"
+                  loading="lazy"
+                  class="h-full w-full object-cover"
+                />
+                <div class="mobile-img-overlay absolute inset-0 flex flex-col items-center justify-center bg-surface-0/80 p-3 text-center opacity-0 soft-transition">
+                  <p class="text-content-1 font-base font-light text-sm lowercase leading-tight line-clamp-5">
+                    {item.data.redacted_content}
+                  </p>
+                  <span class="text-content-3 mt-1.5 font-mono text-[0.6rem]">
+                    {formatDate(item.data.relevant_date)}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div class="bg-surface-2 rounded-xl p-4 flex flex-col justify-between w-full min-h-[6rem]">
+                <p class="text-sm text-content-2 font-base font-light lowercase leading-snug line-clamp-4">
                   {item.data.redacted_content}
                 </p>
-                <span class="text-content-3 mt-1.5 font-mono text-[0.6rem]">
+                <span class="text-content-3 mt-2 self-end font-mono text-[0.6rem] leading-none">
                   {formatDate(item.data.relevant_date)}
                 </span>
               </div>
-            </div>
-          ) : (
-            <div class={`text-orb rounded-full overflow-hidden soft-transition flex flex-col items-center justify-center gap-0.5 p-3 sm:p-5 lg:p-7 opacity-0 [@media(hover:none)]:!opacity-100 [@media(hover:none)]:aspect-square [@media(hover:none)]:[animation:none] [@media(hover:none)]:transition-none ${mobileOrbWidth(item.data.redacted_content)}`}>
-              <p class="text-sm text-content-2 text-center font-base font-light lowercase leading-snug [@media(hover:none)]:line-clamp-4">
-                {item.data.redacted_content}
-              </p>
-              <span class="text-content-3 mt-0.5 font-mono text-[0.6rem] leading-none">
-                {formatDate(item.data.relevant_date)}
-              </span>
-            </div>
-          )}
-        </masonry-item>
-      ))
-    }
-  </MasonryGrid>
+            )}
+          </masonry-item>
+        ))
+      }
+    </MasonryGrid>
+  </div>
+
+  {/* ── Desktop orb layout (≥ 640px) ── */}
+  <div class="hidden sm:block">
+    <MasonryGrid cols={2} colsSm={3} colsLg={4} gap="0.75rem" class="mx-auto max-w-5xl px-4 pb-12">
+      {
+        itemsWithImageImports.map((item, index) => (
+          <masonry-item
+            id={item.id}
+            class="flex justify-center"
+            data-pagefind-body
+            data-pagefind-title={item.data.redacted_content}
+            data-pagefind-url={`/gratitudes#${item.id}`}
+          >
+            {item.imgSrc ? (
+              <div class="img-orb w-full aspect-square rounded-full overflow-hidden group relative opacity-0">
+                <Image
+                  src={item.imgSrc}
+                  alt={item.data.redacted_content}
+                  width={300}
+                  draggable="false"
+                  loading={index < 4 ? "eager" : "lazy"}
+                  class="h-full w-full object-cover"
+                />
+                <div class="img-orb-overlay absolute inset-0 flex flex-col items-center justify-center bg-surface-0/80 p-6 text-center opacity-0 soft-transition group-hover:opacity-100">
+                  <p class="text-content-1 font-base font-light text-sm lowercase leading-tight line-clamp-5">
+                    {item.data.redacted_content}
+                  </p>
+                  <span class="text-content-3 mt-1.5 font-mono text-[0.6rem]">
+                    {formatDate(item.data.relevant_date)}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div class="text-orb rounded-full overflow-hidden soft-transition flex flex-col items-center justify-center gap-0.5 p-3 sm:p-5 lg:p-7 opacity-0">
+                <p class="text-sm text-content-2 text-center font-base font-light lowercase leading-snug">
+                  {item.data.redacted_content}
+                </p>
+                <span class="text-content-3 mt-0.5 font-mono text-[0.6rem] leading-none">
+                  {formatDate(item.data.relevant_date)}
+                </span>
+              </div>
+            )}
+          </masonry-item>
+        ))
+      }
+    </MasonryGrid>
+  </div>
 
   <style is:global>
     /* Animate the radial gradient focal point per-orb.
@@ -129,54 +164,23 @@ const itemsWithImageImports = await Promise.all(
   </style>
 
   <script>
-    function sizeOrbs(): void {
-      const orbs = Array.from(
-        document.querySelectorAll(".text-orb") as NodeListOf<HTMLElement>
-      );
-      if (!orbs.length) return;
+    const isMobile = window.innerWidth < 640;
+    const isTouch = window.matchMedia("(hover: none)").matches;
 
-      // Read: get column width for each orb — one reflow
-      const maxSizes = orbs.map(
-        (orb) => (orb.closest("masonry-item") as HTMLElement)?.offsetWidth ?? 200
-      );
-
-      const minSize = 88;
-      const los = new Array(orbs.length).fill(minSize);
-      const his = [...maxSizes];
-
-      // Write: unconstrain height, set width to max so text wraps freely
-      orbs.forEach((orb, i) => {
-        orb.style.height = "auto";
-        orb.style.width = maxSizes[i] + "px";
-      });
-
-      // 8 binary search iterations, each costing one reflow (batched reads)
-      for (let iter = 0; iter < 8; iter++) {
-        // Write phase: all orbs get new trial width
-        orbs.forEach((orb, i) => {
-          orb.style.width = Math.round((los[i] + his[i]) / 2) + "px";
+    // Touch: tap to show/hide overlay on mobile image cards
+    if (isMobile) {
+      document.querySelectorAll(".mobile-img-card").forEach((card) => {
+        const overlay = card.querySelector(".mobile-img-overlay") as HTMLElement | null;
+        if (!overlay) return;
+        card.addEventListener("click", () => {
+          const shown = overlay.style.opacity === "1";
+          overlay.style.opacity = shown ? "0" : "1";
         });
-        // Read phase: one reflow, then cached for remaining reads
-        orbs.forEach((orb, i) => {
-          const mid = Math.round((los[i] + his[i]) / 2);
-          if (orb.scrollHeight <= mid) his[i] = mid;
-          else los[i] = mid;
-        });
-      }
-
-      // Write: apply final size with breathing room (~12% of column), capped at column width
-      orbs.forEach((orb, i) => {
-        const extra = Math.round(maxSizes[i] * 0.12);
-        const size = Math.min(his[i] + extra, maxSizes[i]);
-        orb.style.width = size + "px";
-        orb.style.height = size + "px";
       });
     }
 
-    const isTouch = window.matchMedia("(hover: none)").matches;
-
-    // Touch: tap to show/hide overlay on image orbs (no hover on mobile)
-    if (isTouch) {
+    // Touch: tap to show/hide overlay on desktop image orbs (tablet)
+    if (!isMobile && isTouch) {
       document.querySelectorAll(".img-orb").forEach((orb) => {
         const overlay = orb.querySelector(".img-orb-overlay") as HTMLElement | null;
         if (!overlay) return;
@@ -209,7 +213,6 @@ const itemsWithImageImports = await Promise.all(
     let rafId = 0;
 
     function makeOrbState(el: HTMLElement, prev?: PhysOrb): PhysOrb {
-      // Override soft-transition's transition-all so transform updates are instant
       el.style.transition = "opacity 400ms ease, filter 300ms ease";
       return {
         el,
@@ -239,19 +242,15 @@ const itemsWithImageImports = await Promise.all(
     function loop(timestamp: number): void {
       const t = timestamp / 1000;
 
-      // Read phase: batch all getBoundingClientRect calls before any writes
       const rects = orbStates.map((s) => s.el.getBoundingClientRect());
 
-      // Compute + Write phase
       for (let i = 0; i < orbStates.length; i++) {
         const s = orbStates[i];
         const rect = rects[i];
 
-        // Idle drift (sinusoidal, always runs including mobile)
         const driftX = s.dax * Math.sin(t * s.dfx + s.dpx);
         const driftY = s.day * Math.cos(t * s.dfy + s.dpy);
 
-        // Spring repulsion from cursor (non-touch only)
         if (!isTouch) {
           const cx = rect.left + rect.width / 2;
           const cy = rect.top + rect.height / 2;
@@ -265,7 +264,6 @@ const itemsWithImageImports = await Promise.all(
           }
         }
 
-        // Spring return + damping
         s.vx += -s.x * SPRING_K;
         s.vy += -s.y * SPRING_K;
         s.vx *= DAMPING;
@@ -275,41 +273,62 @@ const itemsWithImageImports = await Promise.all(
         s.x = Math.max(-MAX_DISP, Math.min(MAX_DISP, s.x));
         s.y = Math.max(-MAX_DISP, Math.min(MAX_DISP, s.y));
 
-        // Write transform (drift + spring displacement)
         s.el.style.transform = `translate(${(s.x + driftX).toFixed(2)}px, ${(s.y + driftY).toFixed(2)}px)`;
       }
 
       rafId = requestAnimationFrame(loop);
     }
 
-    // Mouse tracking (non-touch only); off-page coords disable repulsion
-    if (!isTouch) {
-      document.addEventListener("mousemove", (e) => { mouseX = e.clientX; mouseY = e.clientY; });
-      document.addEventListener("mouseleave", () => { mouseX = -9999; mouseY = -9999; });
-    }
+    function sizeOrbs(): void {
+      const orbs = Array.from(
+        document.querySelectorAll(".text-orb") as NodeListOf<HTMLElement>
+      );
+      if (!orbs.length) return;
 
-    // Pause loop when tab is hidden, resume when visible (non-touch only)
-    if (!isTouch) {
-      document.addEventListener("visibilitychange", () => {
-        if (document.hidden) cancelAnimationFrame(rafId);
-        else rafId = requestAnimationFrame(loop);
+      const maxSizes = orbs.map(
+        (orb) => (orb.closest("masonry-item") as HTMLElement)?.offsetWidth ?? 200
+      );
+
+      const minSize = 88;
+      const los = new Array(orbs.length).fill(minSize);
+      const his = [...maxSizes];
+
+      orbs.forEach((orb, i) => {
+        orb.style.height = "auto";
+        orb.style.width = maxSizes[i] + "px";
+      });
+
+      for (let iter = 0; iter < 8; iter++) {
+        orbs.forEach((orb, i) => {
+          orb.style.width = Math.round((los[i] + his[i]) / 2) + "px";
+        });
+        orbs.forEach((orb, i) => {
+          const mid = Math.round((los[i] + his[i]) / 2);
+          if (orb.scrollHeight <= mid) his[i] = mid;
+          else los[i] = mid;
+        });
+      }
+
+      orbs.forEach((orb, i) => {
+        const extra = Math.round(maxSizes[i] * 0.12);
+        const size = Math.min(his[i] + extra, maxSizes[i]);
+        orb.style.width = size + "px";
+        orb.style.height = size + "px";
       });
     }
 
-    // Assign per-orb gradient colours and animation timing (runs once at init)
     function stylizeOrbs(): void {
       const orbs = Array.from(document.querySelectorAll<HTMLElement>(".text-orb"));
-      // Gradient tiers: [hi-lightness, hi-chroma, lo-lightness, lo-chroma]
       const tiers = [
-        [41,   0.10, 14.2, 0.07],  // bright + deep
-        [38.2, 0.10, 22.8, 0.07],  // mid
-        [38.2, 0.09, 14.2, 0.07],  // mid + deep
-        [34,   0.09, 27,   0.09],  // low contrast
+        [41,   0.10, 14.2, 0.07],
+        [38.2, 0.10, 22.8, 0.07],
+        [38.2, 0.09, 14.2, 0.07],
+        [34,   0.09, 27,   0.09],
       ] as const;
       orbs.forEach(el => {
-        const baseHue = 230 + Math.random() * 18;              // 230–248°
-        const hiHue   = baseHue + (Math.random() - 0.5) * 8;  // ±4° jitter
-        const loHue   = hiHue + 8 + Math.random() * 6;        // lo is 8–14° deeper
+        const baseHue = 230 + Math.random() * 18;
+        const hiHue   = baseHue + (Math.random() - 0.5) * 8;
+        const loHue   = hiHue + 8 + Math.random() * 6;
         const [hiL, hiC, loL, loC] = tiers[Math.floor(Math.random() * tiers.length)];
         el.style.setProperty("--orb-hi", `oklch(${hiL}% ${hiC} ${hiHue.toFixed(1)})`);
         el.style.setProperty("--orb-lo", `oklch(${loL}% ${loC} ${loHue.toFixed(1)})`);
@@ -318,26 +337,42 @@ const itemsWithImageImports = await Promise.all(
       });
     }
 
-    // Run after layout settles; re-run on resize
-    // On touch: CSS handles sizing (aspect-square), gradient (fallback vars), and visibility
-    if (!isTouch) {
+    // Skip all orb JS when mobile section is shown
+    if (!isMobile) {
       requestAnimationFrame(() => requestAnimationFrame(() => {
         sizeOrbs();
         stylizeOrbs();
-        initPhysics(); // sets opacity transition on each orb, starts RAF loop
-        // Reveal orbs in the next frame so the transition actually fires (0→1)
-        requestAnimationFrame(() => {
-          orbStates.forEach(s => { s.el.style.opacity = "1"; });
-        });
+        if (!isTouch) {
+          initPhysics();
+          requestAnimationFrame(() => {
+            orbStates.forEach(s => { s.el.style.opacity = "1"; });
+          });
+        } else {
+          // Large touch screen (tablet): size+style but skip physics
+          document.querySelectorAll<HTMLElement>(".text-orb, .img-orb")
+            .forEach(el => { el.style.opacity = "1"; });
+        }
       }));
     }
-    let _t: ReturnType<typeof setTimeout>;
-    window.addEventListener("resize", () => {
-      clearTimeout(_t);
-      _t = setTimeout(() => {
-        sizeOrbs();
-        if (!isTouch) reinitPhysics();
-      }, 150);
-    });
+
+    if (!isMobile) {
+      if (!isTouch) {
+        document.addEventListener("mousemove", (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+        document.addEventListener("mouseleave", () => { mouseX = -9999; mouseY = -9999; });
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) cancelAnimationFrame(rafId);
+          else rafId = requestAnimationFrame(loop);
+        });
+      }
+
+      let _t: ReturnType<typeof setTimeout>;
+      window.addEventListener("resize", () => {
+        clearTimeout(_t);
+        _t = setTimeout(() => {
+          sizeOrbs();
+          if (!isTouch) reinitPhysics();
+        }, 150);
+      });
+    }
   </script>
 </BaseLayout>
