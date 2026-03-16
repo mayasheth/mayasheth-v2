@@ -279,11 +279,13 @@ const itemsWithImageImports = await Promise.all(
       document.addEventListener("mouseleave", () => { mouseX = -9999; mouseY = -9999; });
     }
 
-    // Pause loop when tab is hidden, resume when visible
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden) cancelAnimationFrame(rafId);
-      else rafId = requestAnimationFrame(loop);
-    });
+    // Pause loop when tab is hidden, resume when visible (non-touch only)
+    if (!isTouch) {
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) cancelAnimationFrame(rafId);
+        else rafId = requestAnimationFrame(loop);
+      });
+    }
 
     // Assign per-orb gradient colours and animation timing (runs once at init)
     function stylizeOrbs(): void {
@@ -311,18 +313,25 @@ const itemsWithImageImports = await Promise.all(
     requestAnimationFrame(() => requestAnimationFrame(() => {
       sizeOrbs();
       stylizeOrbs();
-      initPhysics(); // sets opacity transition on each orb
-      // Reveal orbs in the next frame so the transition actually fires (0→1)
-      requestAnimationFrame(() => {
-        orbStates.forEach(s => { s.el.style.opacity = "1"; });
-      });
+      if (!isTouch) {
+        initPhysics(); // sets opacity transition on each orb, starts RAF loop
+        // Reveal orbs in the next frame so the transition actually fires (0→1)
+        requestAnimationFrame(() => {
+          orbStates.forEach(s => { s.el.style.opacity = "1"; });
+        });
+      } else {
+        // Skip physics loop on touch — just reveal orbs immediately
+        document.querySelectorAll<HTMLElement>(".text-orb, .img-orb").forEach(el => {
+          el.style.opacity = "1";
+        });
+      }
     }));
     let _t: ReturnType<typeof setTimeout>;
     window.addEventListener("resize", () => {
       clearTimeout(_t);
       _t = setTimeout(() => {
         sizeOrbs();
-        reinitPhysics();
+        if (!isTouch) reinitPhysics();
       }, 150);
     });
   </script>
