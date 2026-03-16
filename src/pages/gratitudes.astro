@@ -60,13 +60,13 @@ const itemsWithImageImports = await Promise.all(
           data-pagefind-url={`/gratitudes#${item.id}`}
         >
           {item.imgSrc ? (
-            <div class="img-orb w-full aspect-square rounded-full overflow-hidden group relative opacity-0">
+            <div class="img-orb w-full aspect-square rounded-full overflow-hidden group relative opacity-0 [@media(hover:none)]:!opacity-100">
               <Image
                 src={item.imgSrc}
                 alt={item.data.redacted_content}
                 width={300}
                 draggable="false"
-                loading={index < 12 ? "eager" : "lazy"}
+                loading={index < 4 ? "eager" : "lazy"}
                 class="h-full w-full object-cover"
               />
               <div class="img-orb-overlay absolute inset-0 flex flex-col items-center justify-center bg-surface-0/80 p-6 text-center opacity-0 soft-transition group-hover:opacity-100">
@@ -79,7 +79,7 @@ const itemsWithImageImports = await Promise.all(
               </div>
             </div>
           ) : (
-            <div class="text-orb rounded-full overflow-hidden soft-transition flex flex-col items-center justify-center gap-0.5 p-3 sm:p-5 lg:p-7 opacity-0">
+            <div class="text-orb rounded-full overflow-hidden soft-transition flex flex-col items-center justify-center gap-0.5 p-3 sm:p-5 lg:p-7 opacity-0 [@media(hover:none)]:!opacity-100 [@media(hover:none)]:aspect-square [@media(hover:none)]:w-full [@media(hover:none)]:[animation:none]">
               <p class="text-sm text-content-2 text-center font-base font-light lowercase leading-snug">
                 {item.data.redacted_content}
               </p>
@@ -118,11 +118,6 @@ const itemsWithImageImports = await Promise.all(
     }
 
     .text-orb:hover { filter: brightness(1.28); }
-
-    /* Disable gradient animation on touch — too expensive per-frame */
-    @media (hover: none) {
-      .text-orb { animation: none; }
-    }
   </style>
 
   <script>
@@ -136,16 +131,6 @@ const itemsWithImageImports = await Promise.all(
       const maxSizes = orbs.map(
         (orb) => (orb.closest("masonry-item") as HTMLElement)?.offsetWidth ?? 200
       );
-
-      if (isTouch) {
-        // On touch: skip binary search, size orbs to 88% of column width directly
-        orbs.forEach((orb, i) => {
-          const size = Math.round(maxSizes[i] * 0.88);
-          orb.style.width = size + "px";
-          orb.style.height = size + "px";
-        });
-        return;
-      }
 
       const minSize = 88;
       const los = new Array(orbs.length).fill(minSize);
@@ -326,22 +311,18 @@ const itemsWithImageImports = await Promise.all(
     }
 
     // Run after layout settles; re-run on resize
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      sizeOrbs();
-      stylizeOrbs();
-      if (!isTouch) {
+    // On touch: CSS handles sizing (aspect-square), gradient (fallback vars), and visibility
+    if (!isTouch) {
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        sizeOrbs();
+        stylizeOrbs();
         initPhysics(); // sets opacity transition on each orb, starts RAF loop
         // Reveal orbs in the next frame so the transition actually fires (0→1)
         requestAnimationFrame(() => {
           orbStates.forEach(s => { s.el.style.opacity = "1"; });
         });
-      } else {
-        // Skip physics loop on touch — just reveal orbs immediately
-        document.querySelectorAll<HTMLElement>(".text-orb, .img-orb").forEach(el => {
-          el.style.opacity = "1";
-        });
-      }
-    }));
+      }));
+    }
     let _t: ReturnType<typeof setTimeout>;
     window.addEventListener("resize", () => {
       clearTimeout(_t);

@@ -89,6 +89,7 @@ const uniqueId = `masonry-${Math.random().toString(36).slice(2, 9)}`;
     }
     connectedCallback() {
       if (CSS.supports("display", "grid-lanes")) return;
+      if (window.matchMedia("(hover: none)").matches) return;
       const style = getComputedStyle(this);
       if (style.gridTemplateRows === "masonry") return;
       this.#patched = true;
