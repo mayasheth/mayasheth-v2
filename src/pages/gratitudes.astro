@@ -62,7 +62,7 @@ const itemsWithImageImports = await Promise.all(
                   width={200}
                   draggable="false"
                   loading="lazy"
-                  class="h-full w-full object-cover"
+                  class="w-full h-auto block"
                 />
                 <div class="mobile-img-overlay absolute inset-0 flex flex-col items-center justify-center bg-surface-0/80 p-3 text-center opacity-0 soft-transition">
                   <p class="text-content-1 font-base font-light text-sm lowercase leading-tight line-clamp-5">
@@ -74,7 +74,7 @@ const itemsWithImageImports = await Promise.all(
                 </div>
               </div>
             ) : (
-              <div class="bg-surface-2 rounded-xl p-4 flex flex-col justify-between w-full min-h-[6rem]">
+              <div class="bg-surface-2 rounded-xl p-4 flex flex-col justify-between w-full">
                 <p class="text-sm text-content-2 font-base font-light lowercase leading-snug line-clamp-4">
                   {item.data.redacted_content}
                 </p>
