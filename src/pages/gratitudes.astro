@@ -118,6 +118,11 @@ const itemsWithImageImports = await Promise.all(
     }
 
     .text-orb:hover { filter: brightness(1.28); }
+
+    /* Disable gradient animation on touch — too expensive per-frame */
+    @media (hover: none) {
+      .text-orb { animation: none; }
+    }
   </style>
 
   <script>
@@ -127,10 +132,21 @@ const itemsWithImageImports = await Promise.all(
       );
       if (!orbs.length) return;
 
-      // Read: get max size (= column width) for each orb — one reflow
+      // Read: get column width for each orb — one reflow
       const maxSizes = orbs.map(
         (orb) => (orb.closest("masonry-item") as HTMLElement)?.offsetWidth ?? 200
       );
+
+      if (isTouch) {
+        // On touch: skip binary search, size orbs to 88% of column width directly
+        orbs.forEach((orb, i) => {
+          const size = Math.round(maxSizes[i] * 0.88);
+          orb.style.width = size + "px";
+          orb.style.height = size + "px";
+        });
+        return;
+      }
+
       const minSize = 88;
       const los = new Array(orbs.length).fill(minSize);
       const his = [...maxSizes];
