@@ -15,6 +15,14 @@ gratitudes.sort((a, b) =>
 );
 
 
+// Mobile orb size tier based on text length (Tailwind scans these static strings)
+function mobileOrbWidth(text: string): string {
+  const len = text.length;
+  if (len <= 20) return "[@media(hover:none)]:w-[55%]";
+  if (len <= 45) return "[@media(hover:none)]:w-[76%]";
+  return "[@media(hover:none)]:w-full";
+}
+
 function formatDate(date: Date): string {
   const newDate = new Date(date);
   const year = newDate.getFullYear();
@@ -79,8 +87,8 @@ const itemsWithImageImports = await Promise.all(
               </div>
             </div>
           ) : (
-            <div class="text-orb rounded-full overflow-hidden soft-transition flex flex-col items-center justify-center gap-0.5 p-3 sm:p-5 lg:p-7 opacity-0 [@media(hover:none)]:!opacity-100 [@media(hover:none)]:aspect-square [@media(hover:none)]:w-full [@media(hover:none)]:[animation:none]">
-              <p class="text-sm text-content-2 text-center font-base font-light lowercase leading-snug">
+            <div class={`text-orb rounded-full overflow-hidden soft-transition flex flex-col items-center justify-center gap-0.5 p-3 sm:p-5 lg:p-7 opacity-0 [@media(hover:none)]:!opacity-100 [@media(hover:none)]:aspect-square [@media(hover:none)]:[animation:none] [@media(hover:none)]:transition-none ${mobileOrbWidth(item.data.redacted_content)}`}>
+              <p class="text-sm text-content-2 text-center font-base font-light lowercase leading-snug [@media(hover:none)]:line-clamp-4">
                 {item.data.redacted_content}
               </p>
               <span class="text-content-3 mt-0.5 font-mono text-[0.6rem] leading-none">
