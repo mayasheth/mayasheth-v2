@@ -53,7 +53,7 @@ const itemsWithImageImports = await Promise.all(
     <MasonryGrid cols={2} colsSm={2} colsLg={2} gap="0.75rem" class="mx-auto max-w-5xl px-4 pb-12">
       {
         itemsWithImageImports.map((item) => (
-          <masonry-item id={`m-${item.id}`} class="flex justify-center">
+          <masonry-item id={`m-${item.id}`} class="flex justify-center min-w-0 w-full">
             {item.imgSrc ? (
               <div class="mobile-img-card rounded-xl overflow-hidden relative w-full group">
                 <Image
