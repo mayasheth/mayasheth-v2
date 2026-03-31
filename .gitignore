@@ -32,6 +32,7 @@ src/data/gratitudes.json
 src/data/quotes.json
 src/data/artwork.json
 page-carbon.json
+src/vault-content
 
 # Local docs/demos
 docs/

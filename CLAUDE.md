@@ -79,6 +79,31 @@ Defined in `src/styles/tokens.css`. Only use tokens that exist — do not invent
 
 **Text sizes**: `text-sm` (0.75rem), `text-base` (1rem), `text-lg` (1.25rem), `text-xl` (1.5rem), `text-2xl` (2rem), `text-3xl` (2.5rem), `text-5xl` (3.5rem), `text-8xl` (5rem). Note: no 4xl, 6xl, or 7xl.
 
+## pretext — DOM-free text measurement
+
+`@chenglou/pretext` measures text dimensions without triggering DOM reflow. Use it anywhere JavaScript currently reads `scrollHeight`, `offsetWidth`, `getBoundingClientRect()`, or similar layout-forcing APIs to answer a text-sizing question.
+
+**Pattern:**
+```ts
+import { prepare, layout } from "@chenglou/pretext";
+
+// Once per text block (≈19ms for 500 texts, uses canvas internally)
+const prepared = prepare(text, { font: "375 1rem Montserrat" });
+
+// Many times, zero DOM cost (≈0.09ms each)
+const { height } = layout(prepared, { width: containerWidth });
+```
+
+**Where to use on this site:**
+- **Gratitudes orb sizing** (`src/pages/gratitudes.astro`) — replace the binary-search loop that reads `scrollHeight` 8× per orb. Use `prepare()` once per orb text, then `layout()` in the binary search so no DOM reads happen during iteration.
+- **Quotes font-tier selection** (`src/pages/quotes.astro`) — replace the character-count heuristic in `getQuoteClass()` with an actual rendered-width measurement so tier boundaries are font-accurate, not character-count guesses.
+
+**Constraints to keep in mind:**
+- Only works in the browser (canvas-based); not usable at build time or in Astro SSR.
+- Requires standard CSS text defaults: `white-space: normal`, `word-break: normal`, `overflow-wrap: break-word`. The pre-wrap variant supports preserved whitespace/line breaks.
+- Does not support `system-ui` on macOS — use explicit font family names (e.g. `Montserrat`, `Schibsted Grotesk`).
+- Font string must match actual computed style exactly: `"<weight> <size> <family>"`.
+
 ## Astro patterns
 
 - `BaseLayout` accepts optional `titleFull` — omit it to suppress the `<h1>` entirely

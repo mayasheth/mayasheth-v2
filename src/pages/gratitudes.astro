@@ -55,14 +55,15 @@ const itemsWithImageImports = await Promise.all(
         itemsWithImageImports.map((item) => (
           <masonry-item id={`m-${item.id}`} class="flex justify-center min-w-0 w-full">
             {item.imgSrc ? (
-              <div class="mobile-img-card rounded-xl overflow-hidden relative w-full group">
+              <div class="mobile-img-card rounded-xl overflow-hidden relative w-full aspect-square group">
                 <Image
                   src={item.imgSrc}
                   alt={item.data.redacted_content}
                   width={200}
+                  height={200}
                   draggable="false"
                   loading="lazy"
-                  class="w-full h-auto block"
+                  class="w-full h-full object-cover block"
                 />
                 <div class="mobile-img-overlay absolute inset-0 flex flex-col items-center justify-center bg-surface-0/80 p-3 text-center opacity-0 soft-transition">
                   <p class="text-content-1 font-base font-light text-sm lowercase leading-tight line-clamp-5">
@@ -164,6 +165,8 @@ const itemsWithImageImports = await Promise.all(
   </style>
 
   <script>
+    import { prepare, layout } from "@chenglou/pretext";
+
     const isMobile = window.innerWidth < 640;
     const isTouch = window.matchMedia("(hover: none)").matches;
 
@@ -285,35 +288,53 @@ const itemsWithImageImports = await Promise.all(
       );
       if (!orbs.length) return;
 
+      // One-time DOM reads: column widths are layout-dependent, unavoidable
       const maxSizes = orbs.map(
         (orb) => (orb.closest("masonry-item") as HTMLElement)?.offsetWidth ?? 200
       );
 
+      // Read font/spacing info once (getComputedStyle doesn't force layout reflow)
+      const firstP    = orbs[0].querySelector("p")!;
+      const firstSpan = orbs[0].querySelector("span")!;
+      const pStyle    = getComputedStyle(firstP);
+      const spanStyle = getComputedStyle(firstSpan);
+      const orbStyle  = getComputedStyle(orbs[0]);
+      const textFont  = `${pStyle.fontWeight} ${pStyle.fontSize} ${pStyle.fontFamily}`;
+      const dateFont  = `${spanStyle.fontWeight} ${spanStyle.fontSize} ${spanStyle.fontFamily}`;
+      const textLineH = parseFloat(pStyle.lineHeight);
+      const dateLineH = parseFloat(spanStyle.lineHeight);
+      const padding   = parseFloat(orbStyle.paddingTop);
+      const itemGap   = parseFloat(orbStyle.rowGap) + parseFloat(spanStyle.marginTop);
+
+      // Prepare text measurements once per orb via canvas (no DOM reflow)
+      const preparedMains = orbs.map((orb) =>
+        prepare(orb.querySelector("p")?.textContent ?? "", textFont)
+      );
+      const preparedDates = orbs.map((orb) =>
+        prepare(orb.querySelector("span")?.textContent ?? "", dateFont)
+      );
+
+      // Binary search: pure arithmetic, zero DOM reads during iteration
       const minSize = 88;
       const los = new Array(orbs.length).fill(minSize);
       const his = [...maxSizes];
 
-      orbs.forEach((orb, i) => {
-        orb.style.height = "auto";
-        orb.style.width = maxSizes[i] + "px";
-      });
-
       for (let iter = 0; iter < 8; iter++) {
-        orbs.forEach((orb, i) => {
-          orb.style.width = Math.round((los[i] + his[i]) / 2) + "px";
-        });
-        orbs.forEach((orb, i) => {
-          const mid = Math.round((los[i] + his[i]) / 2);
-          if (orb.scrollHeight <= mid) his[i] = mid;
+        for (let i = 0; i < orbs.length; i++) {
+          const mid   = Math.round((los[i] + his[i]) / 2);
+          const textW = Math.max(1, mid - 2 * padding);
+          const mainH = layout(preparedMains[i], textW, textLineH).height;
+          const dateH = layout(preparedDates[i], textW, dateLineH).height;
+          if (mainH + itemGap + dateH + 2 * padding <= mid) his[i] = mid;
           else los[i] = mid;
-        });
+        }
       }
 
       orbs.forEach((orb, i) => {
         const extra = Math.round(maxSizes[i] * 0.12);
         const size = Math.min(his[i] + extra, maxSizes[i]);
-        orb.style.width = size + "px";
-        orb.style.height = size + "px";
+        orb.style.width = `${size}px`;
+        orb.style.height = `${size}px`;
       });
     }
 
