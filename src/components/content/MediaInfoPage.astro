@@ -83,12 +83,12 @@ const formatIcon = getFormatIcon(format);
       <div class="flex flex-col justify-center">
         {
           mediaEntry.data.year_published ? (
-            <p class="font-heading text-content-1 text-center text-lg font-semibold tracking-wide">
+            <p data-pagefind-weight="10" class="font-heading text-content-1 text-center text-lg font-semibold tracking-wide">
               <span class="italic">{mediaEntry.data.title}</span>
               ({mediaEntry.data.year_published})
             </p>
           ) : (
-            <p class="font-heading text-content-1 text-center text-lg font-semibold tracking-wide italic">
+            <p data-pagefind-weight="10" class="font-heading text-content-1 text-center text-lg font-semibold tracking-wide italic">
               {mediaEntry.data.title}
             </p>
           )

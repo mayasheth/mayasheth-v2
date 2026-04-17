@@ -15,6 +15,7 @@
     "@astrojs/react": "^4.4.0",
     "@chenglou/pretext": "^0.0.3",
     "@pagefind/modular-ui": "^1.4.0",
+    "@paper-design/shaders-react": "^0.0.76",
     "@tailwindcss/vite": "^4.1.14",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",

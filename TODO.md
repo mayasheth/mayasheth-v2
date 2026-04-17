@@ -1,6 +1,20 @@
 # TODO
 
 
+## Cleanup
+- [ ] Delete shader experiment files once no longer needed:
+  - `src/pages/test-home.astro`
+  - `src/pages/test-shader.astro`
+  - `src/components/ui/HeroGodRays.tsx`
+  - `src/components/ui/PawGrainGradient.tsx`
+  - `src/pages/test-quote.astro`
+  - `src/components/ui/QuoteColorPanels.tsx`
+
+## High priority
+- [ ] Fix search (Pagefind):
+  - Relevance ranking is off — searching a book title surfaces pages where individual words appear many times rather than the actual book page
+  - "See more" results expansion scrolls jarringly instead of smoothly
+
 ## Backlog
 - [ ] Restyle individual quote pages (demos exist in docs/)
 - [ ] Redesign home page (demos in docs/)

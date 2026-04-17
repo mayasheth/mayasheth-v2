@@ -23,19 +23,19 @@ async function initializePagefind() {
       return;
     }
     searchContainer.innerHTML = '';
-    new PagefindUI({ 
+    new PagefindUI({
       element: searchContainer,
       bundlePath: "/pagefind/",
       autofocus: true,
       showImages: false,
       showSubResults: true,
-      excerptLength: 15,
+      excerptLength: 25,
       resetStyles: false,
       ranking: {
-        termFrequency: 0.75,
-        termSimilarity: 10,
-        pageLength: 0.5,
-        termSaturation: 1.6
+        termFrequency: 1.0,
+        termSimilarity: 1.0,
+        pageLength: 1.0,
+        termSaturation: 1.2
       },
       translations: {
         placeholder: "search!",
@@ -52,7 +52,21 @@ async function initializePagefind() {
       }
     });
     pagefindLoaded = true;
-    console.log("Pagefind initialized successfully");
+
+    // Intercept "load more" clicks to smooth-scroll to new results instead of jumping
+    searchContainer.addEventListener("click", function(e) {
+      const btn = e.target.closest(".pagefind-ui__button");
+      if (!btn) return;
+      // Capture last result before the DOM update
+      const lastResult = searchContainer.querySelector(".pagefind-ui__result:last-child");
+      if (!lastResult) return;
+      // After Pagefind appends new results, scroll to where old results ended
+      const observer = new MutationObserver(() => {
+        observer.disconnect();
+        lastResult.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      observer.observe(searchContainer, { childList: true, subtree: true });
+    });
   } catch (error) {
     console.error("Failed to initialize Pagefind:", error);
   }
@@ -120,9 +134,9 @@ function setupSearchModalListeners() {
   document.getElementById("search-trigger-mobile")?.addEventListener("click", openSearchModal);
   document.getElementById("close-search-modal")?.addEventListener("click", closeSearchModal);
 
-  // Close on backdrop click
+  // Close on backdrop click (target must be the modal backdrop itself, not content)
   document.getElementById("search-modal")?.addEventListener("click", function(e) {
-    if (e.target === this || e.target.classList.contains('opacity-')) {
+    if (e.target === this) {
       closeSearchModal();
     }
   });

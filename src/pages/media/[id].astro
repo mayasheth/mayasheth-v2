@@ -58,6 +58,7 @@ const hasToC = headings.length > 1;
 
 <BaseLayout titleShort={mediaEntry.data.title.toLowerCase()}>
   <section
+    data-pagefind-title={mediaEntry.data.title}
     class={`md:grid md:grid-cols-4 ${hasToC ? "mx-auto max-w-7xl" : "max-w-5xl"}`}
   >
     {
