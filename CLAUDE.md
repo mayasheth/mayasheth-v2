@@ -64,6 +64,23 @@ Apply this to every link that is directly followed by punctuation. Links followe
 
 **For JS-rendered HTML** (`innerHTML`), consolidate all Tailwind class strings as string literals in a `const S = { ... }` object at the top of the script block so Tailwind's content scanner picks them up.
 
+**Canonical glass card style** — all glass surface containers use this exact combination:
+```html
+<div class="glass bg-surface-0/55 border border-pale-grey/10 rounded-xl p-4">
+```
+- `glass` — `backdrop-filter: blur(20px) saturate(1.3)` (defined in `utilities.css`)
+- `bg-surface-0/55` — semi-transparent dark background
+- `border border-pale-grey/10` — subtle tinted edge (never `border-white`)
+- `rounded-xl` for dense contexts, `rounded-2xl` for spacious ones (see border-radius convention below)
+- **Hover lightens** — on hover, reduce background opacity: `hover:bg-surface-0/40`. The card becomes more transparent, letting more gradient show through. Always pair with `transition-colors duration-[700ms] ease-in-out` (not `soft-transition` — too fast and overrideable by inline JS transitions). If JS sets `el.style.transition` on the element, add `background-color 700ms ease-in-out` to that string instead of relying on a CSS class.
+
+**Never use `white` as a color.** Use palette tokens instead. For subtle borders and glass edges, use `pale-grey` (or `ocean-50`); both are acceptable. In Tailwind: `border-pale-grey/10`. In raw CSS: `oklch(90.40% 0.017 264.38 / 0.08)`. Never reach for `border-white`, `text-white`, `bg-white`, etc.
+
+**Border radius convention** — corner radius reflects visual density, not page hierarchy:
+- `rounded-xl` — dense containers: inner-page section cards, gallery items, image wells, filter bars
+- `rounded-2xl` — spacious containers: home page glass panels, large feature cards with lots of breathing room
+Do not homogenize these. Leave `rounded-xl` on inner pages and `rounded-2xl` on the sparse home page panels.
+
 ## Design tokens
 
 Defined in `src/styles/tokens.css`. Only use tokens that exist — do not invent or assume standard Tailwind values.
@@ -105,7 +122,6 @@ const { height } = layout(prepared, { width: containerWidth });
 - Font string must match actual computed style exactly: `"<weight> <size> <family>"`.
 
 ## Astro patterns
-
 - `BaseLayout` accepts optional `titleFull` — omit it to suppress the `<h1>` entirely
 - Pass server data to client scripts with `<script define:vars={{ data }}>`
 - Static routes take priority over dynamic `[id]` routes (e.g. `surprise-me.astro` wins over `[id].astro`)
