@@ -39,7 +39,7 @@ const formatIcon = getFormatIcon(format);
 
 <div class="flex items-center justify-center py-8">
   <div
-    class="media-info bg-surface-1 mx-auto flex w-full max-w-3xl flex-col items-stretch gap-4 rounded-xl px-4 py-8 md:gap-8 lg:flex-row"
+    class="media-info glass bg-surface-1/60 border border-pale-grey/10 mx-auto flex w-full max-w-3xl flex-col items-stretch gap-4 rounded-xl px-4 py-8 md:gap-8 lg:flex-row"
   >
     <!-- Image -->
     <div class="flex items-center justify-center">
@@ -68,12 +68,13 @@ const formatIcon = getFormatIcon(format);
             </div>
           )
         ) : (
-          <span class="inline-flex items-center justify-center rounded-full">
+          <div class="tag-frost-dim flex items-center justify-center rounded-lg p-6">
             <Icon
               name={formatIcon}
-              class="text-surface-4 h-16 w-auto lg:h-auto lg:w-16"
+              class="h-16 w-auto lg:h-auto lg:w-16"
+              style="color: var(--tag-color, var(--color-content-3))"
             />
-          </span>
+          </div>
         )
       }
     </div>
@@ -143,7 +144,7 @@ const formatIcon = getFormatIcon(format);
       <div class="w-full">
         {
           mediaEntry.data.commentary && (
-            <div class="text-content-1 font-base bg-surface-2 mt-4 max-h-32 overflow-y-auto overscroll-auto rounded-lg p-4 text-sm font-light md:max-h-60">
+            <div class="text-content-1 font-base bg-surface-1/60 mt-4 max-h-32 overflow-y-auto overscroll-auto rounded-lg p-4 text-sm font-light md:max-h-60">
               <span class="text-content-3 pr-2 font-mono font-semibold">
                 {formatDate(mediaEntry.data.relevant_date)}
               </span>

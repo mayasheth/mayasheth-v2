@@ -39,10 +39,12 @@ function Swatch({
   token,
   isBgMatch,
   onCopied,
+  small = false,
 }: {
   token: ColorToken;
   isBgMatch: boolean;
   onCopied: () => void;
+  small?: boolean;
 }) {
   const oklch = getOklchLiteral(token.varName); // expected to exist in your tokens
   const disabled = !oklch;
@@ -56,7 +58,7 @@ function Swatch({
       }}
       disabled={disabled}
       className={[
-        "group focus-outline soft-transition hover-pop relative h-8 w-8 rounded-md ring-1 ring-transparent sm:h-10 sm:w-10",
+        `group focus-outline soft-transition hover-pop relative rounded-md ring-1 ring-transparent ${small ? "h-5 w-5 sm:h-6 sm:w-6" : "h-8 w-8 sm:h-10 sm:w-10"}`,
         isBgMatch ? "border-content-0 border-1 border-dotted" : "",
         disabled ? "cursor-not-allowed opacity-60" : "",
       ].join(" ")}
@@ -79,9 +81,11 @@ function Swatch({
 export function ColorSwatchesGrid({
   colors,
   bgVar = "--color-surface-1",
+  small = false,
 }: {
   colors: ColorToken[];
   bgVar?: string;
+  small?: boolean;
 }) {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
@@ -96,10 +100,11 @@ export function ColorSwatchesGrid({
     return getVarComputed(token.varName) === bgRGB;
   };
 
-  // Pattern: 5, 5, 3 (center the remainder)
-  const row1 = colors.slice(0, 5);
-  const row2 = colors.slice(5, 10);
-  const row3 = colors.slice(10, 13);
+  const rowSize = colors.length <= 6 ? colors.length : 5;
+  const rows: ColorToken[][] = [];
+  for (let i = 0; i < colors.length; i += rowSize) {
+    rows.push(colors.slice(i, i + rowSize));
+  }
 
   const onCopied = (key: string) => {
     setCopiedKey(key);
@@ -107,7 +112,9 @@ export function ColorSwatchesGrid({
   };
 
   const Row = ({ row }: { row: ColorToken[] }) => (
-    <div className="grid grid-cols-5 gap-2">
+    <div
+      style={{ display: "grid", gridTemplateColumns: `repeat(${rowSize}, minmax(0, 1fr))`, gap: "0.5rem" }}
+    >
       {row.map((c) => (
         <div
           key={c.varName}
@@ -117,6 +124,7 @@ export function ColorSwatchesGrid({
             token={c}
             isBgMatch={isBgMatch(c)}
             onCopied={() => onCopied(c.varName)}
+            small={small}
           />
         </div>
       ))}
@@ -125,34 +133,9 @@ export function ColorSwatchesGrid({
 
   return (
     <div className="space-y-2">
-      {row1.length > 0 && <Row row={row1} />}
-      {row2.length > 0 && <Row row={row2} />}
-      {row3.length > 0 && (
-        <div className="flex justify-center">
-          <div
-            className={`grid gap-2 ${
-              row3.length === 1
-                ? "grid-cols-1"
-                : row3.length === 2
-                  ? "grid-cols-2"
-                  : "grid-cols-3"
-            }`}
-          >
-            {row3.map((c) => (
-              <div
-                key={c.varName}
-                className={copiedKey === c.varName ? "group copied" : "group"}
-              >
-                <Swatch
-                  token={c}
-                  isBgMatch={isBgMatch(c)}
-                  onCopied={() => onCopied(c.varName)}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {rows.map((row, i) => (
+        <Row key={i} row={row} />
+      ))}
     </div>
   );
 }

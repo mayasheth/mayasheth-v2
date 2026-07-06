@@ -19,6 +19,15 @@ const COLOR_TOKENS = [
   { name: "content-0", varName: "--color-content-0" },
 ];
 
+const ACCENT_TOKENS = [
+  { name: "accent-0", varName: "--color-accent-0" },
+  { name: "accent-1", varName: "--color-accent-1" },
+  { name: "accent-2", varName: "--color-accent-2" },
+  { name: "accent-3", varName: "--color-accent-3" },
+  { name: "accent-4", varName: "--color-accent-4" },
+  { name: "accent-5", varName: "--color-accent-5" },
+];
+
 const linkClasses =
   "hover-stable text-content-4 font-semibold hover:text-content-3 hover:tracking-wide soft-transition focus-outline-rounded";
 ---
@@ -26,7 +35,7 @@ const linkClasses =
 <BaseLayout titleShort={title} titleFull={title}>
   <section
     id="intro"
-    class="bg-surface-1 mx-auto mt-4 flex max-w-full flex-col items-center rounded-xl p-6 text-pretty md:max-w-1/2 lg:max-w-2/5"
+    class="glass bg-surface-0/55 border border-pale-grey/10 mx-auto mt-4 flex max-w-full flex-col items-center rounded-xl p-6 text-pretty md:max-w-1/2 lg:max-w-2/5"
   >
     <h2>welcome</h2>
     <p class="text-content-1 text-center">
@@ -54,7 +63,7 @@ const linkClasses =
 
   <section
     id="design"
-    class="bg-surface-1 mx-auto mt-4 flex max-w-full flex-col items-center rounded-xl p-6 text-pretty md:max-w-1/2 lg:max-w-2/5"
+    class="glass bg-surface-0/55 border border-pale-grey/10 mx-auto mt-4 flex max-w-full flex-col items-center rounded-xl p-6 text-pretty md:max-w-1/2 lg:max-w-2/5"
   >
     <h2>design</h2>
     <p class="text-content-1 text-center">
@@ -118,13 +127,18 @@ const linkClasses =
       > palette generator:
     </p>
 
+    <p class="text-content-4 text-sm mb-1">surface + content</p>
     <ColorSwatchesGrid colors={COLOR_TOKENS} client:only="react" />
-    <p class="text-content-3 text-center text-sm">click to copy OKLCH</p>
+
+    <p class="text-content-4 text-sm mt-4 mb-1">accents</p>
+    <ColorSwatchesGrid colors={ACCENT_TOKENS} small={true} client:only="react" />
+
+    <p class="text-content-3 text-center text-sm mt-2">click to copy OKLCH</p>
   </section>
 
   <section
     id="tech"
-    class="bg-surface-1 mx-auto mt-4 mb-4 flex max-w-full flex-col items-center rounded-xl p-6 text-pretty md:max-w-1/2 lg:max-w-2/5"
+    class="glass bg-surface-0/55 border border-pale-grey/10 mx-auto mt-4 mb-4 flex max-w-full flex-col items-center rounded-xl p-6 text-pretty md:max-w-1/2 lg:max-w-2/5"
   >
     <h2>tech</h2>
     <p class="text-content-1 text-center">

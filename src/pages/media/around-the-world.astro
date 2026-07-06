@@ -73,12 +73,12 @@ function formatDate(date: Date): string {
   <section class="mx-auto flex flex-wrap justify-center md:max-w-3/4">
     {
       atwBookComplete.map((item) => (
-        <div class="bg-surface-1 m-2 flex flex-col rounded-xl p-0">
+        <div class="glass bg-surface-0/55 border border-pale-grey/10 m-2 flex flex-col rounded-xl p-0">
           {/* location name + link */}
           <a
             href={`/media/around-the-world/${item.id}`}
             rel="noopener"
-            class="bg-surface-2 font-header text-content-3 hover:text-content-2 soft-transition focus-outline truncate rounded-t-xl rounded-b-none p-2 text-center text-lg font-light tracking-wide lowercase hover:font-semibold"
+            class="tag-frost-dim font-header text-content-3 hover:text-content-2 soft-transition focus-outline truncate rounded-t-xl rounded-b-none p-2 text-center text-lg font-light tracking-wide lowercase hover:font-semibold"
             aria-label={`page for ${item.data.location}`}
           >
             {item.data.location}
@@ -142,12 +142,12 @@ function formatDate(date: Date): string {
   <section class="mx-auto flex flex-wrap justify-center md:max-w-3/4">
     {
       atwIncomplete.map((item) => (
-        <div class="bg-surface-1 m-2 flex flex-col rounded-xl p-0">
+        <div class="m-2">
           {/* location name + link */}
           <a
             href={`/media/around-the-world/${item.id}`}
             rel="noopener"
-            class="bg-surface-2 font-header text-content-3 hover:text-content-2 soft-transition focus-outline truncate rounded-xl p-2 text-center text-lg font-light tracking-wide lowercase hover:font-semibold"
+            class="tag-frost-dim font-header text-content-3 hover:text-content-2 soft-transition focus-outline block truncate rounded-xl p-2 text-center text-lg font-light tracking-wide lowercase hover:font-semibold"
             aria-label={`page for ${item.data.location}`}
           >
             {item.data.location}

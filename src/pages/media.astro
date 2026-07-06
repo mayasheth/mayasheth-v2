@@ -94,9 +94,9 @@ const ratingHeadings: Record<string, string> = {
             return (
               <a
                 href={`/media/${entry.id}`}
-                class="group grid grid-cols-[6rem_1fr] sm:grid-cols-[9rem_1fr] gap-4 rounded-xl bg-surface-1 p-4 no-underline text-inherit soft-transition hover:bg-surface-2 hover:-translate-y-px focus-outline-rounded"
+                class="group grid grid-cols-[6rem_1fr] sm:grid-cols-[9rem_1fr] gap-4 rounded-xl glass bg-surface-1/60 hover:bg-surface-1/45 border border-pale-grey/10 transition-colors duration-[700ms] ease-in-out p-4 no-underline text-inherit focus-outline-rounded"
               >
-                <div class="aspect-[2/3] self-start shrink-0 overflow-hidden rounded-sm bg-surface-2">
+                <div class="aspect-[2/3] self-start shrink-0 overflow-hidden rounded-sm">
                   {hasImage ? (
                     <img
                       src={entry.data.link_to_source!}
@@ -104,10 +104,11 @@ const ratingHeadings: Record<string, string> = {
                       class="h-full w-full object-contain"
                     />
                   ) : (
-                    <div class="flex h-full w-full items-center justify-center">
+                    <div class="tag-frost-dim flex h-full w-full items-center justify-center rounded-sm">
                       <Icon
                         name={formatIcon}
-                        class="text-surface-4 h-10 w-10"
+                        class="h-10 w-10"
+                        style="color: var(--tag-color, var(--color-content-3))"
                       />
                     </div>
                   )}
@@ -133,9 +134,7 @@ const ratingHeadings: Record<string, string> = {
                   {conceptTags.length > 0 && (
                     <div class="mt-auto flex flex-wrap gap-1 pt-2">
                       {conceptTags.map((t) => (
-                        <Tag class="group-hover:bg-surface-3 group-hover:text-content-2">
-                          {t}
-                        </Tag>
+                        <Tag>{t}</Tag>
                       ))}
                     </div>
                   )}
@@ -168,9 +167,9 @@ const ratingHeadings: Record<string, string> = {
             return (
               <a
                 href={`/media/${entry.id}`}
-                class="group flex flex-col items-center gap-3 no-underline text-inherit focus-outline-rounded"
+                class="group flex flex-col items-center gap-3 rounded-xl glass bg-surface-1/60 hover:bg-surface-1/45 border border-pale-grey/10 transition-colors duration-[700ms] ease-in-out p-3 no-underline text-inherit focus-outline-rounded"
               >
-                <div class="aspect-[2/3] w-full max-w-32 overflow-hidden rounded bg-surface-2 soft-transition group-hover:-translate-y-[3px]">
+                <div class="aspect-[2/3] w-full max-w-32 overflow-hidden rounded">
                   {hasImage ? (
                     <img
                       src={entry.data.link_to_source!}
@@ -178,10 +177,11 @@ const ratingHeadings: Record<string, string> = {
                       class="h-full w-full object-contain"
                     />
                   ) : (
-                    <div class="flex h-full w-full items-center justify-center">
+                    <div class="tag-frost-dim flex h-full w-full items-center justify-center rounded">
                       <Icon
                         name={formatIcon}
-                        class="text-surface-4 h-10 w-10"
+                        class="h-10 w-10"
+                        style="color: var(--tag-color, var(--color-content-3))"
                       />
                     </div>
                   )}

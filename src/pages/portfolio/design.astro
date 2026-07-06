@@ -48,6 +48,9 @@ const designItemsWithImports = await Promise.all(
 const narrowItems = designItemsWithImports.filter(
   (item) => item.image_size === "narrow",
 );
+const mediumItems = designItemsWithImports.filter(
+  (item) => item.image_size === "medium",
+);
 const wideItems = designItemsWithImports.filter(
   (item) => item.image_size === "wide",
 );
@@ -64,7 +67,7 @@ const wideItems = designItemsWithImports.filter(
     <div class="mx-auto mb-6 flex flex-col items-center gap-6">
       {
         wideItems.map((item) => (
-          <div class="bg-surface-1 flex flex-col items-center rounded-xl p-4 text-center md:max-w-3/4 md:p-6 lg:max-w-2/3">
+          <div class="glass bg-surface-0/55 border border-pale-grey/10 flex flex-col items-center rounded-xl p-4 text-center md:max-w-3/4 md:p-6 lg:max-w-2/3">
             <span class="font-header text-content-1 text-center text-xl font-semibold tracking-wide lowercase">
               {item.title} ({item.created.getFullYear()})
             </span>
@@ -81,7 +84,7 @@ const wideItems = designItemsWithImports.filter(
               </a>
             )}
 
-            <div class="bg-surface-3 mt-4 flex max-h-[16rem] max-w-full flex-col gap-4 overflow-y-auto rounded-xl p-2 md:max-w-3/4 md:p-4">
+            <div class="tag-frost-dim mt-4 flex max-h-[16rem] max-w-full flex-col gap-4 overflow-y-auto rounded-xl p-2 md:max-w-3/4 md:p-4">
               {item.imgDataArr.map(
                 (imgData, idx) =>
                   imgData && (
@@ -102,13 +105,54 @@ const wideItems = designItemsWithImports.filter(
       }
     </div>
 
+    {/* medium items */}
+    <div class="mx-auto mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+      {
+        mediumItems.map((item) => (
+          <div class="glass bg-surface-0/55 border border-pale-grey/10 flex w-full flex-col items-center rounded-xl p-4 text-center md:p-6">
+            <span class="font-header text-content-1 text-center text-xl font-semibold tracking-wide lowercase">
+              {item.title} ({item.created.getFullYear()})
+            </span>
+            <p class="text-content-2 mt-2 leading-tight lowercase">
+              {item.description}
+            </p>
+            {item.link_to_more && (
+              <a
+                class="font-base text-content-3 hover:text-content-4 soft-transition focus-outline-rounded mt-2 text-base font-semibold"
+                href={item.link_to_more}
+                target="_blank"
+              >
+                see more
+              </a>
+            )}
+            <div class="tag-frost-dim mt-4 flex max-h-[16rem] w-full flex-col gap-4 overflow-y-auto rounded-xl p-2 md:p-4">
+              {item.imgDataArr.map(
+                (imgData, idx) =>
+                  imgData && (
+                    <Image
+                      src={imgData}
+                      alt={item.description ?? item.title ?? "design"}
+                      loading="eager"
+                      width={900}
+                      height={600}
+                      sizes="(max-width: 800px) 100vw, 50vw"
+                      class="h-auto w-full"
+                    />
+                  ),
+              )}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+
     {/* narrow items */}
     <div
       class="mx-auto mb-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
     >
       {
         narrowItems.map((item) => (
-          <div class="bg-surface-1 flex w-full flex-col items-center rounded-xl p-4 text-center md:p-6">
+          <div class="glass bg-surface-0/55 border border-pale-grey/10 flex w-full flex-col items-center rounded-xl p-4 text-center md:p-6">
             <span class="font-header text-content-1 text-center text-xl font-semibold tracking-wide lowercase">
               {item.title} ({item.created.getFullYear()})
             </span>
@@ -125,7 +169,7 @@ const wideItems = designItemsWithImports.filter(
               </a>
             )}
 
-            <div class="bg-surface-3 mt-4 flex max-h-[16rem] max-w-2/5 flex-col gap-4 overflow-y-auto rounded-xl p-2 md:max-w-3/4 md:p-4">
+            <div class="tag-frost-dim mt-4 flex max-h-[16rem] max-w-2/5 flex-col gap-4 overflow-y-auto rounded-xl p-2 md:max-w-3/4 md:p-4">
               {item.imgDataArr.map(
                 (imgData, idx) =>
                   imgData && (

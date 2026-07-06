@@ -55,7 +55,7 @@ const artworkItemsWithImports = await Promise.all(
       {
         allTags.map((tag) => (
           <button
-            class="filter-button px-2 py-1 rounded-full bg-surface-1 text-content-2 text-sm font-base font-light lowercase soft-transition focus-outline"
+            class="filter-button btn-glass px-2 py-1 rounded-full text-sm font-base font-light lowercase focus-outline"
             data-tag={tag}
             type="button"
             aria-pressed="false"
@@ -131,7 +131,7 @@ const artworkItemsWithImports = await Promise.all(
 
     <div
       id="gallery-modal-content"
-      class="bg-surface-1 relative max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-xl md:max-w-2xl"
+      class="glass bg-surface-0/55 border border-pale-grey/10 relative max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-xl md:max-w-2xl"
     >
       <!-- Dynamic content injected by JS -->
     </div>
@@ -165,16 +165,9 @@ const artworkItemsWithImports = await Promise.all(
         }
         // Update buttons
         buttons.forEach((b) => {
-          const bTag = b.getAttribute("data-tag");
-          if (activeFilter === bTag) {
-            b.setAttribute("aria-pressed", "true");
-            b.classList.add("bg-surface-3", "hover:bg-surface-4", "text-content-1");
-            b.classList.remove("bg-surface-1", "hover:bg-surface-2", "text-content-2");
-          } else {
-            b.setAttribute("aria-pressed", "false");
-            b.classList.add("bg-surface-1", "hover:bg-surface-2", "text-content-2");
-            b.classList.remove("bg-surface-3", "hover:bg-surface-4", "text-content-1");
-          }
+          const isActive = activeFilter === b.getAttribute("data-tag");
+          b.setAttribute("aria-pressed", String(isActive));
+          b.classList.toggle("btn-glass-active", isActive);
         });
         // Filter items (works with custom element tags!)
         items.forEach((item) => {
@@ -212,7 +205,7 @@ const artworkItemsWithImports = await Promise.all(
         inspoRow: "mt-2",
         inspo:    "text-sm italic text-content-3 hover:text-content-2 soft-transition focus-outline-rounded",
         tagsWrap: "mt-3 flex flex-wrap gap-1.5 justify-center",
-        tag:      "inline-block rounded-full bg-surface-2 hover:bg-surface-3 px-1.5 py-0.5 font-base text-[0.65rem] text-content-3 hover:text-content-2 soft-transition uppercase",
+        tag:      "inline-block tag-frost rounded-full px-1.5 py-0.5 font-base text-[0.65rem] uppercase",
       };
 
       function showItem(index: number, animate = false) {
