@@ -37,14 +37,18 @@ artwork, design, research, notebook, media, atw, quotes, gratitudes
 - `src/lib/schemas.ts` - Zod schemas for content
 - `tailwind.config.js` - Tailwind configuration
 - `src/styles/tokens.css` - Design tokens (read before touching colors, fonts, spacing)
+- `src/styles/utilities.css` - Custom utility classes (glass, tag-frost, btn-glass, hover-stable, markdown-content, etc.)
+- `src/components/ui/GradientBackground.astro` - Shader gradient, used by BaseLayout and home page
+- `src/components/ui/Tag.astro` / `Tag.tsx` - Canonical tag/pill component (Astro and React versions)
 
 ## Styling rules
 
 **Always use Tailwind utilities.** Only put things in `<style is:global>` when there is genuinely no utility equivalent: CSS `columns` layout, `@keyframes`, pseudo-elements (`::before`/`::after`), third-party overrides.
 
 **Check existing components before inventing styles.** The canonical styling for common patterns lives in:
-- `src/components/ui/Tag.astro` — pill tag style
+- `src/components/ui/Tag.astro` / `Tag.tsx` — frosted glass pill tag (`tag-frost`)
 - `src/components/content/QuoteCard.astro` — quote text tiers, attribution style
+- `src/styles/utilities.css` — all custom utility classes; read this before writing new CSS
 
 **Preventing hover layout shift** — when a hover effect changes `letter-spacing` or `font-weight`, surrounding text shifts. Fix with the `.hover-stable` utility class (defined in `utilities.css`). Also add `data-text="<exact link text>"` to the element so the pseudo-element can mirror it:
 ```html
@@ -64,7 +68,16 @@ Apply this to every link that is directly followed by punctuation. Links followe
 
 **For JS-rendered HTML** (`innerHTML`), consolidate all Tailwind class strings as string literals in a `const S = { ... }` object at the top of the script block so Tailwind's content scanner picks them up.
 
-**Canonical glass card style** — all glass surface containers use this exact combination:
+**Glass surface system** — four distinct glass levels, each with a specific semantic role. Never mix them up.
+
+| Class | Role | When to use |
+|---|---|---|
+| `glass bg-surface-0/55 border border-pale-grey/10` | Dark glass card | Main content containers, modals, section panels |
+| `.tag-frost-dim` | Dim frosted surface | Non-interactive: image wells, cover placeholders, two-tone card headers |
+| `.tag-frost` | Frosted glass pill | Interactive content tags/chips (use via `Tag` component) |
+| `.btn-glass` / `.btn-glass-active` | Dark glass control | Structural UI: sort/filter buttons, nav controls |
+
+**Dark glass card** — the canonical container style:
 ```html
 <div class="glass bg-surface-0/55 border border-pale-grey/10 rounded-xl p-4">
 ```
@@ -73,6 +86,23 @@ Apply this to every link that is directly followed by punctuation. Links followe
 - `border border-pale-grey/10` — subtle tinted edge (never `border-white`)
 - `rounded-xl` for dense contexts, `rounded-2xl` for spacious ones (see border-radius convention below)
 - **Hover lightens** — on hover, reduce background opacity: `hover:bg-surface-0/40`. The card becomes more transparent, letting more gradient show through. Always pair with `transition-colors duration-[700ms] ease-in-out` (not `soft-transition` — too fast and overrideable by inline JS transitions). If JS sets `el.style.transition` on the element, add `background-color 700ms ease-in-out` to that string instead of relying on a CSS class.
+
+**`tag-frost-dim`** — non-interactive frosted surface. Use for decorative wells nested inside a glass card (image containers, cover placeholders, inert header strips). No hover response. Already has `border` and `backdrop-filter` built in — do not add extra `glass` or `bg-*` on top of it.
+
+**`tag-frost`** — frosted glass pill for interactive content tags. Use via `Tag.astro` or `Tag.tsx`; do not apply the class manually. Accepts an optional `color` prop (any CSS color value) that sets `--tag-color` to tint the text. Default color is `content-3` (blue). Active/selected state: add `.tag-frost-active`. Usage:
+```astro
+<Tag>machine learning</Tag>
+<Tag color="var(--color-accent-0)">urgent</Tag>
+<Tag as="button" class="tag-frost-active">selected</Tag>
+```
+
+**`btn-glass` / `btn-glass-active`** — dark glass for structural UI controls (sort, filter, nav). Not for content tags. Rest state has a transparent border (prevents layout shift on activation). Active state gets an `ocean-500`-tinted border and lighter text:
+```html
+<button class="btn-glass rounded-full px-3 py-1 text-sm font-base font-light">sort</button>
+<!-- activated: -->
+<button class="btn-glass btn-glass-active rounded-full px-3 py-1 ...">sort</button>
+```
+Toggle active state in JS with: `btn.classList.toggle("btn-glass-active", isActive)`
 
 **Never use `white` as a color.** Use palette tokens instead. For subtle borders and glass edges, use `pale-grey` (or `ocean-50`); both are acceptable. In Tailwind: `border-pale-grey/10`. In raw CSS: `oklch(90.40% 0.017 264.38 / 0.08)`. Never reach for `border-white`, `text-white`, `bg-white`, etc.
 
@@ -88,6 +118,16 @@ Defined in `src/styles/tokens.css`. Only use tokens that exist — do not invent
 **Surface colors** (dark → light): `surface-0` → `surface-1` → `surface-2` → `surface-3` → `surface-4`
 
 **Content colors** (light → dark): `content-0` (pale-grey) → `content-1` → `content-2` → `content-3` → `content-4`
+
+**Accent colors** — six vivid hues for tags, highlights, and emphasis. Never used for backgrounds or borders.
+- `accent-0` — red (`oklch(47% 0.220 18)`)
+- `accent-1` — amber (`oklch(78% 0.175 68)`)
+- `accent-2` — lime (`oklch(84% 0.200 132)`)
+- `accent-3` — teal (`oklch(79% 0.140 172)`)
+- `accent-4` — purple (`oklch(43% 0.220 303)`)
+- `accent-5` — magenta (`oklch(47% 0.260 333)`)
+
+Pass as a `color` prop to `Tag`: `color="var(--color-accent-3)"`. For raw CSS: `var(--color-accent-N)`.
 
 **Font families**: `font-base` (Montserrat), `font-header` (Schibsted Grotesk), `font-serif` (Playfair), `font-mono` (Inconsolata)
 
@@ -120,6 +160,15 @@ const { height } = layout(prepared, { width: containerWidth });
 - Requires standard CSS text defaults: `white-space: normal`, `word-break: normal`, `overflow-wrap: break-word`. The pre-wrap variant supports preserved whitespace/line breaks.
 - Does not support `system-ui` on macOS — use explicit font family names (e.g. `Montserrat`, `Schibsted Grotesk`).
 - Font string must match actual computed style exactly: `"<weight> <size> <family>"`.
+
+## Gradient background
+
+The site-wide shader gradient lives in `src/components/ui/GradientBackground.astro`. It has two variants:
+
+- `variant="full"` — time-of-day aware, full-intensity. Home page only.
+- `variant="subtle"` — dark ocean only, slower and dimmer. **All inner pages get this automatically via `BaseLayout`.**
+
+Never add `GradientBackground` manually to an inner page — `BaseLayout` already includes it. The gradient is what makes glass cards look correct; without it, `bg-surface-0/55` just looks like a flat dark surface.
 
 ## Astro patterns
 - `BaseLayout` accepts optional `titleFull` — omit it to suppress the `<h1>` entirely
