@@ -68,7 +68,7 @@ export const artworkSchema = baseItemSchema.extend({
   description: z.coerce.string().nullish(),
   title: z.coerce.string(),
   image: z.coerce.string().nullish(),
-  image_size: z.enum(["narrow", "wide"]).nullish(),
+  image_size: z.enum(["narrow", "medium", "wide"]).nullish(),
   images: z.array(z.string()).nullish(),
   art_tags: z.array(z.string()),
   inspiration: z.string().url().nullish(),

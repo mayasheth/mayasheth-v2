@@ -1,0 +1,127 @@
+---
+interface Props {
+  variant?: "full" | "subtle";
+}
+const { variant = "full" } = Astro.props;
+---
+
+<div id="bg" data-variant={variant}></div>
+
+<style is:global>
+  #bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-color: var(--color-ocean-950);
+  }
+  #bg[data-variant="full"] > canvas {
+    opacity: 0.60;
+  }
+  #bg[data-variant="subtle"] > canvas {
+    opacity: 0.65;
+  }
+</style>
+
+<script>
+  import {
+    ShaderMount,
+    meshGradientFragmentShader,
+    ShaderFitOptions,
+  } from "@paper-design/shaders";
+  import { gradientConfig } from "@/data/home-gradient-config.js";
+
+  // getComputedStyle returns oklch strings unchanged in Chrome, so we use
+  // canvas fillStyle which always resolves to sRGB pixel values.
+  const _cvs = Object.assign(document.createElement("canvas"), { width: 1, height: 1 });
+  const _ctx = _cvs.getContext("2d");
+  function toRgba(cssColor: string): [number, number, number, number] {
+    _ctx!.clearRect(0, 0, 1, 1);
+    _ctx!.fillStyle = cssColor;
+    _ctx!.fillRect(0, 0, 1, 1);
+    const d = _ctx!.getImageData(0, 0, 1, 1).data;
+    return [d[0]/255, d[1]/255, d[2]/255, d[3]/255];
+  }
+
+  const OCEAN: Record<string, string> = {
+    o0:  "oklch(97.50% 0.040 177.0)",
+    o1:  "oklch(91.00% 0.060 186.8)",
+    o2:  "oklch(90.00% 0.092 196.6)",
+    o3:  "oklch(80.50% 0.124 206.4)",
+    o4:  "oklch(69.00% 0.168 216.2)",
+    o5:  "oklch(57.00% 0.179 226.3)",
+    o6:  "oklch(49.00% 0.168 236.4)",
+    o7:  "oklch(38.00% 0.135 246.4)",
+    o8:  "oklch(27.50% 0.119 256.3)",
+    o9:  "oklch(23.50% 0.092 266.2)",
+    o10: "oklch(17.50% 0.124 276.0)",
+  };
+  const ACCENTS: Record<string, string> = {
+    a0: "oklch(47.00% 0.220  18.0)",  // red
+    a1: "oklch(78.00% 0.175  68.0)",  // amber
+    a2: "oklch(84.00% 0.200 132.0)",  // lime
+    a3: "oklch(79.00% 0.140 172.0)",  // teal
+    a4: "oklch(43.00% 0.220 303.0)",  // purple
+    a5: "oklch(47.00% 0.260 333.0)",  // magenta
+  };
+  const PALETTE = { ...OCEAN, ...ACCENTS };
+
+  const SUBTLE_CONFIG = {
+    colors: ["o9", "o7", "o6", "o5", "a4"],
+    speed:        0.1,
+    distortion:   0.4,
+    swirl:        0.6,
+    grainOverlay: 0.1,
+    grainMixer:   0,
+    scale:        0.8,
+    rotation:     0,
+    offsetX:      0,
+    offsetY:      0,
+    originX:      0.5,
+    originY:      0.5,
+  };
+
+  function getFullCfg() {
+    const h = new Date().getHours();
+    const period = gradientConfig.timeOfDay.find((p: any) =>
+      p.from < p.to
+        ? h >= p.from && h < p.to
+        : h >= p.from || h < p.to   // spans midnight
+    );
+    return period ? { ...gradientConfig.background, ...period } : gradientConfig.background;
+  }
+
+  const bgEl = document.getElementById("bg");
+  const variant = bgEl?.dataset.variant ?? "full";
+  const cfg = variant === "subtle" ? SUBTLE_CONFIG : getFullCfg();
+
+  const colors = cfg.colors.map((key: string) => {
+    const oklch = PALETTE[key];
+    if (!oklch) { console.warn("Unknown palette key:", key); return [0,0,0,1]; }
+    return toRgba(oklch);
+  });
+
+  // u_scale=0 (WebGL default) → divide-by-zero in vertex shader → black canvas.
+  new ShaderMount(
+    bgEl,
+    meshGradientFragmentShader,
+    {
+      u_fit:          ShaderFitOptions.cover,
+      u_scale:        cfg.scale    ?? 1,
+      u_rotation:     cfg.rotation ?? 0,
+      u_offsetX:      cfg.offsetX  ?? 0,
+      u_offsetY:      cfg.offsetY  ?? 0,
+      u_originX:      cfg.originX  ?? 0.5,
+      u_originY:      cfg.originY  ?? 0.5,
+      u_worldWidth:   0,
+      u_worldHeight:  0,
+      u_colors:       colors,
+      u_colorsCount:  colors.length,
+      u_distortion:   cfg.distortion   ?? 0.5,
+      u_swirl:        cfg.swirl        ?? 0.3,
+      u_grainMixer:   cfg.grainMixer   ?? 0,
+      u_grainOverlay: cfg.grainOverlay ?? 0.1,
+    },
+    {},
+    cfg.speed ?? 0.3
+  );
+</script>

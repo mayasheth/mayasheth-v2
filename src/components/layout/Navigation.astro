@@ -1,9 +1,9 @@
 ---
-// src/components/Navigation.astro
 import { Icon } from "astro-icon/components";
 import SearchButton from "@/components/search/SearchButton.astro";
 import MobileMenu from "@/components/layout/MobileMenu.astro";
 import SearchModal from "@/components/search/SearchModal.astro";
+import PawMark from "@/components/ui/PawMark.astro";
 import { NAV_ITEMS } from "@/data/navData";
 
 const navbarClasses =
@@ -14,14 +14,15 @@ const dropdownClasses =
 
 <header class="bg-surface-2 sticky top-0 z-50 py-2 px-3">
   <div class="mx-auto flex max-w-6xl items-center justify-between">
-    <!-- Left: Logo and site Name -->
-    <div class="flex items-end justify-center">
-      <img class="-mb-0.5 h-auto w-8" src="/tricolor-paw.svg" alt="" />
+    <!-- Left: PawMark logo + site name -->
+    <div class="flex items-center gap-2">
+      <a href="/" aria-label="maya sheth — home">
+        <PawMark size="40px" />
+      </a>
       <a
         href="/"
-        class="text-content-3 soft-transition hover:text-content-2 focus-outline-rounded ml-2 font-serif text-xl font-bold"
-        >maya sheth</a
-      >
+        class="text-content-3 soft-transition hover:text-content-2 focus-outline-rounded font-serif text-xl font-bold"
+      >maya sheth</a>
     </div>
 
     <!-- Desktop menu -->
@@ -55,11 +56,11 @@ const dropdownClasses =
       <SearchButton id="search-trigger" />
     </nav>
 
-    <!-- MOBILE: header icons only (search + menu), right aligned -->
+    <!-- Mobile: icons only (search + menu), right aligned -->
     <MobileMenu navItems={NAV_ITEMS} mode="icons" />
   </div>
 
-  <!-- MOBILE: dropdown menu (always below header bar), hidden on desktop -->
+  <!-- Mobile: dropdown menu (always below header bar), hidden on desktop -->
   <MobileMenu navItems={NAV_ITEMS} mode="dropdown" />
 
   <!-- Search modal -->

@@ -1,20 +1,17 @@
 ---
 import Navigation from "@/components/layout/Navigation.astro";
-import NavigationHome from "@/components/layout/NavigationHome.astro";
 import Footer from "@/components/layout/Footer.astro";
-import FooterMinimal from "@/components/layout/FooterMinimal.astro";
+import GradientBackground from "@/components/ui/GradientBackground.astro";
 import Analytics from "@vercel/analytics/astro";
 import "@/styles/index.css";
 
 export type Props = {
   titleShort: string;
   titleFull?: string;
-  variant?: "default" | "home";
+  gradientVariant?: "subtle" | "full";
 };
 
-const { titleShort, titleFull, variant = "default" }: Props = Astro.props;
-
-const isHome = variant === "home";
+const { titleShort, titleFull, gradientVariant = "subtle" }: Props = Astro.props;
 ---
 
 <html lang="en">
@@ -36,12 +33,12 @@ const isHome = variant === "home";
     <Analytics />
   </head>
 
-  <body data-pagefind-body={!isHome || undefined}>
+  <body data-pagefind-body>
     <!-- Skip link for keyboard users -->
     <a
       href="#main-content"
-      class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:right-3 focus:z-[9999] 
-        focus:bg-surface-2 focus:text-content-1 focus:font-base focus:font-medium focus:italic focus:px-4 focus:py-2 
+      class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:right-3 focus:z-[9999]
+        focus:bg-surface-2 focus:text-content-1 focus:font-base focus:font-medium focus:italic focus:px-4 focus:py-2
         focus-outline-rounded"
     >
       skip to main content
@@ -49,18 +46,15 @@ const isHome = variant === "home";
 
     <script type="module" src="/scripts/search-modal.js"></script>
     <script type="module" src="/scripts/mobile-menu.js"></script>
-    {isHome ? <NavigationHome /> : <Navigation />}
+    <GradientBackground variant={gradientVariant} />
+    <Navigation />
     <main
       id="main-content"
-      class:list={[
-        "bg-surface-0 flex min-h-dvh flex-col items-center pb-4",
-        { "md:ml-54 lg:ml-68": isHome },
-      ]}
+      class="relative z-[1] flex min-h-dvh flex-col items-center pb-4"
     >
-      {titleFull && <h1 class="pt-6"> {titleFull} </h1>}
+      {titleFull && <h1 class="font-header text-3xl font-semibold text-content-2 tracking-wide lowercase pt-6 pb-2">{titleFull}</h1>}
       <slot />
-      {/* page-specific content goes */}
     </main>
-    {isHome ? <FooterMinimal /> : <Footer />}
+    <Footer />
   </body>
 </html>
