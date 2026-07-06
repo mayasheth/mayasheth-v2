@@ -25,6 +25,7 @@
     "autoprefixer": "^10.4.21",
     "gray-matter": "^4.0.3",
     "jsdom": "^27.0.1",
+    "lottie-web": "^5.13.0",
     "micromodal": "^0.6.1",
     "pagefind": "^1.4.0",
     "postcss": "^8.5.6",
