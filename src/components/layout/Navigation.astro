@@ -12,7 +12,7 @@ const dropdownClasses =
   "block px-4 py-1 font-header soft-transition hover:font-semibold hover:text-content-2 focus-outline";
 ---
 
-<header class="bg-surface-2 sticky top-0 z-50 py-2 px-3">
+<header class="glass bg-surface-0/70 border-b border-pale-grey/10 sticky top-0 z-50 py-2 px-3">
   <div class="mx-auto flex max-w-6xl items-center justify-between">
     <!-- Left: PawMark logo + site name -->
     <div class="flex items-center gap-2">
@@ -42,7 +42,7 @@ const dropdownClasses =
                 />
               )}
             </button>
-            <div class="bg-surface-1 ring-surface-3 absolute left-1/2 my-2 hidden w-auto -translate-x-1/2 rounded-md py-1 text-center ring-2 group-hover:block before:absolute before:inset-x-0 before:-top-2 before:h-2 before:content-['']">
+            <div class="glass bg-surface-0/70 border border-pale-grey/10 absolute left-1/2 my-2 hidden w-auto -translate-x-1/2 rounded-md py-1 text-center group-hover:block before:absolute before:inset-x-0 before:-top-2 before:h-2 before:content-['']">
               {item.children.map((child) => (
                 <a href={child.href} class={dropdownClasses}>
                   <span class="hover-stable-fw" data-text={child.label}>{child.label}</span>
