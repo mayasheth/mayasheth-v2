@@ -71,6 +71,20 @@
     filter: brightness(1.1);
   }
 
+  /* Interactive frosted button — dimmer than tag-frost, sits between frost and glass */
+  .btn-frost {
+    color: var(--color-content-2);
+    background-color: oklch(90.4% 0.017 264 / 0.08);
+    backdrop-filter: blur(16px) saturate(1.8) brightness(1.1);
+    -webkit-backdrop-filter: blur(16px) saturate(1.8) brightness(1.1);
+    border: 1px solid oklch(90.4% 0.017 264 / 0.10);
+    transition: background-color 500ms ease, filter 300ms ease;
+  }
+  .btn-frost:hover {
+    background-color: oklch(90.4% 0.017 264 / 0.18);
+    filter: brightness(1.04);
+  }
+
   /* Non-interactive frosted glass surface — half brightness, no hover response */
   .tag-frost-dim {
     background-color: oklch(90.4% 0.017 264 / 0.10);
@@ -175,8 +189,10 @@
     @apply my-4
   }
 
-  /* Two or more consecutive images → auto-fit grid */
-  .markdown-content p:has(img + img) {
+  /* Two or more consecutive images with no other element children → auto-fit grid.
+     :not(:has(:not(img))) guards against mixed text+image paragraphs where the grid
+     would fragment inline text into separate grid cells. */
+  .markdown-content p:has(img + img):not(:has(:not(img))) {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
     @apply gap-2;
@@ -184,8 +200,45 @@
   }
 
   /* In a grid, each image fills its cell */
-  .markdown-content p:has(img + img) img {
+  .markdown-content p:has(img + img):not(:has(:not(img))) img {
     width: 100%;
+  }
+
+  /* Tables */
+  .markdown-content .table-scroll {
+    @apply overflow-x-auto my-6 rounded-xl;
+    backdrop-filter: blur(20px) saturate(1.3);
+    -webkit-backdrop-filter: blur(20px) saturate(1.3);
+    background-color: oklch(17.5% 0.124 276 / 0.55);
+    border: 1px solid oklch(90.40% 0.017 264.38 / 0.10);
+  }
+
+  .markdown-content table {
+    @apply w-full text-sm font-base font-light;
+    border-collapse: collapse;
+  }
+
+  .markdown-content th {
+    @apply px-4 py-2.5 text-left text-content-2 font-semibold tracking-wide;
+    background: oklch(90.4% 0.017 264 / 0.10);
+    @apply border-b border-pale-grey/20;
+  }
+
+  .markdown-content tbody tr {
+    @apply border-b border-pale-grey/10;
+    transition: background-color 250ms ease;
+  }
+
+  .markdown-content tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  .markdown-content tbody tr:hover {
+    background: oklch(17.5% 0.124 276 / 0.40);
+  }
+
+  .markdown-content td {
+    @apply px-4 py-2 text-content-1 align-top;
   }
 
   .toc-active {

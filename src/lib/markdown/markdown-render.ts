@@ -6,6 +6,21 @@ import rehypeStringify from "rehype-stringify";
 import { visit } from "unist-util-visit";
 import type { Root } from "mdast";
 
+function tableWrapper() {
+  return (tree: any) => {
+    visit(tree, "element", (node, index, parent) => {
+      if (node.tagName === "table" && parent && typeof index === "number") {
+        parent.children[index] = {
+          type: "element",
+          tagName: "div",
+          properties: { className: ["table-scroll"] },
+          children: [node],
+        };
+      }
+    });
+  };
+}
+
 // IMAGE REWRITER: expects (url, alt) => url
 // LINK REWRITER: expects async (url, text) => url
 
@@ -81,7 +96,8 @@ export async function renderMarkdownWithRewriters(
     .use(syncRewritePlugin, { imageRewriter, linkRewriter }) // removing headings from here
     .use(remarkRehype)
     .use(rehypeSlug)
-    .use(headingExtractor, headings) // Pass headings array to extractor plugin!
+    .use(headingExtractor, headings)
+    .use(tableWrapper)
     .use(rehypeStringify)
     .process(markdown);
 
