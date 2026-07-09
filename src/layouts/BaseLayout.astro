@@ -8,7 +8,7 @@ import "@/styles/index.css";
 export type Props = {
   titleShort: string;
   titleFull?: string;
-  gradientVariant?: "subtle" | "full";
+  gradientVariant?: "subtle" | "full" | "error";
 };
 
 const { titleShort, titleFull, gradientVariant = "subtle" }: Props = Astro.props;
