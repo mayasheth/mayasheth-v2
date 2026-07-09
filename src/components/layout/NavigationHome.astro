@@ -2,7 +2,6 @@
 // src/components/NavigationHome.astro
 import SearchButton from "@/components/search/SearchButton.astro";
 import MobileMenu from "@/components/layout/MobileMenu.astro";
-import SearchModal from "@/components/search/SearchModal.astro";
 import { NAV_ITEMS } from "@/data/navData";
 
 const headerClasses =
@@ -50,8 +49,6 @@ const linkClasses =
     }
   </nav>
 
-  <!-- Search modal (sidebar and mobile share) -->
-  <SearchModal />
 </aside>
 
 <!-- Mobile header/nav -->
@@ -71,6 +68,4 @@ const linkClasses =
   <MobileMenu navItems={NAV_ITEMS} mode="dropdown" />
   <!--- Mobile dropdown -->
 
-  <SearchModal />
-  <!-- For mobile menu/modal -->
 </header>

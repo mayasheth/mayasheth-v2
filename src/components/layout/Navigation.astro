@@ -2,7 +2,6 @@
 import { Icon } from "astro-icon/components";
 import SearchButton from "@/components/search/SearchButton.astro";
 import MobileMenu from "@/components/layout/MobileMenu.astro";
-import SearchModal from "@/components/search/SearchModal.astro";
 import PawMark from "@/components/ui/PawMark.astro";
 import { NAV_ITEMS } from "@/data/navData";
 
@@ -63,6 +62,4 @@ const dropdownClasses =
   <!-- Mobile: dropdown menu (always below header bar), hidden on desktop -->
   <MobileMenu navItems={NAV_ITEMS} mode="dropdown" />
 
-  <!-- Search modal -->
-  <SearchModal />
 </header>

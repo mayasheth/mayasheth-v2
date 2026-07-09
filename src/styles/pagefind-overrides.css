@@ -1,12 +1,13 @@
-/* src/styles/pagefind-custom.css */
+/* Pagefind UI — glass design system overrides */
+
 .pagefind-ui {
   --pagefind-ui-scale: 1;
   --pagefind-ui-primary: var(--color-content-2);
   --pagefind-ui-text: var(--color-content-1);
-  --pagefind-ui-background: var(--color-surface-1);
-  --pagefind-ui-border: var(--color-surface-4);
-  --pagefind-ui-tag: var(--color-surface-2);
-  --pagefind-ui-border-width: 2px;
+  --pagefind-ui-background: transparent;
+  --pagefind-ui-border: oklch(90.40% 0.017 264.38 / 0.15);
+  --pagefind-ui-tag: oklch(90.40% 0.017 264.38 / 0.08);
+  --pagefind-ui-border-width: 1px;
   --pagefind-ui-border-radius: 0.75rem;
   --pagefind-ui-image-border-radius: 0.75rem;
   --pagefind-ui-image-box-ratio: 3 / 2;
@@ -18,36 +19,53 @@
   @apply overflow-y-scroll w-full;
 }
 
+/* ── Search bar ── */
+
 .pagefind-ui__form {
-  @apply flex flex-wrap md:gap-0 md:mb-1;
+  @apply flex flex-wrap gap-2 mb-2;
 }
 
 .pagefind-ui__search-input {
-  @apply text-content-1 bg-surface-0 font-base text-base font-light;
-  @apply focus-visible:border-[1.5px] focus-visible:border-content-3 focus-visible:outline-none transition-all duration-200;
-  @apply rounded-md border-1 border-content-3;
-  @apply px-2 py-2 m-0.5;
-  @apply min-w-1/2 grow;
-  @apply focus:px-2;
+  @apply font-base text-base font-light text-content-1;
+  @apply px-4 py-2 rounded-xl min-w-1/2 grow;
+  background: oklch(17.5% 0.124 276 / 0.50);
+  border: 1px solid oklch(90.40% 0.017 264.38 / 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: border-color 200ms ease, background 200ms ease;
+  outline: none;
+}
+
+.pagefind-ui__search-input:focus-visible {
+  border-color: oklch(90.40% 0.017 264.38 / 0.35);
+  background: oklch(17.5% 0.124 276 / 0.65);
+}
+
+.pagefind-ui__search-input::placeholder {
+  @apply text-content-4 font-light;
 }
 
 .pagefind-ui__search-clear {
-  @apply hidden sm:inline-flex text-content-3 font-base font-light text-base bg-surface-2 px-2 py-1.25 sm:px-4 sm:py-2 rounded-full;
-  @apply hover:bg-surface-3 hover:font-semibold hover:text-content-2 transition-all duration-400;
-  @apply focus-visible:ring-[3px] focus-visible:ring-content-3 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-1 focus-visible:outline-none;
-  @apply my-auto grow-0 mx-1.5 sm:ml-3 sm:mr-2;
+  @apply hidden sm:inline-flex font-base font-light text-sm;
+  @apply px-4 py-2 rounded-full my-auto grow-0;
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-content-3/40;
+  color: var(--color-content-2);
+  background-color: oklch(90.4% 0.017 264 / 0.08);
+  backdrop-filter: blur(16px) saturate(1.8) brightness(1.1);
+  -webkit-backdrop-filter: blur(16px) saturate(1.8) brightness(1.1);
+  border: 1px solid oklch(90.4% 0.017 264 / 0.10);
+  transition: background-color 500ms ease, filter 300ms ease;
 }
 
-.pagefind-ui__button {
-  @apply text-content-3 font-base font-light text-base bg-surface-2 px-2 py-1.5 mt-2 -mb-0.5 rounded-full;
-  @apply hover:bg-surface-3 hover:font-semibold hover:text-content-2 transition-all duration-400;
-  @apply focus-visible:ring-[3px] focus-visible:ring-content-3 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-1 focus-visible:outline-none;
-  @apply self-center mx-auto;
+.pagefind-ui__search-clear:hover {
+  background-color: oklch(90.4% 0.017 264 / 0.18);
+  filter: brightness(1.04);
 }
+
+/* ── Results drawer ── */
 
 .pagefind-ui__drawer {
-  @apply p-0;
-  @apply overflow-y-visible;
+  @apply p-0 overflow-y-visible;
   flex-basis: 100%;
 }
 
@@ -56,49 +74,79 @@
 }
 
 .pagefind-ui__results-area {
-  @apply grow overflow-y-auto pr-0.5;  /* Add some padding for the scrollbar */
-  @apply flex flex-col items-center; 
+  @apply grow overflow-y-auto pr-0.5 flex flex-col items-center;
 }
 
+/* ── Individual result ── */
+
 .pagefind-ui__result {
-  @apply py-2.5 px-0 w-full;
-  @apply border-b-1 border-content-4;
-  overflow-y: visible; 
+  @apply py-3 px-0 w-full;
+  border-bottom: 1px solid oklch(90.40% 0.017 264.38 / 0.10);
+  overflow-y: visible;
 }
 
 .pagefind-ui__result:last-child {
-  @apply border-none;
-}
-
-
-.pagefind-ui__message {
-  @apply text-content-4 text-base font-base font-semibold pt-2 text-center;
+  border-bottom: none;
 }
 
 .pagefind-ui__result-title {
-  @apply font-header text-[1.1rem] font-medium mb-0.5 leading-tight text-content-1 lowercase;
-  
+  @apply font-header text-[1.05rem] font-medium mb-0.5 leading-tight text-content-2 lowercase;
 }
 
 .pagefind-ui__result-excerpt {
-  @apply font-base text-sm leading-tight font-light text-content-3 lowercase text-pretty;
-}
-
-.pagefind-ui__result-nested {
-  @apply pl-6;
-}
-
-.pagefind-ui__result-nested .pagefind-ui__result-title {
-  @apply text-base font-light text-content-2 pt-[0.1em];
+  @apply font-base text-sm leading-snug font-light text-content-4 lowercase text-pretty;
 }
 
 .pagefind-ui__result-link {
-  @apply hover:text-content-1 hover:font-semibold hover:tracking-wide;
-  @apply transition-all duration-400;
-  @apply focus-visible:ring-[3px] focus-visible:ring-content-3 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-1 focus-visible:outline-none rounded-md;
+  @apply transition-colors duration-200;
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-content-3/40 rounded-sm;
 }
 
+.pagefind-ui__result-link:hover {
+  @apply text-content-0;
+}
+
+/* ── Sub-results ── */
+
+.pagefind-ui__result-nested {
+  @apply pl-5 mt-1.5;
+  border-left: 1px solid oklch(90.40% 0.017 264.38 / 0.12);
+}
+
+.pagefind-ui__result-nested .pagefind-ui__result-title {
+  @apply text-sm font-light text-content-3 pt-[0.1em];
+}
+
+/* ── Status message ── */
+
+.pagefind-ui__message {
+  @apply text-content-4 text-sm font-base font-light pt-2 pb-1 text-center tracking-wide lowercase;
+}
+
+/* ── Load more button ── */
+
+.pagefind-ui__button {
+  @apply font-base font-light text-sm;
+  @apply px-5 py-1.5 mt-3 mb-0.5 rounded-full self-center mx-auto;
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-content-3/40;
+  color: var(--color-content-2);
+  background-color: oklch(90.4% 0.017 264 / 0.08);
+  backdrop-filter: blur(16px) saturate(1.8) brightness(1.1);
+  -webkit-backdrop-filter: blur(16px) saturate(1.8) brightness(1.1);
+  border: 1px solid oklch(90.4% 0.017 264 / 0.10);
+  transition: background-color 500ms ease, filter 300ms ease;
+}
+
+.pagefind-ui__button:hover {
+  background-color: oklch(90.4% 0.017 264 / 0.18);
+  filter: brightness(1.04);
+}
+
+/* ── Search term highlight ── */
+
 .pagefind-ui mark {
-  @apply bg-surface-4 text-content-1 font-semibold! tracking-wide;
-  @apply rounded-sm px-[0.15rem] py-[0.1rem];
+  /* Teal accent tint (accent-3) */
+  background: oklch(79% 0.140 172 / 0.20);
+  color: var(--color-content-1);
+  @apply font-semibold rounded-sm px-[0.15rem] py-[0.05rem];
 }

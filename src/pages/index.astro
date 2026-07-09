@@ -2,6 +2,7 @@
 import "@/styles/index.css";
 import "flag-icons/css/flag-icons.min.css";
 import Navigation from "@/components/layout/Navigation.astro";
+import SearchModal from "@/components/search/SearchModal.astro";
 import Footer from "@/components/layout/Footer.astro";
 import GradientBackground from "@/components/ui/GradientBackground.astro";
 import { getCollection } from "astro:content";
@@ -678,5 +679,6 @@ const featuredMusings = allNotebook
 
   </script>
 
+  <SearchModal />
 </body>
 </html>
