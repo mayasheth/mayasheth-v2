@@ -2,6 +2,8 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { getCollection, type CollectionEntry } from "astro:content";
 import { Icon } from "astro-icon/components";
+import { getFlagCode } from "@/lib/country-flags";
+import "flag-icons/css/flag-icons.min.css";
 
 const titleShort = "worldly";
 const titleFull = "around the world";
@@ -78,9 +80,12 @@ function formatDate(date: Date): string {
           <a
             href={`/media/around-the-world/${item.id}`}
             rel="noopener"
-            class="tag-frost-dim font-header text-content-3 hover:text-content-2 soft-transition focus-outline truncate rounded-t-xl rounded-b-none p-2 text-center text-lg font-light tracking-wide lowercase hover:font-semibold"
+            class="tag-frost-dim font-header text-content-3 hover:text-content-2 soft-transition focus-outline flex items-center justify-center gap-1.5 rounded-t-xl rounded-b-none p-2 text-center text-lg font-light tracking-wide lowercase hover:font-semibold"
             aria-label={`page for ${item.data.location}`}
           >
+            {getFlagCode(item.data.location) && (
+              <span class={`fi fi-${getFlagCode(item.data.location)}`} style="font-size: 0.85rem; border-radius: 2px; flex-shrink: 0; position: relative; top: 1px;"></span>
+            )}
             {item.data.location}
           </a>
 
@@ -147,9 +152,12 @@ function formatDate(date: Date): string {
           <a
             href={`/media/around-the-world/${item.id}`}
             rel="noopener"
-            class="tag-frost-dim font-header text-content-3 hover:text-content-2 soft-transition focus-outline block truncate rounded-xl p-2 text-center text-lg font-light tracking-wide lowercase hover:font-semibold"
+            class="tag-frost-dim font-header text-content-3 hover:text-content-2 soft-transition focus-outline flex items-center justify-center gap-1.5 rounded-xl p-2 text-center text-lg font-light tracking-wide lowercase hover:font-semibold"
             aria-label={`page for ${item.data.location}`}
           >
+            {getFlagCode(item.data.location) && (
+              <span class={`fi fi-${getFlagCode(item.data.location)}`} style="font-size: 0.85rem; border-radius: 2px; flex-shrink: 0; position: relative; top: 1px;"></span>
+            )}
             {item.data.location}
           </a>
         </div>

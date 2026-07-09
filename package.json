@@ -23,6 +23,7 @@
     "astro-icon": "^1.1.5",
     "astro-pagefind": "^1.8.5",
     "autoprefixer": "^10.4.21",
+    "flag-icons": "^7.5.0",
     "gray-matter": "^4.0.3",
     "jsdom": "^27.0.1",
     "lottie-web": "^5.13.0",

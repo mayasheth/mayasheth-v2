@@ -1,5 +1,6 @@
 ---
 import "@/styles/index.css";
+import "flag-icons/css/flag-icons.min.css";
 import Navigation from "@/components/layout/Navigation.astro";
 import Footer from "@/components/layout/Footer.astro";
 import GradientBackground from "@/components/ui/GradientBackground.astro";
@@ -9,6 +10,7 @@ import { Image } from "astro:assets";
 import { Icon } from "astro-icon/components";
 import { isImage } from "@/lib/helpers/media-info-helpers";
 import type { ImageMetadata } from "astro";
+import { getFlagCode } from "@/lib/country-flags";
 
 function getQuoteClass(text: string) {
   const len = text.length;
@@ -77,36 +79,11 @@ const atwToGo = atw.filter(i =>
   i.data.book_status !== "DONE" && !i.data.book_ideas?.length
 ).length;
 
-const COUNTRY_ISO: Record<string, string> = {
-  "Afghanistan":"AF","Albania":"AL","Algeria":"DZ","Andorra":"AD","Angola":"AO",
-  "Antigua and Barbuda":"AG","Argentina":"AR","Australia":"AU","Azerbaijan":"AZ",
-  "Bahamas":"BS","Bahrain":"BH","Bangladesh":"BD","Barbados":"BB","Belarus":"BY",
-  "Belgium":"BE","Benin":"BJ","Brazil":"BR","Canada":"CA","Catalonia":"ES",
-  "Chile":"CL","China":"CN","Colombia":"CO","Croatia":"HR","Cuba":"CU","Cyprus":"CY",
-  "Czech Republic":"CZ","Democratic Republic of the Congo":"CD","Denmark":"DK",
-  "Ecuador":"EC","Egypt":"EG","Ethiopia":"ET","Finland":"FI","France":"FR",
-  "French Polynesia":"PF","Ghana":"GH","Greece":"GR","Guam":"GU","Haiti":"HT",
-  "Hungary":"HU","Iceland":"IS","India":"IN","Iran":"IR","Iraq":"IQ","Ireland":"IE",
-  "Italy":"IT","Jamaica":"JM","Japan":"JP","Kuwait":"KW","Lebanon":"LB",
-  "Malaysia":"MY","Mexico":"MX","Morocco":"MA","Myanmar":"MM","Nepal":"NP",
-  "Netherlands":"NL","New Zealand":"NZ","Nigeria":"NG","North Korea":"KP",
-  "Norway":"NO","Oman":"OM","Palestine":"PS","Panama":"PA","Peru":"PE",
-  "Philippines":"PH","Poland":"PL","Romania":"RO","Russia":"RU","Rwanda":"RW",
-  "Saudi Arabia":"SA","Slovakia":"SK","South Korea":"KR","Spain":"ES","Sri Lanka":"LK",
-  "Sweden":"SE","Syria":"SY","Tanzania":"TZ","Turkey":"TR","Ukraine":"UA",
-  "United Kingdom":"GB","United States of America":"US","Uruguay":"UY",
-  "Uzbekistan":"UZ","Venezuela":"VE","Vietnam":"VN","Zimbabwe":"ZW",
-};
-const toFlag = (name: string) => {
-  const code = COUNTRY_ISO[name];
-  if (!code) return "🌍";
-  return [...code].map(c => String.fromCodePoint(0x1F1E6 + c.charCodeAt(0) - 65)).join('');
-};
 const recentCountries = atw
   .filter(i => i.data.book_status === "DONE" && i.data.book_date_read)
   .sort((a, b) => b.data.book_date_read!.getTime() - a.data.book_date_read!.getTime())
   .slice(0, 3)
-  .map(i => ({ name: i.data.location, flag: toFlag(i.data.location), id: i.id }));
+  .map(i => ({ name: i.data.location, flagCode: getFlagCode(i.data.location), id: i.id }));
 
 const allNotebook = await getCollection("notebook");
 const featuredMusings = allNotebook
@@ -378,10 +355,10 @@ const featuredMusings = allNotebook
               <span class="font-base text-sm text-content-4">&middot; {atwToGo} to go</span>
             </div>
             <!-- recent countries -->
-            <div class="flex flex-col gap-0.5 border-l border-surface-3 pl-4 shrink-0">
+            <div class="flex flex-col gap-1.5 border-l border-surface-3 pl-4 shrink-0">
               {recentCountries.map(c => (
                 <a href={`/media/around-the-world/${c.id}`} class="group flex items-center gap-1.5 no-underline">
-                  <span class="text-base leading-none">{c.flag}</span>
+                  {c.flagCode && <span class={`fi fi-${c.flagCode}`} style="font-size: 0.9rem; border-radius: 2px; flex-shrink: 0;"></span>}
                   <span class="font-base text-xs text-content-3 lowercase group-hover:text-content-1 soft-transition">{c.name}</span>
                 </a>
               ))}
