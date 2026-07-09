@@ -39,8 +39,8 @@ const quoteData = rawQuotes.map((q) => ({
       </div>
 
       <!-- table -->
-      <div class="border border-surface-3 overflow-hidden">
-        <div class="grid grid-cols-[2.5rem_1fr_18rem] px-4 py-1.5 bg-surface-1 font-mono text-sm tracking-[0.18em] uppercase text-content-4 border-b border-surface-2 max-sm:grid-cols-[2rem_1fr_10rem]">
+      <div class="glass bg-surface-0/55 border border-pale-grey/10 overflow-hidden rounded-xl">
+        <div class="grid grid-cols-[2.5rem_1fr_18rem] px-4 py-1.5 bg-surface-0/50 font-mono text-sm tracking-[0.18em] uppercase text-content-4 border-b border-pale-grey/10 max-sm:grid-cols-[2rem_1fr_10rem]">
           <span>#</span>
           <span>words</span>
           <span>source</span>
@@ -53,7 +53,7 @@ const quoteData = rawQuotes.map((q) => ({
         <span class="font-mono text-sm text-content-4 tracking-[0.12em] uppercase" id="board-count"></span>
         <button
           id="shuffle-btn"
-          class="bg-surface-3 hover:bg-surface-4 text-content-1 hover:text-content-0 font-base text-sm font-light px-4 py-1.5 rounded-full soft-transition disabled:opacity-35 disabled:cursor-not-allowed"
+          class="btn-glass font-base text-sm font-light px-4 py-1.5 rounded-full soft-transition disabled:opacity-35 disabled:cursor-not-allowed"
         >
           <Icon name="mdi--refresh" class="h-4 w-4 inline-block mr-1.5" />again
         </button>
@@ -66,21 +66,21 @@ const quoteData = rawQuotes.map((q) => ({
       display: grid;
       grid-template-columns: 2.5rem 1fr 18rem;
       padding: 0.75rem 1rem;
-      border-bottom: 1px solid var(--color-surface-2);
+      border-bottom: 1px solid oklch(90.4% 0.017 264 / 0.08);
       transition: background 0.15s;
       align-items: start;
       text-decoration: none;
       color: inherit;
     }
     .board-row:last-child { border-bottom: none; }
-    .board-row:hover { background: var(--color-surface-1); }
+    .board-row:hover { background: oklch(90.4% 0.017 264 / 0.07); }
     @media (max-width: 640px) {
       .board-row { grid-template-columns: 2rem 1fr 10rem; }
     }
     .row-num {
       font-family: var(--font-mono);
       font-size: var(--text-sm);
-      color: var(--color-surface-4);
+      color: var(--color-content-4);
       letter-spacing: 0.05em;
     }
     .row-quote {
@@ -106,8 +106,8 @@ const quoteData = rawQuotes.map((q) => ({
     @media (max-width: 640px) {
       .row-source { white-space: normal; overflow: visible; text-overflow: clip; }
     }
-    .board-row.flipping .row-quote  { color: var(--color-surface-4); }
-    .board-row.flipping .row-source { color: var(--color-surface-3); }
+    .board-row.flipping .row-quote  { color: var(--color-content-4); }
+    .board-row.flipping .row-source { color: var(--color-content-4); }
   </style>
 
   <script define:vars={{ quoteData }}>

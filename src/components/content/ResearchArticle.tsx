@@ -158,7 +158,7 @@ const ArticleEntry: React.FC<Props> = ({ article }) => {
         )}
       </div>
       <div
-        className={`bg-surface-1 font-base text-content-1 mt-3 overflow-y-auto overscroll-auto rounded-xl text-sm font-light transition-all duration-600 ease-in-out ${showAbstract ? "max-h-64 translate-y-0 p-4 opacity-100" : "max-h-0 translate-y-4 opacity-0"} `}
+        className={`glass bg-surface-0/55 border border-pale-grey/10 font-base text-content-1 mt-3 overflow-y-auto overscroll-auto rounded-xl text-sm font-light transition-all duration-600 ease-in-out ${showAbstract ? "max-h-64 translate-y-0 p-4 opacity-100" : "max-h-0 translate-y-4 border-0 opacity-0"} `}
         style={{ pointerEvents: showAbstract ? "auto" : "none" }}
         aria-hidden={!showAbstract}
       >
