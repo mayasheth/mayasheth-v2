@@ -3,37 +3,66 @@
  * PawMark — inline SVG paw glyph, styled as frosted glass.
  *
  * Props:
- *   size        — CSS length for the paw SVG (default "90px")
- *   palm        — fill for the main palm body
- *   palmLo      — fill for the palm under-layer / shadow
- *   toeHi       — fill for toe highlight (lightest)
- *   toeMid      — fill for toe midtone
- *   toeLo       — fill for toe shadow (darkest)
+ *   variant  — named preset: "default" | "teal-blue" | "magenta-teal"
+ *   size     — CSS length (default "90px")
+ *   palm / palmLo / toeHi / toeMid / toeLo — override individual fills
  *
- * The defaults produce a frosted-glass look that reads well over
- * the animated gradient background.
+ * All color props override the variant. Omit them to use the preset.
  */
 
+type Variant = "default" | "teal-blue" | "magenta-teal";
+
 interface Props {
-  size?:   string;
-  palm?:   string;
-  palmLo?: string;
-  toeHi?:  string;
-  toeMid?: string;
-  toeLo?:  string;
-  class?:  string;
+  variant?: Variant;
+  size?:    string;
+  palm?:    string;
+  palmLo?:  string;
+  toeHi?:   string;
+  toeMid?:  string;
+  toeLo?:   string;
+  class?:   string;
 }
 
+const PRESETS: Record<Variant, Record<string, string>> = {
+  // Purple → teal: 5 hues ~27° apart across 110° arc (295→185)
+  "default": {
+    palmLo: "oklch(32% 0.20 295 / 0.70)",
+    palm:   "oklch(50% 0.22 268 / 0.56)",
+    toeLo:  "oklch(46% 0.20 240 / 0.70)",
+    toeMid: "oklch(65% 0.22 213 / 0.62)",
+    toeHi:  "oklch(84% 0.18 185 / 0.58)",
+  },
+  // Teal → blue: 5 hues ~20° apart across 80° arc (185→265)
+  "teal-blue": {
+    palmLo: "oklch(34% 0.16 265 / 0.72)",
+    palm:   "oklch(52% 0.18 245 / 0.56)",
+    toeLo:  "oklch(50% 0.20 225 / 0.68)",
+    toeMid: "oklch(68% 0.20 205 / 0.62)",
+    toeHi:  "oklch(84% 0.16 185 / 0.58)",
+  },
+  // Magenta → teal: 5 hues ~37° apart across 148° arc (333→185)
+  "magenta-teal": {
+    palmLo: "oklch(32% 0.24 333 / 0.72)",
+    palm:   "oklch(50% 0.22 306 / 0.56)",
+    toeLo:  "oklch(44% 0.20 279 / 0.70)",
+    toeMid: "oklch(64% 0.22 232 / 0.62)",
+    toeHi:  "oklch(84% 0.16 185 / 0.58)",
+  },
+};
+
 const {
-  size   = "90px",
-  // Tide — ocean body, teal rim-light. Strong lightness spread gives depth.
-  palm   = "oklch(34% 0.14 244 / 0.65)",
-  palmLo = "oklch(17% 0.12 268 / 0.85)",
-  toeHi  = "oklch(76% 0.15 188 / 0.36)",
-  toeMid = "oklch(50% 0.14 206 / 0.52)",
-  toeLo  = "oklch(21% 0.12 263 / 0.78)",
+  variant = "default",
+  size    = "90px",
   class: className = "",
+  ...colorProps
 } = Astro.props;
+
+const preset = PRESETS[variant] ?? PRESETS["default"];
+const palmLo = colorProps.palmLo ?? preset.palmLo;
+const palm   = colorProps.palm   ?? preset.palm;
+const toeLo  = colorProps.toeLo  ?? preset.toeLo;
+const toeMid = colorProps.toeMid ?? preset.toeMid;
+const toeHi  = colorProps.toeHi  ?? preset.toeHi;
 ---
 
 <svg class:list={[className]}

@@ -7,27 +7,27 @@
       }
 
       .cls-2 {
-        fill: #185086;
+        fill: oklch(48% 0.21 254);
       }
 
       .cls-3 {
-        fill: #008e98;
+        fill: oklch(65% 0.22 213);
       }
 
       .cls-4 {
-        fill: #4a1954;
+        fill: oklch(32% 0.20 295);
       }
 
       .cls-5 {
-        fill: #76c15f;
+        fill: oklch(65% 0.22 213);
       }
 
       .cls-6 {
-        fill: #bbd63c;
+        fill: oklch(84% 0.18 185);
       }
 
       .cls-7 {
-        fill: #ccffd9;
+        fill: oklch(50% 0.22 268);
       }
     </style>
   </defs>
