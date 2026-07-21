@@ -40,25 +40,8 @@
 
 ## Ideas
 - [ ] Page for concepts and tags (manually curate which to include?)
-- [ ] Implement map page(s) for places lived, places travelled (Flighty), around-the-world reading?
-  - [ ] **Around-the-world tile map** — redesign `/atw` as a sparse CSS Grid world map using tile coordinates
-      - Data source: `mustafasaifee42/Tile-Grid-Map` JSON (192 countries, `[x,y]` grid coords)
-      - Reference: https://observablehq.com/@karimdouieb/world-tile-grid-map (D3 map→tile animation, skip for now)
-      - Flag icons: use already-installed `flag-icons` library (not emoji)
-      - **Coordinate mapping**: build a lookup from ATW `location` name → `[x,y]`; include manual overrides for 6 territories:
-        - Puerto Rico `[6,3]`, Martinique `[8,5]`, Catalonia `[11,7]`, French Polynesia `[29,13]`, Guam `[28,9]`
-        - West Indies: no tile — intentionally left unpositioned as example of overflow behavior
-      - **Overflow strip**: any entry with no tile coordinate renders in a separate "other regions" flex strip below the map (same tile style/hover); future unsupported regions auto-fall here
-      - **Status tiers** (single color signal per tile):
-        - Complete: book `DONE` + music `DONE` → full accent-colored glass tile
-        - In progress: book `DONE`/`IN-PROGRESS` or music `DONE` → dimmer accent (`tag-frost-dim` tinted)
-        - Planned: book `XPL`/`IDEA` → dark `tag-frost-dim`, no color
-        - Two small dots per tile (book / music) for per-axis detail
-      - **Hover card** (glass): country name, book title + author + cover thumbnail, song + artist + Spotify link; planned tiles show name + "exploring" only
-      - **Tile click**: links to existing `/atw/[slug]` detail page
-      - **Mobile**: undecided — may show existing list layout on mobile and only render map on md+ breakpoint
-      - For either, could utilize https://flagicons.lipis.dev/ (flag-icons package, already installed)
- - [ ] Add or link to actual CV (need to update/reformat)
+- [ ] Implement map page(s) for places lived, places travelled (Flighty)
+- [ ] Add or link to actual CV (need to update/reformat)
 
 ---
 
@@ -102,3 +85,4 @@
 - [x] **Add ⌘K indicator to search button**
 - [x] **Reduce nav bar height** — py-2 px-3
 - [x] **TOC code review fixes** — hierarchy interface moved, h5/h6 skipped, scroll highlight fixed
+- [x] **Around-the-world tile map** — sparse CSS Grid world map (30×24, 180+ country coords) with glass tile-e-* status tiers, per-axis book/music dots, hover tooltip, overflow strip for unmapped regions; compact 2-column mobile layout grouped by status; fixed music-only detail page width bug
