@@ -51,6 +51,9 @@ const { html, headings } = await renderMarkdownWithRewriters(markdown, {
   linkRewriter,
 });
 
+// Layout flags
+const showBookCard = atwEntry.data.book_status === "DONE" || Boolean(atwEntry.data.book_ideas);
+
 // 4. Get some variables for later
 let book_notes_url = null;
 if (atwEntry.data.book_notes_record) {
@@ -244,7 +247,7 @@ if (atwEntry.data.music_link) {
     {/* MUSIC CARD */}
     {
       atwEntry.data.music_status === "DONE" && (
-        <section class="glass bg-surface-0/55 border border-pale-grey/10 my-auto flex basis-2/5 flex-col items-center rounded-xl p-4 md:p-6">
+        <section class={`glass bg-surface-0/55 border border-pale-grey/10 my-auto flex flex-col items-center rounded-xl p-4 md:p-6 ${showBookCard ? "basis-2/5" : "w-full md:max-w-sm"}`}>
           <h2 class="mb-2">music</h2>
 
           {spotify_embed_url !== null ? (

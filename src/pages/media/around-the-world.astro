@@ -1,27 +1,278 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { getCollection, type CollectionEntry } from "astro:content";
-import { Icon } from "astro-icon/components";
+import { getCollection } from "astro:content";
 import { getFlagCode } from "@/lib/country-flags";
 import "flag-icons/css/flag-icons.min.css";
 
-const titleShort = "worldly";
-const titleFull = "around the world";
+// Coordinate map: exact ATW `location` field value → [gridCol, gridRow] (1-indexed).
+// Both the current vault typos AND their corrected spellings are included so the
+// page keeps working after the source is fixed without any code change needed.
+// Entries absent from this map fall through to the overflow strip.
+const COORDS: Record<string, [number, number]> = {
+  // A
+  Afghanistan: [22, 8],
+  Albania: [15, 9],
+  Algeria: [13, 11],
+  Andorra: [11, 5], // micro-state; placed near France [12,5]/Spain [12,6] cluster
+  Angola: [13, 17],
+  "Antigua and Barbuda": [7, 4],
+  Argentina: [6, 14],
+  Armenia: [20, 6],
+  Australia: [24, 19],
+  Austria: [15, 6],
+  Azerbaijan: [21, 7],
+  // B
+  Bahamas: [4, 2],
+  Bahrain: [20, 9],
+  Bangladesh: [23, 8],
+  Barbados: [8, 6],
+  Belarus: [17, 4],
+  Belgium: [13, 5],
+  Belize: [2, 3],
+  Benin: [15, 14],
+  Bhutan: [24, 7],
+  Bolivia: [6, 11],
+  "Bosnia and Herzegovina": [15, 7], // correct spelling
+  "Bosnia and Herzogovina": [15, 7], // vault typo — kept until source is fixed
+  Botswana: [15, 18],
+  Brazil: [8, 11],
+  "Brunei Darussalam": [25, 12],
+  Bulgaria: [17, 7],
+  "Burkina Faso": [13, 13],
+  Burundi: [15, 16],
+  // C
+  "Cabo Verde": [10, 15],
+  Cambodia: [25, 10], // correct spelling
+  Cambodina: [25, 10], // vault typo — kept until source is fixed
+  Cameroon: [14, 15],
+  Canada: [1, 1],
+  Catalonia: [12, 7], // custom territory — adjacent to Spain [12,6]
+  "Central African Republic": [16, 14],
+  Chad: [14, 13],
+  Chile: [6, 13],
+  China: [24, 6],
+  Colombia: [5, 9],
+  Comoros: [18, 18],
+  Congo: [14, 16],
+  "Costa Rica": [3, 7], // correct spelling
+  "Costa Rico": [3, 7], // vault typo — kept until source is fixed
+  Croatia: [14, 7],
+  Cuba: [4, 3],
+  Cyprus: [17, 10],
+  "Czech Republic": [15, 5],
+  "Côte d'Ivoire": [12, 15],
+  // D
+  "Democratic Republic of the Congo": [15, 15],
+  Denmark: [14, 3],
+  Djibouti: [17, 13],
+  Dominica: [7, 7],
+  "Dominican Republic": [6, 4],
+  // E
+  Ecuador: [5, 10],
+  Egypt: [16, 11],
+  "El Salvador": [1, 5],
+  "Equatorial Guinea": [13, 16],
+  Eritrea: [16, 13],
+  Estonia: [17, 2],
+  Eswatini: [16, 19], // tile dataset has old name "Swaziland"
+  Ethiopia: [17, 14],
+  // F
+  Fiji: [27, 19],
+  Finland: [17, 1],
+  France: [12, 5],
+  "French Polynesia": [29, 13], // custom territory — Pacific, beyond tile data range
+  // G
+  Gabon: [14, 17],
+  Gambia: [12, 12],
+  Georgia: [21, 6],
+  Germany: [14, 4],
+  Ghana: [13, 14],
+  Greece: [16, 9],
+  Grenada: [7, 8],
+  Guam: [28, 9], // custom territory
+  Guatemala: [1, 4],
+  Guinea: [11, 14],
+  "Guinea Bissau": [11, 13], // tile has "Guinea-Bissau"
+  Guyana: [6, 10],
+  // H
+  Haiti: [5, 4],
+  Honduras: [2, 5],
+  Hungary: [16, 6],
+  // I
+  Iceland: [10, 1],
+  India: [22, 9],
+  Indonesia: [25, 13],
+  Iran: [20, 8], // tile has "Iran (Islamic Republic of)"
+  Iraq: [20, 7],
+  Ireland: [10, 4],
+  Israel: [18, 10],
+  Italy: [13, 7],
+  // J
+  Jamaica: [4, 4],
+  Japan: [27, 6],
+  Jordan: [18, 8],
+  // K
+  Kazakhstan: [24, 5],
+  Kenya: [17, 15],
+  Kiribati: [27, 17],
+  Kuwait: [19, 8],
+  Kyrgyzstan: [23, 6],
+  // L
+  Laos: [25, 9], // tile has "Lao People's Democratic Republic"
+  Latvia: [17, 3],
+  Lebanon: [18, 9],
+  Lesotho: [17, 19],
+  Liberia: [12, 14],
+  Libya: [15, 11],
+  Luxembourg: [13, 6],
+  // M
+  Madagascar: [19, 19],
+  Malawi: [15, 17],
+  Malaysia: [24, 11],
+  Maldives: [21, 12],
+  Mali: [14, 12],
+  Malta: [11, 8],
+  "Marshall Islands": [26, 15],
+  Martinique: [8, 5], // custom territory
+  Mauritania: [11, 12],
+  Mauritius: [19, 20],
+  Mexico: [1, 3],
+  Micronesia: [26, 16], // tile has "Micronesia (Federated States of)"
+  Moldova: [18, 5], // tile has "Moldova (Republic of)"
+  Mongolia: [25, 5],
+  Montenegro: [15, 8],
+  Morocco: [12, 11],
+  Mozambique: [16, 17],
+  Myanmar: [24, 8],
+  // N
+  Namibia: [15, 19],
+  Nauru: [26, 17],
+  Nepal: [23, 9],
+  Netherlands: [13, 4],
+  "New Zealand": [26, 21],
+  Nicaragua: [2, 6],
+  Niger: [15, 12],
+  Nigeria: [13, 15],
+  "North Korea": [25, 6],
+  "North Macedonia": [17, 8], // tile has "Macedonia"
+  Norway: [15, 1],
+  // O
+  Oman: [19, 11],
+  // P
+  Pakistan: [21, 8],
+  Palau: [25, 16],
+  Palestine: [17, 9], // not in tile dataset; placed near Israel [18,10]/Lebanon [18,9]
+  Panama: [4, 8],
+  "Papua New Guinea": [25, 17],
+  Paraguay: [6, 12],
+  Peru: [5, 11],
+  Philippines: [26, 11],
+  Poland: [15, 4],
+  Portugal: [11, 6],
+  "Puerto Rico": [6, 3], // custom territory
+  // Q
+  Qatar: [19, 10],
+  // R
+  Romania: [17, 6],
+  Russia: [25, 4], // tile has "Russian Federation"
+  Rwanda: [16, 16],
+  // S
+  "Saint Kitts and Nevis": [6, 5], // tile has "St. Kitts & Nevis"
+  "Saint Lucia": [7, 5], // tile has "St. Lucia"
+  "Saint Vincent and the Grenadines": [7, 6], // tile has "St. Vincent & the Grenadines"
+  Samoa: [28, 18],
+  "Sao Tome and Principe": [11, 16],
+  "Saudi Arabia": [19, 9],
+  Senegal: [13, 12],
+  Serbia: [16, 7],
+  Seychelles: [18, 17],
+  "Sierra Leone": [12, 13],
+  Singapore: [24, 13],
+  Slovakia: [16, 5],
+  Slovenia: [14, 6],
+  "Solomon Islands": [26, 18],
+  Somalia: [18, 14],
+  "South Africa": [16, 20],
+  "South Korea": [25, 7],
+  "South Sudan": [15, 13],
+  Spain: [12, 6],
+  "Sri Lanka": [22, 11],
+  Sudan: [16, 12],
+  Suriname: [7, 11],
+  Sweden: [16, 1],
+  Switzerland: [14, 5],
+  Syria: [19, 7],
+  // T
+  Tajikistan: [23, 7],
+  Tanzania: [17, 16],
+  Thailand: [24, 10],
+  "Timor-Leste": [25, 14],
+  Togo: [14, 14],
+  Tonga: [28, 19],
+  "Trinidad and Tobago": [7, 9], // tile has "Trinidad & Tobago"
+  Tunisia: [14, 11],
+  Turkey: [18, 7],
+  Turkmenistan: [22, 7],
+  Tuvalu: [27, 18],
+  // U
+  Uganda: [16, 15],
+  Ukraine: [17, 5],
+  "United Arab Emirates": [20, 10],
+  "United Kingdom": [11, 4], // tile has "Great Britain and Northern Ireland"
+  "United States of America": [1, 2],
+  Uruguay: [7, 12],
+  Uzbekistan: [22, 6],
+  // V
+  Vanuatu: [26, 19],
+  Venezuela: [6, 9],
+  Vietnam: [26, 9], // tile has "Viet Nam"
+  // W — West Indies intentionally omitted (non-country region, will be removed from source)
+  // Remaining overflow: Liechtenstein, Monaco, San Marino (microstates inside other countries;
+  // no defensible tile position exists for them in the grid)
+  // Y
+  Yemen: [18, 11],
+  // Z
+  Zambia: [14, 18],
+  Zimbabwe: [16, 18],
+};
 
-// load collection
+const GRID_COLS = 30;
+const GRID_ROWS = 24;
+
+type TileStatus = "complete" | "in-progress" | "planned";
+
+function getStatus(data: { book_status: string; music_status: string }): TileStatus {
+  if (data.book_status === "DONE" && data.music_status === "DONE") return "complete";
+  if (data.book_status === "DONE" || data.book_status === "IN-PROGRESS") return "in-progress";
+  return "planned";
+}
+
+// Static class strings so Tailwind's scanner picks them up
+const tileBase =
+  "atw-tile relative flex flex-col items-center justify-center rounded-sm focus:outline-none focus-visible:ring-1 focus-visible:ring-pale-grey/40";
+const tileClasses: Record<TileStatus, string> = {
+  complete: "tile-e-complete",
+  "in-progress": "tile-e-in-progress",
+  planned: "tile-e-planned",
+};
+const dotBookClasses: Record<string, string> = {
+  DONE: "bg-accent-2",
+  "IN-PROGRESS": "bg-accent-1",
+  other: "bg-content-4/40",
+};
+const dotMusicDoneClass = "bg-accent-2";
+const dotMusicOtherClass = "bg-content-4/40";
+
 const atw = await getCollection("atw");
 
-// get basic counts
+// Counts for tagline (mirrors original around-the-world.astro logic)
 const { bothComplete, bookOnlyComplete, bookIdea, bookIncomplete } = atw.reduce(
   (acc, item) => {
     if (item.data.book_status === "DONE" && item.data.music_status === "DONE") {
       acc.bothComplete++;
     } else if (item.data.book_status === "DONE") {
       acc.bookOnlyComplete++;
-    } else if (
-      item.data.book_ideas !== null &&
-      item.data.book_ideas?.length !== 0
-    ) {
+    } else if (item.data.book_ideas !== null && item.data.book_ideas?.length !== 0) {
       acc.bookIdea++;
     } else {
       acc.bookIncomplete++;
@@ -30,138 +281,364 @@ const { bothComplete, bookOnlyComplete, bookIdea, bookIncomplete } = atw.reduce(
   },
   { bothComplete: 0, bookOnlyComplete: 0, bookIdea: 0, bookIncomplete: 0 },
 );
-const bookComplete: number = bothComplete + bookOnlyComplete;
+const bookComplete = bothComplete + bookOnlyComplete;
 
-// group into atwBookComplete, atwIncomplete
-const atwBookComplete: CollectionEntry<"atw">[] = atw.filter(
-  (item) => item.data.book_status === "DONE",
-);
-const atwIncomplete: CollectionEntry<"atw">[] = atw.filter(
-  (item) => item.data.book_status !== "DONE",
-);
+const positioned = atw
+  .filter((e) => Boolean(COORDS[e.data.location]))
+  .map((e) => ({
+    entry: e,
+    coords: COORDS[e.data.location]!,
+    status: getStatus(e.data as { book_status: string; music_status: string }),
+  }));
 
-function formatDate(date: Date): string {
-  const newDate = new Date(date);
-  const year = newDate.getFullYear();
-  const month = String(newDate.getMonth() + 1).padStart(2, "0");
-  const day = String(newDate.getDate()).padStart(2, "0");
-  return `${year}/${month}/${day}`;
-}
+const overflow = atw
+  .filter((e) => !COORDS[e.data.location])
+  .map((e) => ({
+    entry: e,
+    status: getStatus(e.data as { book_status: string; music_status: string }),
+  }));
+
+// Mobile layout — all entries alphabetical, grouped by status
+const allSorted = [...atw]
+  .sort((a, b) => a.data.location.localeCompare(b.data.location))
+  .map((e) => ({
+    entry: e,
+    status: getStatus(e.data as { book_status: string; music_status: string }),
+  }));
+const mobileGroups = [
+  { label: "complete", dotClass: "bg-accent-2", entries: allSorted.filter((e) => e.status === "complete") },
+  { label: "in progress", dotClass: "bg-accent-1", entries: allSorted.filter((e) => e.status === "in-progress") },
+  { label: "planned", dotClass: "bg-content-4/40", entries: allSorted.filter((e) => e.status === "planned") },
+];
 ---
 
-<BaseLayout titleShort={titleShort} titleFull={titleFull}>
+<BaseLayout titleShort="worldly" titleFull="around the world">
+  {/* Tagline */}
   <p class="text-content-1 text-center text-pretty">
-    a quest to read a book (& listen to a song while i'm at it) for every
-    country (or other major [subjective] territory) in the world
+    a quest to read a book (& listen to a song while i'm at it) for every country (or other major
+    [subjective] territory) in the world
   </p>
-  <p class="text-content-2 pb-6 text-center">
-    <span class="font-semibold"> current status: </span>
-    books read for
-    <span class="text-content-3 font-mono text-lg font-semibold md:text-xl">
-      {bookComplete}</span
-    >
+  <p class="pb-6 text-center text-content-2">
+    <span class="font-semibold">current status:</span> books read for
+    <span class="font-mono text-lg font-semibold text-content-3 md:text-xl">{bookComplete}</span>
     locations; ideas for
-    <span class="text-content-3 font-mono text-lg font-semibold md:text-xl">
-      {bookIdea}</span
-    >
+    <span class="font-mono text-lg font-semibold text-content-3 md:text-xl">{bookIdea}</span>
     more;
-    <span class="text-content-3 font-mono text-lg font-semibold md:text-xl">
-      {bookIncomplete}</span
-    >
+    <span class="font-mono text-lg font-semibold text-content-3 md:text-xl">{bookIncomplete}</span>
     to go!
   </p>
 
-  {/* BOOK COMPLETE */}
-  <section class="mx-auto flex flex-wrap justify-center md:max-w-3/4">
-    {
-      atwBookComplete.map((item) => (
-        <div class="glass bg-surface-0/55 border border-pale-grey/10 m-2 flex flex-col rounded-xl p-0">
-          {/* location name + link */}
-          <a
-            href={`/media/around-the-world/${item.id}`}
-            rel="noopener"
-            class="tag-frost-dim font-header text-content-3 hover:text-content-2 soft-transition focus-outline flex items-center justify-center gap-1.5 rounded-t-xl rounded-b-none p-2 text-center text-lg font-light tracking-wide lowercase hover:font-semibold"
-            aria-label={`page for ${item.data.location}`}
-          >
-            {getFlagCode(item.data.location) && (
-              <span class={`fi fi-${getFlagCode(item.data.location)}`} style="font-size: 0.85rem; border-radius: 2px; flex-shrink: 0; position: relative; top: 1px;"></span>
-            )}
-            {item.data.location}
-          </a>
+  {/* Legend */}
+  <div class="mb-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 font-base text-sm text-content-2 lowercase">
+    <div class="flex items-center gap-1.5">
+      <span class="tile-e-complete pointer-events-none inline-block h-3 w-3 flex-shrink-0 rounded-sm"></span>
+      <span>complete</span>
+    </div>
+    <div class="flex items-center gap-1.5">
+      <span class="tile-e-in-progress pointer-events-none inline-block h-3 w-3 flex-shrink-0 rounded-sm"></span>
+      <span>in progress</span>
+    </div>
+    <div class="flex items-center gap-1.5">
+      <span class="tile-e-planned pointer-events-none inline-block h-3 w-3 flex-shrink-0 rounded-sm"></span>
+      <span>planned</span>
+    </div>
+    <div class="mx-2 hidden h-4 w-px bg-pale-grey/20 sm:block"></div>
+    <div class="flex items-center gap-1">
+      <span class="inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent-2"></span>
+      <span>complete</span>
+    </div>
+    <div class="flex items-center gap-1">
+      <span class="inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent-1"></span>
+      <span>in progress</span>
+    </div>
+    <div class="flex items-center gap-1">
+      <span class="inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-content-4/40"></span>
+      <span>not started</span>
+    </div>
+    <span class="text-xs text-content-3">left dot = book &nbsp;|&nbsp; right = music</span>
+  </div>
 
-          <div class="flex flex-row items-center gap-2 md:gap-6">
-            {/* book image */}
-            <div class="ml-2 flex items-center md:ml-4">
-              <img
-                src={item.data.book_cover}
-                alt={`cover for ${item.data.book_title}`}
-                class="h-auto w-16 md:w-26"
-              />
-            </div>
-
-            {/* book title + music */}
-            <div
-              class={`mr-2 flex h-42 flex-col items-center justify-between md:mr-4 md:h-48 ${item.data.music_status === "DONE" ? "w-32 md:w-42" : "w-24"}`}
-            >
-              <p class="text-content-1 mt-6 text-center leading-none font-semibold wrap-anywhere hyphens-auto lowercase italic">
-                {" "}
-                ← {item.data.book_title}
-              </p>
-              {item.data.music_status === "DONE" && (
-                <div class="mb-2 text-center">
-                  <p class="text-content-2 leading-none font-semibold text-wrap lowercase">
-                    {" "}
-                    "{item.data.music_song}"
-                  </p>
-                  <p class="text-content-3 mt-2 leading-none text-wrap lowercase">
-                    {" "}
-                    — {item.data.music_artist}
-                  </p>
-                  <a
-                    href={item.data.music_link}
-                    target="_blank"
-                    rel="noopener"
-                    class="focus-outline-rounded flex items-center justify-center p-2"
-                    aria-label={`link to ${item.data.music_song}`}
-                  >
-                    <Icon
-                      name="mdi--play-circle"
-                      class="text-content-4 hover:text-content-2 soft-transition hover-pop h-auto w-7 sm:w-9"
-                    />
-                  </a>
+  {/* ── MOBILE LAYOUT: compact status groups ── */}
+  <div class="w-full md:hidden">
+    {mobileGroups.map(({ label, dotClass, entries }) => entries.length > 0 && (
+      <div class="mb-5">
+        <div class="mb-2 flex items-center gap-2">
+          <span class={`h-1.5 w-1.5 flex-shrink-0 rounded-full ${dotClass}`}></span>
+          <span class="font-base text-xs text-content-3 lowercase tracking-wide">{label} ({entries.length})</span>
+        </div>
+        <div class="grid grid-cols-2 gap-1">
+          {entries.map(({ entry, status }) => {
+            const flagCode = getFlagCode(entry.data.location);
+            const bookStatus = entry.data.book_status as string;
+            const musicStatus = entry.data.music_status as string;
+            const bookDotClass = dotBookClasses[bookStatus] ?? dotBookClasses.other;
+            const musicDotClass = musicStatus === "DONE" ? dotMusicDoneClass : dotMusicOtherClass;
+            return (
+              <a
+                href={`/media/around-the-world/${entry.id}`}
+                class={`${tileClasses[status]} relative flex flex-row items-center gap-1.5 rounded-md px-2 py-1.5 focus:outline-none focus-visible:ring-1 focus-visible:ring-pale-grey/40`}
+                aria-label={entry.data.location}
+              >
+                {flagCode ? (
+                  <span class={`fi fi-${flagCode} flex-shrink-0`} style="font-size:0.75rem;border-radius:1px;"></span>
+                ) : (
+                  <span class="flex-shrink-0 font-mono text-content-4" style="font-size:0.6rem;">{entry.data.location.slice(0, 2).toUpperCase()}</span>
+                )}
+                <span class="flex-1 truncate font-base text-xs lowercase text-content-2">{entry.data.location}</span>
+                <div class="flex flex-shrink-0 gap-[2px]">
+                  <span class={`block h-[3px] w-[3px] rounded-full ${bookDotClass}`}></span>
+                  <span class={`block h-[3px] w-[3px] rounded-full ${musicDotClass}`}></span>
                 </div>
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    ))}
+  </div>
+
+  {/* Tile map + overflow in one scroll container so there's no gap between them */}
+  <div class="hidden w-full overflow-x-auto md:block">
+    <div style={`min-width:900px;width:100%;max-width:1300px;margin:0 auto;`}>
+      <div
+        id="atw-grid"
+        style={`display:grid;grid-template-columns:repeat(${GRID_COLS},1fr);grid-template-rows:repeat(${GRID_ROWS},1fr);gap:2px;width:100%;aspect-ratio:${GRID_COLS}/${GRID_ROWS};`}
+      >
+        {positioned.map(({ entry, coords, status }) => {
+          const [col, row] = coords;
+          const flagCode = getFlagCode(entry.data.location);
+          const bookStatus = entry.data.book_status as string;
+          const musicStatus = entry.data.music_status as string;
+          const bookDotClass = dotBookClasses[bookStatus] ?? dotBookClasses.other;
+          const musicDotClass = musicStatus === "DONE" ? dotMusicDoneClass : dotMusicOtherClass;
+          return (
+            <a
+              href={`/media/around-the-world/${entry.id}`}
+              class={`${tileBase} ${tileClasses[status]}`}
+              style={`grid-column:${col};grid-row:${row};`}
+              aria-label={entry.data.location}
+              data-location={entry.data.location}
+              data-status={status}
+              data-book-title={entry.data.book_title ?? ""}
+              data-book-author={entry.data.book_author ?? ""}
+              data-book-cover={entry.data.book_cover ?? ""}
+              data-song={entry.data.music_song ?? ""}
+              data-artist={entry.data.music_artist ?? ""}
+              data-music-link={entry.data.music_link ?? ""}
+              data-book-done={bookStatus === "DONE" ? "true" : "false"}
+              data-music-done={musicStatus === "DONE" ? "true" : "false"}
+            >
+              {flagCode ? (
+                <span class={`fi fi-${flagCode} block`} style="font-size:0.85rem;border-radius:1px;"></span>
+              ) : (
+                <span class="font-mono leading-none text-content-4" style="font-size:0.45rem;">
+                  {entry.data.location.slice(0, 2).toUpperCase()}
+                </span>
               )}
-            </div>
+              <div class="absolute bottom-[3px] left-0 right-0 flex justify-center gap-[2px]">
+                <span class={`block h-[3px] w-[3px] rounded-full ${bookDotClass}`}></span>
+                <span class={`block h-[3px] w-[3px] rounded-full ${musicDotClass}`}></span>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+
+      {/* Overflow strip — tucked directly below the grid, inside the same scroll wrapper */}
+      {overflow.length > 0 && (
+        <div class="mt-2 pb-2">
+          <p class="mb-1.5 text-center font-base text-xs text-content-4 lowercase tracking-wide">
+            other regions
+          </p>
+          <div class="flex flex-wrap justify-center gap-1.5">
+            {overflow.map(({ entry, status }) => {
+              const flagCode = getFlagCode(entry.data.location);
+              const bookStatus = entry.data.book_status as string;
+              const musicStatus = entry.data.music_status as string;
+              const bookDotClass = dotBookClasses[bookStatus] ?? dotBookClasses.other;
+              const musicDotClass =
+                musicStatus === "DONE" ? dotMusicDoneClass : dotMusicOtherClass;
+              return (
+                <a
+                  href={`/media/around-the-world/${entry.id}`}
+                  class={`${tileBase} ${tileClasses[status]}`}
+                  style="width:40px;height:40px;"
+                  aria-label={entry.data.location}
+                  data-location={entry.data.location}
+                  data-status={status}
+                  data-book-title={entry.data.book_title ?? ""}
+                  data-book-author={entry.data.book_author ?? ""}
+                  data-book-cover={entry.data.book_cover ?? ""}
+                  data-song={entry.data.music_song ?? ""}
+                  data-artist={entry.data.music_artist ?? ""}
+                  data-music-link={entry.data.music_link ?? ""}
+                  data-book-done={bookStatus === "DONE" ? "true" : "false"}
+                  data-music-done={musicStatus === "DONE" ? "true" : "false"}
+                >
+                  {flagCode ? (
+                    <span class={`fi fi-${flagCode} block`} style="font-size:0.85rem;border-radius:1px;"></span>
+                  ) : (
+                    <span class="font-mono leading-none text-content-4" style="font-size:0.45rem;">
+                      {entry.data.location.slice(0, 2).toUpperCase()}
+                    </span>
+                  )}
+                  <div class="absolute bottom-[3px] left-0 right-0 flex justify-center gap-[2px]">
+                    <span class={`block h-[3px] w-[3px] rounded-full ${bookDotClass}`}></span>
+                    <span class={`block h-[3px] w-[3px] rounded-full ${musicDotClass}`}></span>
+                  </div>
+                </a>
+              );
+            })}
           </div>
         </div>
-      ))
-    }
-  </section>
+      )}
+    </div>
+  </div>
 
-  {/* IN PROGRESS */}
-  <h2 class="mt-6">in progress / searching</h2>
-  <p class="text-content-1 pb-6 text-center">
-    please let me know if you have ideas or suggestions!
-  </p>
-
-  <section class="mx-auto flex flex-wrap justify-center md:max-w-3/4">
-    {
-      atwIncomplete.map((item) => (
-        <div class="m-2">
-          {/* location name + link */}
-          <a
-            href={`/media/around-the-world/${item.id}`}
-            rel="noopener"
-            class="tag-frost-dim font-header text-content-3 hover:text-content-2 soft-transition focus-outline flex items-center justify-center gap-1.5 rounded-xl p-2 text-center text-lg font-light tracking-wide lowercase hover:font-semibold"
-            aria-label={`page for ${item.data.location}`}
-          >
-            {getFlagCode(item.data.location) && (
-              <span class={`fi fi-${getFlagCode(item.data.location)}`} style="font-size: 0.85rem; border-radius: 2px; flex-shrink: 0; position: relative; top: 1px;"></span>
-            )}
-            {item.data.location}
-          </a>
+  {/* Hover tooltip */}
+  <div
+    id="atw-tooltip"
+    class="pointer-events-none fixed z-50 hidden w-52 glass bg-surface-0/80 border border-pale-grey/10 rounded-xl p-3 shadow-xl"
+    role="tooltip"
+    aria-hidden="true"
+  >
+    <p id="atw-tt-location" class="font-header text-content-2 text-base font-light tracking-wide lowercase"></p>
+    <div id="atw-tt-book" class="mt-2 hidden">
+      <div class="flex items-start gap-2">
+        <img
+          id="atw-tt-cover"
+          src=""
+          alt=""
+          class="hidden h-auto w-9 flex-shrink-0 rounded"
+          loading="lazy"
+        />
+        <div class="min-w-0">
+          <p id="atw-tt-title" class="wrap-anywhere text-xs font-semibold italic leading-snug lowercase text-content-1"></p>
+          <p id="atw-tt-author" class="mt-0.5 text-xs lowercase text-content-3"></p>
         </div>
-      ))
-    }
-  </section>
+      </div>
+    </div>
+    <div id="atw-tt-music" class="mt-2 hidden border-t border-pale-grey/10 pt-2">
+      <p id="atw-tt-song" class="text-xs font-semibold leading-snug lowercase text-content-2"></p>
+      <p id="atw-tt-artist" class="mt-0.5 text-xs lowercase text-content-3"></p>
+    </div>
+    <p id="atw-tt-planned" class="mt-1 hidden text-xs italic lowercase text-content-4">exploring...</p>
+  </div>
 </BaseLayout>
+
+
+<style>
+  /*
+    Option E — all three tiles use the same dark navy base color (btn-glass's base),
+    interpolated at 0.10 / 0.30 / 0.55 opacity. Same backdrop-filter across all three
+    so they feel like one coherent system. Transition speeds match btn-glass (700ms).
+  */
+  .tile-e-complete {
+    background: oklch(17.5% 0.124 276 / 0.10);
+    backdrop-filter: blur(16px) saturate(1.4) brightness(1.22);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4) brightness(1.22);
+    border: 0.75px solid oklch(90.4% 0.017 264 / 0.20);
+    transition: background 700ms ease-in-out, border-color 400ms ease;
+  }
+  .tile-e-complete:hover {
+    background: oklch(17.5% 0.124 276 / 0.04);
+    filter: brightness(1.06);
+  }
+  .tile-e-in-progress {
+    background: oklch(17.5% 0.124 276 / 0.30);
+    backdrop-filter: blur(16px) saturate(1.3) brightness(1.10);
+    -webkit-backdrop-filter: blur(16px) saturate(1.3) brightness(1.10);
+    border: 0.75px solid oklch(90.4% 0.017 264 / 0.20);
+    transition: background 700ms ease-in-out, border-color 400ms ease;
+  }
+  .tile-e-in-progress:hover {
+    background: oklch(17.5% 0.124 276 / 0.18);
+    filter: brightness(1.04);
+  }
+  .tile-e-planned {
+    background: oklch(17.5% 0.124 276 / 0.55);
+    backdrop-filter: blur(20px) saturate(1.3);
+    -webkit-backdrop-filter: blur(20px) saturate(1.3);
+    border: 0.75px solid oklch(90.4% 0.017 264 / 0.20);
+    transition: background 700ms ease-in-out, border-color 400ms ease;
+  }
+  .tile-e-planned:hover {
+    background: oklch(17.5% 0.124 276 / 0.38);
+  }
+</style>
+
+<script>
+  const tooltip = document.getElementById("atw-tooltip")!;
+  const ttLocation = document.getElementById("atw-tt-location")!;
+  const ttBook = document.getElementById("atw-tt-book")!;
+  const ttCover = document.getElementById("atw-tt-cover") as HTMLImageElement;
+  const ttTitle = document.getElementById("atw-tt-title")!;
+  const ttAuthor = document.getElementById("atw-tt-author")!;
+  const ttMusic = document.getElementById("atw-tt-music")!;
+  const ttSong = document.getElementById("atw-tt-song")!;
+  const ttArtist = document.getElementById("atw-tt-artist")!;
+  const ttPlanned = document.getElementById("atw-tt-planned")!;
+
+  function positionTooltip(clientX: number, clientY: number) {
+    const offset = 14;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const tw = tooltip.offsetWidth || 208;
+    const th = tooltip.offsetHeight || 120;
+    let x = clientX + offset;
+    let y = clientY + offset;
+    if (x + tw > vw - 8) x = clientX - tw - offset;
+    if (y + th > vh - 8) y = clientY - th - offset;
+    tooltip.style.left = `${x}px`;
+    tooltip.style.top = `${y}px`;
+  }
+
+  function showTooltip(tile: HTMLAnchorElement, clientX: number, clientY: number) {
+    const d = tile.dataset;
+    ttLocation.textContent = d.location ?? "";
+
+    const hasBook = Boolean(d.bookTitle) && d.bookDone === "true";
+    ttBook.classList.toggle("hidden", !hasBook);
+    if (hasBook) {
+      ttTitle.textContent = d.bookTitle ?? "";
+      ttAuthor.textContent = d.bookAuthor ?? "";
+      if (d.bookCover) {
+        ttCover.src = d.bookCover;
+        ttCover.alt = d.bookTitle ?? "";
+        ttCover.classList.remove("hidden");
+      } else {
+        ttCover.classList.add("hidden");
+      }
+    }
+
+    const hasMusic = Boolean(d.song) && d.musicDone === "true";
+    ttMusic.classList.toggle("hidden", !hasMusic);
+    if (hasMusic) {
+      ttSong.textContent = `"${d.song}"`;
+      ttArtist.textContent = `— ${d.artist}`;
+    }
+
+    ttPlanned.classList.toggle("hidden", d.status !== "planned");
+    tooltip.classList.remove("hidden");
+    positionTooltip(clientX, clientY);
+  }
+
+  document.querySelectorAll<HTMLAnchorElement>(".atw-tile").forEach((tile) => {
+    tile.addEventListener("mouseenter", (e) => {
+      showTooltip(tile, (e as MouseEvent).clientX, (e as MouseEvent).clientY);
+    });
+    tile.addEventListener("mousemove", (e) => {
+      positionTooltip((e as MouseEvent).clientX, (e as MouseEvent).clientY);
+    });
+    tile.addEventListener("mouseleave", () => {
+      tooltip.classList.add("hidden");
+    });
+    tile.addEventListener("focus", () => {
+      const rect = tile.getBoundingClientRect();
+      showTooltip(tile, rect.left + rect.width / 2, rect.bottom + 4);
+    });
+    tile.addEventListener("blur", () => {
+      tooltip.classList.add("hidden");
+    });
+  });
+</script>
