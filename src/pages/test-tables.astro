@@ -1,0 +1,139 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+---
+
+<BaseLayout titleShort="table styles">
+  <article class="mx-auto max-w-3xl py-10 px-4 md:px-6">
+    <h2 class="font-header text-2xl font-semibold text-content-1 mb-2">Markdown Table Styles</h2>
+    <p class="text-sm text-content-3 mb-8">Mockup — rendered as if from <code>.markdown-content</code></p>
+
+    <div class="markdown-content">
+
+      <!-- Simple data table -->
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Book</th>
+              <th>Author</th>
+              <th>Country</th>
+              <th>Rating</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Killers of the Flower Moon</td>
+              <td>David Grann</td>
+              <td>🇺🇸 USA</td>
+              <td>★★★★★</td>
+            </tr>
+            <tr>
+              <td>Some People Need Killing</td>
+              <td>Patricia Evangelista</td>
+              <td>🇵🇭 Philippines</td>
+              <td>★★★★★</td>
+            </tr>
+            <tr>
+              <td>The Best Minds</td>
+              <td>Jonathan Rosen</td>
+              <td>🇺🇸 USA</td>
+              <td>★★★★☆</td>
+            </tr>
+            <tr>
+              <td>Burma Sahib</td>
+              <td>Paul Theroux</td>
+              <td>🇲🇲 Myanmar</td>
+              <td>★★★★☆</td>
+            </tr>
+            <tr>
+              <td>The Foghorn Echoes</td>
+              <td>Danny Ramadan</td>
+              <td>🇸🇾 Syria</td>
+              <td>★★★☆☆</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Wider table with more columns -->
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Practice</th>
+              <th>Frequency</th>
+              <th>Effect</th>
+              <th>Started</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Morning playlist alarm</td>
+              <td>Daily</td>
+              <td>Gentler wake-up</td>
+              <td>Summer 2024</td>
+              <td>Still fine-tuning the "energizing vs. too annoying at 5:45 AM" ratio</td>
+            </tr>
+            <tr>
+              <td>Daily art / creativity</td>
+              <td>Daily</td>
+              <td>Stabilizing</td>
+              <td>Summer 2024</td>
+              <td>Returning to a consistent practice after a gap</td>
+            </tr>
+            <tr>
+              <td>Reading paper books</td>
+              <td>As able</td>
+              <td>Calming</td>
+              <td>Ongoing</td>
+              <td>Intentionally unplugged from screens</td>
+            </tr>
+            <tr>
+              <td>Singular daily priority</td>
+              <td>Daily</td>
+              <td>Focus</td>
+              <td>Summer 2024</td>
+              <td>One thing that counts, alongside the ambitious list</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Minimal two-column table -->
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Token</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>surface-0</code></td>
+              <td>ocean-950 — <code>oklch(17.5% 0.124 276)</code></td>
+            </tr>
+            <tr>
+              <td><code>content-1</code></td>
+              <td>ocean-100 — <code>oklch(91% 0.060 186.8)</code></td>
+            </tr>
+            <tr>
+              <td><code>accent-teal</code></td>
+              <td>teal — <code>oklch(79% 0.140 172)</code></td>
+            </tr>
+            <tr>
+              <td><code>font-base</code></td>
+              <td>Montserrat</td>
+            </tr>
+            <tr>
+              <td><code>font-semibold</code></td>
+              <td>weight 450</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </article>
+</BaseLayout>

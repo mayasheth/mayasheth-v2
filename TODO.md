@@ -5,6 +5,7 @@
   - `src/components/ui/HeroGodRays.tsx`
   - `src/components/ui/PawGrainGradient.tsx`
   - `src/components/ui/QuoteColorPanels.tsx`
+  - `src/components/content/MediaInfoGallery.astro`
   - `src/pages/test-quote.astro`
 - [ ] Delete `src/components/layout/NavigationHome.astro` (orphaned — no longer imported anywhere)
 - [ ] Review public assets for deletion (added but possibly unused):

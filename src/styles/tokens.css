@@ -19,19 +19,12 @@
   --color-ocean-900: oklch(23.50% 0.130 266.2);
   --color-ocean-950: oklch(17.50% 0.124 276.0);
 
-  --color-accent-0: oklch(47% 0.220 18);   /* red     — #d51e44 */
-  --color-accent-1: oklch(78% 0.175 68);   /* amber   — #feb43a */
-  --color-accent-2: oklch(84% 0.200 132);  /* lime    — #93e35f */
-  --color-accent-3: oklch(79% 0.140 172);  /* teal    — #3dd5a9 */
-  --color-accent-4: oklch(43% 0.220 303);  /* purple  — #8345b6 */
-  --color-accent-5: oklch(47% 0.260 333);  /* magenta — #b11e85 */
-
-  --color-green-200: oklch(86.92% 0.129 132.22);
-  --color-green-400: oklch(73.79% 0.187 137.2);
-  --color-spotify-green: oklch(68.88% 0.187 148.92);
-
-  --color-red-400: oklch(59.47% 0.208 27.17);
-  --color-yellow-400: oklch(84.22% 0.183 99.35);
+  --color-accent-red: oklch(47% 0.220 18);   /* red     — #d51e44 */
+  --color-accent-amber: oklch(78% 0.175 68);   /* amber   — #feb43a */
+  --color-accent-lime: oklch(84% 0.200 132);  /* lime    — #93e35f */
+  --color-accent-teal: oklch(79% 0.140 172);  /* teal    — #3dd5a9 */
+  --color-accent-purple: oklch(43% 0.220 303);  /* purple  — #8345b6 */
+  --color-accent-magenta: oklch(47% 0.260 333);  /* magenta — #b11e85 */
 
   --color-pale-grey: oklch(90.40% 0.017 264.38);
   --color-black: #000;

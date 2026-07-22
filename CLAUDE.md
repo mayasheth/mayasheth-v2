@@ -92,7 +92,7 @@ Apply this to every link that is directly followed by punctuation. Links followe
 **`tag-frost`** — frosted glass pill for interactive content tags. Use via `Tag.astro` or `Tag.tsx`; do not apply the class manually. Accepts an optional `color` prop (any CSS color value) that sets `--tag-color` to tint the text. Default color is `content-3` (blue). Active/selected state: add `.tag-frost-active`. Usage:
 ```astro
 <Tag>machine learning</Tag>
-<Tag color="var(--color-accent-0)">urgent</Tag>
+<Tag color="var(--color-accent-red)">urgent</Tag>
 <Tag as="button" class="tag-frost-active">selected</Tag>
 ```
 
@@ -120,14 +120,14 @@ Defined in `src/styles/tokens.css`. Only use tokens that exist — do not invent
 **Content colors** (light → dark): `content-0` (pale-grey) → `content-1` → `content-2` → `content-3` → `content-4`
 
 **Accent colors** — six vivid hues for tags, highlights, and emphasis. Never used for backgrounds or borders.
-- `accent-0` — red (`oklch(47% 0.220 18)`)
-- `accent-1` — amber (`oklch(78% 0.175 68)`)
-- `accent-2` — lime (`oklch(84% 0.200 132)`)
-- `accent-3` — teal (`oklch(79% 0.140 172)`)
-- `accent-4` — purple (`oklch(43% 0.220 303)`)
-- `accent-5` — magenta (`oklch(47% 0.260 333)`)
+- `accent-red` — red (`oklch(47% 0.220 18)`)
+- `accent-amber` — amber (`oklch(78% 0.175 68)`)
+- `accent-lime` — lime (`oklch(84% 0.200 132)`)
+- `accent-teal` — teal (`oklch(79% 0.140 172)`)
+- `accent-purple` — purple (`oklch(43% 0.220 303)`)
+- `accent-magenta` — magenta (`oklch(47% 0.260 333)`)
 
-Pass as a `color` prop to `Tag`: `color="var(--color-accent-3)"`. For raw CSS: `var(--color-accent-N)`.
+Pass as a `color` prop to `Tag`: `color="var(--color-accent-teal)"`. For raw CSS: `var(--color-accent-N)`.
 
 **Font families**: `font-base` (Montserrat), `font-header` (Schibsted Grotesk), `font-serif` (Playfair), `font-mono` (Inconsolata)
 

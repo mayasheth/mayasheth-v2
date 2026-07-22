@@ -256,11 +256,11 @@ const tileClasses: Record<TileStatus, string> = {
   planned: "tile-e-planned",
 };
 const dotBookClasses: Record<string, string> = {
-  DONE: "bg-accent-2",
-  "IN-PROGRESS": "bg-accent-1",
+  DONE: "bg-accent-lime",
+  "IN-PROGRESS": "bg-accent-amber",
   other: "bg-content-4/40",
 };
-const dotMusicDoneClass = "bg-accent-2";
+const dotMusicDoneClass = "bg-accent-lime";
 const dotMusicOtherClass = "bg-content-4/40";
 
 const atw = await getCollection("atw");
@@ -306,8 +306,8 @@ const allSorted = [...atw]
     status: getStatus(e.data as { book_status: string; music_status: string }),
   }));
 const mobileGroups = [
-  { label: "complete", dotClass: "bg-accent-2", entries: allSorted.filter((e) => e.status === "complete") },
-  { label: "in progress", dotClass: "bg-accent-1", entries: allSorted.filter((e) => e.status === "in-progress") },
+  { label: "complete", dotClass: "bg-accent-lime", entries: allSorted.filter((e) => e.status === "complete") },
+  { label: "in progress", dotClass: "bg-accent-amber", entries: allSorted.filter((e) => e.status === "in-progress") },
   { label: "planned", dotClass: "bg-content-4/40", entries: allSorted.filter((e) => e.status === "planned") },
 ];
 ---
@@ -344,11 +344,11 @@ const mobileGroups = [
     </div>
     <div class="mx-2 hidden h-4 w-px bg-pale-grey/20 sm:block"></div>
     <div class="flex items-center gap-1">
-      <span class="inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent-2"></span>
+      <span class="inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent-lime"></span>
       <span>complete</span>
     </div>
     <div class="flex items-center gap-1">
-      <span class="inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent-1"></span>
+      <span class="inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent-amber"></span>
       <span>in progress</span>
     </div>
     <div class="flex items-center gap-1">

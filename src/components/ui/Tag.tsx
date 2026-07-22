@@ -3,7 +3,7 @@ import type { ReactNode, ComponentPropsWithoutRef } from "react";
 type TextCase = "uppercase" | "lowercase" | "normal";
 
 interface BaseTagProps {
-  /** CSS color value, e.g. "var(--color-accent-3)". Defaults to content-3 (blue). */
+  /** CSS color value, e.g. "var(--color-accent-teal)". Defaults to content-3 (blue). */
   color?: string;
   textCase?: TextCase;
   className?: string;

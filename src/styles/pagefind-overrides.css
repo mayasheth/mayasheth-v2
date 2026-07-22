@@ -145,7 +145,7 @@
 /* ── Search term highlight ── */
 
 .pagefind-ui mark {
-  /* Teal accent tint (accent-3) */
+  /* Teal accent tint (accent-teal) */
   background: oklch(79% 0.140 172 / 0.20);
   color: var(--color-content-1);
   @apply font-semibold rounded-sm px-[0.15rem] py-[0.05rem];
