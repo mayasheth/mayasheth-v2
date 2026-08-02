@@ -1,9 +1,6 @@
 # TODO
 
 ## Cleanup
-- [ ] Review public assets for deletion (added but possibly unused):
-  - `public/banff-raw.jpeg`, `public/dolphins-1.jpeg`, `public/dolphins-2.jpeg`, `public/with-laguna.jpeg`
-  - `public/ms-signature-v1.svg`, `public/paw-mark.js`, `public/signature-v1.json`
 
 ## High priority
 - [ ] Fix search (Pagefind):
