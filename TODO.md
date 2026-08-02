@@ -1,14 +1,6 @@
 # TODO
 
 ## Cleanup
-- [ ] Delete remaining orphaned files (test pages partially cleaned up; these still remain):
-  - `src/components/ui/HeroGodRays.tsx`
-  - `src/components/ui/PawGrainGradient.tsx`
-  - `src/components/ui/QuoteColorPanels.tsx`
-  - `src/components/content/MediaInfoGallery.astro`
-  - `src/pages/test-quote.astro`
-- [ ] Delete `src/components/layout/NavigationHome.astro` (orphaned — no longer imported anywhere)
-- [ ] Delete `src/components/layout/FooterMinimal.astro` (orphaned — superseded by `Footer.astro`)
 - [ ] Review public assets for deletion (added but possibly unused):
   - `public/banff-raw.jpeg`, `public/dolphins-1.jpeg`, `public/dolphins-2.jpeg`, `public/with-laguna.jpeg`
   - `public/ms-signature-v1.svg`, `public/paw-mark.js`, `public/signature-v1.json`
