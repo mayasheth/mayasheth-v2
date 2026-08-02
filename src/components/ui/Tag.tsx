@@ -32,7 +32,7 @@ export function Tag({
 }: TagProps) {
   const focusClass = as !== "span" ? "focus-outline" : "";
   const classes = [
-    "tag-frost font-base rounded-full px-2 py-1 text-sm",
+    "ctrl-frost font-base rounded-full px-2 py-1 text-sm",
     caseClasses[textCase],
     focusClass,
     className,

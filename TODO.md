@@ -8,6 +8,7 @@
   - `src/components/content/MediaInfoGallery.astro`
   - `src/pages/test-quote.astro`
 - [ ] Delete `src/components/layout/NavigationHome.astro` (orphaned — no longer imported anywhere)
+- [ ] Delete `src/components/layout/FooterMinimal.astro` (orphaned — superseded by `Footer.astro`)
 - [ ] Review public assets for deletion (added but possibly unused):
   - `public/banff-raw.jpeg`, `public/dolphins-1.jpeg`, `public/dolphins-2.jpeg`, `public/with-laguna.jpeg`
   - `public/ms-signature-v1.svg`, `public/paw-mark.js`, `public/signature-v1.json`
@@ -32,6 +33,7 @@
 - [ ] Audit whether the full color palette is still used, or if glass/frost effects have superseded it
 
 ## Backlog
+- [ ] Work through the site specification checklist at https://specification.website/
 - [ ] Evaluate whether `tag-frost` and `tag-frost-dim` are visually distinct enough — on gradient backgrounds they may render nearly identically
 - [ ] Create a design system doc or page — document glass levels, tokens, components, and utility classes in a living reference (could be a `/design` page or a standalone doc)
 - [ ] Add "last updated" timestamp to site header or footer

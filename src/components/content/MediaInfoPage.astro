@@ -68,7 +68,7 @@ const formatIcon = getFormatIcon(format);
             </div>
           )
         ) : (
-          <div class="tag-frost-dim flex items-center justify-center rounded-lg p-6">
+          <div class="surface-frost flex items-center justify-center rounded-lg p-6">
             <Icon
               name={formatIcon}
               class="h-16 w-auto lg:h-auto lg:w-16"
@@ -144,7 +144,7 @@ const formatIcon = getFormatIcon(format);
       <div class="w-full">
         {
           mediaEntry.data.commentary && (
-            <div class="text-content-1 font-base tag-frost-dim mt-4 max-h-32 overflow-y-auto overscroll-auto rounded-lg p-4 text-sm font-light md:max-h-60">
+            <div class="text-content-1 font-base surface-frost mt-4 max-h-32 overflow-y-auto overscroll-auto rounded-lg p-4 text-sm font-light md:max-h-60">
               <span class="text-content-3 pr-2 font-mono font-semibold">
                 {formatDate(mediaEntry.data.relevant_date)}
               </span>

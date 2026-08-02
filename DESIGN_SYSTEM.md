@@ -63,7 +63,7 @@ Defined in `src/styles/tokens.css` via `@theme inline`.
 ### Ocean palette ✅
 Full 10-step scale (50–950) defined in tokens. `surface` and `content` are aliases into it.
 - **Rule: never reference `ocean-*` directly.** It is a backing scale only — all usage must go through `surface-*` or `content-*` semantic aliases.
-- **Fix needed:** `btn-glass-active` border is hardcoded `oklch(57.00% 0.179 226.3 / 0.55)` (= `ocean-500` = `content-4`). Should be `border-content-4/55`.
+- **Fix needed:** `ctrl-glass-active` border is hardcoded `oklch(57.00% 0.179 226.3 / 0.55)` (= `ocean-500` = `content-4`). Should be `border-content-4/55`.
 
 ### Accent colors ✅
 Six vivid hues — for tags, highlights, emphasis only. Never for backgrounds or borders.
@@ -99,7 +99,7 @@ All tokens kept. Each has a distinct documented role:
 - `/80`–`/90` — overlays and mobile menus (near-opaque for layering)
 - `/40` — hover state (lightens card, more gradient shows through)
 
-**Inconsistencies resolved:** `MediaInfoPage.astro` and `media.astro` were using `bg-surface-1/60` for glass cards — corrected to `bg-surface-0/55`. Commentary box in `MediaInfoPage` changed from `bg-surface-1/60` to `tag-frost-dim` (canonical non-interactive frosted surface). `MediaInfoGallery.astro` (solid `bg-surface-1`) found to be orphaned — added to cleanup list.
+**Inconsistencies resolved:** `MediaInfoPage.astro` and `media.astro` were using `bg-surface-1/60` for glass cards — corrected to `bg-surface-0/55`. Commentary box in `MediaInfoPage` changed from `bg-surface-1/60` to `surface-frost` (canonical non-interactive frosted surface). `MediaInfoGallery.astro` (solid `bg-surface-1`) found to be orphaned — added to cleanup list.
 
 ---
 
@@ -110,10 +110,14 @@ All tokens kept. Each has a distinct documented role:
 |---|---|---|
 | `font-base` | Montserrat | Body, UI, interface text (default) |
 | `font-header` | Schibsted Grotesk | Headings, section labels, metadata labels |
-| `font-serif` | Playfair | — |
+| `font-serif` | Playfair | Accent font — used sparingly for typographic contrast |
 | `font-mono` | Inconsolata | Numbers, dates, code |
 
-- **❓ Decision needed:** When is `font-serif` (Playfair) used? No italic serif rule is documented — is serif restricted to a specific context (pull quotes? decorative text only?)?
+**`font-serif` usage rule:** Accent font only — two sanctioned contexts:
+1. **"maya sheth"** in the home page header — display/identity use
+2. **Quotes page** — mixed into the typographic layout for visual variety alongside `font-base` and `font-header`
+
+Do not use `font-serif` anywhere else. Never use it in italic (see memory: no italic serif rule).
 
 ### Weights ✅
 Custom scale — standard Tailwind weight names (`font-normal`, `font-bold`) do not exist.
@@ -129,9 +133,17 @@ Custom scale — standard Tailwind weight names (`font-normal`, `font-bold`) do 
 No 4xl, 6xl, or 7xl — only these:
 `text-xs` (0.625rem) · `text-sm` (0.75rem) · `text-base` (1rem) · `text-lg` (1.25rem) · `text-xl` (1.5rem) · `text-2xl` (2rem) · `text-3xl` (2.5rem) · `text-5xl` (3.5rem) · `text-8xl` (5rem)
 
-### Heading styles ⚠️
-- `<h1>` via BaseLayout: `font-header text-3xl font-semibold text-content-2 tracking-wide lowercase`
-- `<h2>` / `<h3>` — **❓ not formally documented** — appears to use `font-header` and smaller sizes but no canonical definition found in tokens or utilities. Needs audit across pages.
+### Heading styles ✅
+Defined as base-layer defaults in `src/styles/base.css`. Applied to all bare heading elements globally.
+
+| Element | Font | Size | Weight | Other |
+|---|---|---|---|---|
+| `h1` | `font-header` | `text-2xl` | `font-bold` | `tracking-wide`, centered, `text-content-0` |
+| `h2` | `font-header` | `text-xl` | `font-semibold` | `tracking-wide`, centered, `text-content-0` |
+| `h3` | `font-header` | `text-lg` | `font-medium` | `tracking-wide`, centered, `text-content-0`, italic |
+| `h4` | `font-header` | `text-lg` | `font-semibold` | `tracking-wider`, left-aligned, `text-content-1` |
+
+Note: `BaseLayout` overrides `h1` with `text-3xl font-semibold text-content-2 lowercase` for page titles. The `h3` italic uses `font-header` (Schibsted Grotesk), not `font-serif` — no conflict with the no-italic-serif rule.
 
 ### Case convention ⚠️
 "Lowercase everything" is the stated rule. Exceptions not formally defined — see Brand section.
@@ -140,21 +152,21 @@ No 4xl, 6xl, or 7xl — only these:
 
 ## 4. Glass Surface System
 
-### Levels ✅ (structure) ⚠️ (tag-frost vs tag-frost-dim)
-Four distinct levels with semantic roles:
+### Levels ✅
+Four distinct levels with semantic roles, named by `[type]-[material]`:
 
 | Class / Pattern | Base color | Backdrop | Border | Role |
 |---|---|---|---|---|
 | `glass bg-surface-0/55 border border-pale-grey/10` | surface-0 @ 55% | blur(20px) saturate(1.3) | pale-grey/10 | Main content containers, cards, modals |
-| `.tag-frost-dim` | pale-grey @ 10% | blur(16px) saturate(1.8) brightness(1.1) | pale-grey/10 | Non-interactive wells, cover placeholders, inert strips |
-| `.tag-frost` | pale-grey @ 10% | blur(16px) saturate(1.8) brightness(1.2) | pale-grey/10 | Interactive content tags/chips |
-| `.btn-glass` | surface-0 @ 55% | blur(20px) saturate(1.3) | transparent | Structural UI controls (sort, filter, nav) |
+| `.surface-frost` | pale-grey @ 10% | blur(16px) saturate(1.8) brightness(1.1) | pale-grey/10 | Non-interactive wells, cover placeholders, inert strips |
+| `.ctrl-frost` | pale-grey @ 10% | blur(16px) saturate(1.8) brightness(1.2) | pale-grey/10 | Interactive content tags/chips |
+| `.ctrl-glass` | surface-0 @ 55% | blur(20px) saturate(1.3) | transparent | Structural UI controls (sort, filter, nav) |
 
-⚠️ **Known issue:** `tag-frost` and `tag-frost-dim` have nearly identical CSS. The only difference is `brightness(1.2)` vs `brightness(1.1)` on the backdrop-filter. On the gradient background these may be visually indistinguishable. **This is a tracked TODO item** — needs visual evaluation and potentially a more distinct treatment.
+**Naming convention:** `[type]-[material]` — `ctrl` (interactive control), `surface` (inert container). The `ctrl` prefix unifies all interactive elements regardless of visual weight. Formerly: `tag-frost` → `ctrl-frost`, `btn-glass` → `ctrl-glass`, `tag-frost-dim` → `surface-frost`. `btn-frost` eliminated — merged into `ctrl-frost`.
 
 ### Additional glass classes ✅
-- `.btn-frost` — between `tag-frost` and `btn-glass`; used for error page CTAs. bg: pale-grey @ 8%, brightness(1.1). **❓ Does it have a broader role?**
-- `.btn-glass-active` — adds `ocean-500`-tinted border and lighter text to an active `btn-glass`
+- `.ctrl-frost-active` — selected/active state for `ctrl-frost`: brighter, more opaque
+- `.ctrl-glass-active` — adds `ocean-500`-tinted border and lighter text to an active `ctrl-glass`
 
 ### Dark glass card — canonical container pattern ✅
 ```
@@ -166,9 +178,18 @@ glass bg-surface-0/55 border border-pale-grey/10 rounded-xl p-4
 ### Gradient dependency ✅
 Glass cards require the site gradient to look correct. `BaseLayout` provides `variant="subtle"` gradient automatically on all inner pages. Never add `GradientBackground` manually to an inner page.
 
-### ATW tile glass ⚠️
-The ATW map uses a third glass family (`tile-e-*`) with dark navy base at three opacity levels (0.10 / 0.30 / 0.55), defined as scoped `<style>` in the page.
-- **❓ Decision needed:** Should these be extracted to utilities? If the tile-map pattern is used elsewhere (future travel map), they'd need to be reusable.
+### ATW tile glass ✅
+The ATW map uses a scoped glass family (`tile-e-*`) defined in a `<style>` block inside `around-the-world.astro`. Kept scoped intentionally — extract to utilities only if a second tile-map page is built.
+
+**Pattern:** dark navy base (`surface-0`) at three opacity levels, hover lightens. Same border (`pale-grey/20`) and transition speed (`700ms`) across all three.
+
+| Class | bg opacity | brightness | Semantic role |
+|---|---|---|---|
+| `.tile-e-complete` | 0.10 (lightest) | 1.22 | Both book + music done — most transparent, most gradient shows through |
+| `.tile-e-in-progress` | 0.30 (mid) | 1.10 | At least one item in progress |
+| `.tile-e-planned` | 0.55 (darkest) | 1.0 | Not yet started — most opaque, darkest tile |
+
+Status dots use accent colors: `accent-lime` = done, `accent-amber` = in-progress, `content-4/40` = not started.
 
 ---
 
@@ -209,7 +230,14 @@ Tied to visual density, not hierarchy:
 | `.hover-stable` | Reserves `tracking-wide` space via `::after` | Links where hover changes letter-spacing |
 | `.hover-stable-fw` | Reserves `font-semibold` space via `::after` | Links where hover changes font-weight |
 
-⚠️ **Issue:** `.soft-transition` uses `transition-all` which is a performance anti-pattern — it transitions every CSS property. Should be narrowed to specific properties. Audit needed: what properties actually change on `.soft-transition` elements?
+`.soft-transition` uses `transition-all` intentionally — all actual uses animate compositor-friendly properties (color, opacity, transform, letter-spacing, font-weight). No layout-reflow properties involved.
+
+### Focus utilities ✅
+| Class | Mechanism | When to use |
+|---|---|---|
+| `.focus-outline` | Ring only | Element already has its own shape (pills, icon buttons with `rounded-full`/`rounded-lg`) |
+| `.focus-outline-rounded` | Ring + forces `rounded-md` | Plain elements with no border-radius (prose `<a>` tags, bare links) |
+| `.focus-border` | Border instead of ring (200ms transition) | Elements with an existing visible border (inputs, form fields) — avoids doubled-up ring+border |
 
 ### Hover pattern for inline links ✅
 When hover changes letter-spacing: use `.hover-stable` + `data-text="<link text>"` + wrap trailing punctuation in `<span class="whitespace-nowrap">`.
@@ -223,8 +251,8 @@ When hover changes font-weight: use `.hover-stable-fw` + `data-text`.
 - `Tag.astro` / `Tag.tsx` — canonical frosted glass pill
 - Props: `color` (any CSS value, sets `--tag-color`), `as` (element type), `class`
 - Default color: `content-3` (teal)
-- Active state: add `.tag-frost-active`
-- Never apply `.tag-frost` manually — use the component
+- Active state: add `.ctrl-frost-active`
+- Never apply `.ctrl-frost` manually — use the component
 
 ### Navigation ✅
 - `Navigation.astro` — glass nav bar with PawMark (`default` variant), page links, SearchButton
@@ -233,10 +261,10 @@ When hover changes font-weight: use `.hover-stable-fw` + `data-text`.
 
 ### Footer ✅
 - `Footer.astro` — glass footer with links + carbon badge
-- `FooterMinimal.astro` — minimal variant (used on which pages? ❓)
+- `FooterMinimal.astro` — **orphaned, to be deleted** (superseded by `Footer.astro`)
 
 ### Search ✅
-- `SearchButton.astro` — `tag-frost` pill with ⌘K indicator
+- `SearchButton.astro` — `ctrl-frost` pill with ⌘K indicator
 - `SearchModal.astro` — glass modal, `max-w-lg md:max-w-2xl`
 
 ### PawMark ✅
@@ -322,7 +350,7 @@ See focus utilities above. All interactive elements should use one of the three 
 A list of flagged questions to work through, grouped by topic.
 
 ### Color
-- [x] Ocean palette is backing-only — never reference directly, always use `surface-*` / `content-*`. Fix `btn-glass-active` border to use `border-content-4/55`.
+- [x] Ocean palette is backing-only — never reference directly, always use `surface-*` / `content-*`. Fix `ctrl-glass-active` border to use `border-content-4/55`.
 - [x] `green-200`, `green-400`, `spotify-green`, `red-400`, `yellow-400` removed — unused carry-overs. `white` and `black` kept.
 - [x] Accents renamed to hue names (`accent-red/amber/lime/teal/purple/magenta`). Usage is contextual, not semantic.
 - [x] Glass opacity rule documented; surface token roles audited and fixed (surface-1 inconsistencies in MediaInfoPage + media.astro corrected to surface-0).
@@ -332,18 +360,17 @@ A list of flagged questions to work through, grouped by topic.
 - [x] Capitalization: lowercase default; brand/technical terms keep own casing; ALL CAPS ok for small UI labels; research page uses proper capitalization.
 
 ### Glass system
-- [ ] `tag-frost` vs `tag-frost-dim` — are they distinct enough? If not, how to differentiate?
-- [ ] Should `tile-e-*` ATW tile glass become a named utility for future reuse?
-- [ ] What is the full intended role of `btn-frost`? Just error page CTAs, or broader?
+- [x] Naming convention: `ctrl-frost` (interactive light), `ctrl-glass` (interactive dark), `surface-frost` (inert). `btn-frost` eliminated — merged into `ctrl-frost`. `ctrl` prefix unifies all interactive elements.
+- [x] `tile-e-*` ATW tile glass — kept scoped in `around-the-world.astro`; extract only if a second tile-map page is built.
 
 ### Typography
-- [ ] When is `font-serif` (Playfair) used? What are the constraints?
-- [ ] Canonical `<h2>` / `<h3>` styles — define them.
+- [x] `font-serif` (Playfair) — accent font only; sanctioned in home page header ("maya sheth") and quotes page typography. No other uses. Never italic.
+- [x] Canonical `<h2>` / `<h3>` styles — documented from `base.css`; global defaults, overridden per-context as needed.
 
 ### Components & patterns
-- [ ] When is `FooterMinimal` used vs `Footer`?
-- [ ] `soft-transition: transition-all` — narrow to specific properties?
-- [ ] Which of the three focus utilities applies to which element types? Formalize the rule.
+- [x] `FooterMinimal` vs `Footer` — `FooterMinimal` is orphaned (never imported); added to cleanup list. `Footer` is the only footer, used in `BaseLayout` and `index.astro`.
+- [x] `soft-transition: transition-all` — kept as-is. All actual uses animate compositor-friendly properties (color, opacity, transform, letter-spacing, font-weight). No layout-reflow properties are involved, so the performance concern doesn't apply.
+- [x] Focus utilities: `focus-outline` — ring only, element has its own shape (pills, icon buttons). `focus-outline-rounded` — ring + forces `rounded-md`, for plain elements with no border-radius (prose links, bare `<a>` tags). `focus-border` — border instead of ring, for elements with an existing visible border (inputs, form fields).
 
 ---
 

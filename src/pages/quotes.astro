@@ -40,13 +40,13 @@ const quoteData = rawQuotes.map((q) => ({
       <div class="flex items-center justify-between flex-wrap gap-2 py-3 border-b border-surface-4 mb-2">
         <div class="flex items-center gap-2 flex-wrap">
           <span class="font-base text-sm font-semibold text-content-0">sort</span>
-          <button class="ctrl-btn btn-glass btn-glass-active font-base text-sm font-light px-3 py-1 rounded-full" data-sort="random">random</button>
-          <button class="ctrl-btn btn-glass font-base text-sm font-light px-3 py-1 rounded-full" data-sort="newest">newest</button>
-          <button class="ctrl-btn btn-glass font-base text-sm font-light px-3 py-1 rounded-full" data-sort="oldest">oldest</button>
+          <button class="ctrl-btn ctrl-glass ctrl-glass-active font-base text-sm font-light px-3 py-1 rounded-full" data-sort="random">random</button>
+          <button class="ctrl-btn ctrl-glass font-base text-sm font-light px-3 py-1 rounded-full" data-sort="newest">newest</button>
+          <button class="ctrl-btn ctrl-glass font-base text-sm font-light px-3 py-1 rounded-full" data-sort="oldest">oldest</button>
         </div>
         <a
           href="/quotes/surprise-me"
-          class="btn-glass font-base text-sm font-light px-3 py-1 rounded-full whitespace-nowrap no-underline lowercase"
+          class="ctrl-glass font-base text-sm font-light px-3 py-1 rounded-full whitespace-nowrap no-underline lowercase"
         >
           surprise me!
         </a>
@@ -57,7 +57,7 @@ const quoteData = rawQuotes.map((q) => ({
         <span class="font-base text-sm font-semibold text-content-0 mr-1">filter</span>
         {allTags.map((tag) => (
           <button
-            class="filter-tag-btn btn-glass font-base text-sm font-light px-2 py-1 rounded-full lowercase"
+            class="filter-tag-btn ctrl-glass font-base text-sm font-light px-2 py-1 rounded-full lowercase"
             data-tag={tag}
           >
             {tag}
@@ -93,7 +93,7 @@ const quoteData = rawQuotes.map((q) => ({
       metaSource:  "text-content-2 font-semibold lowercase",
       metaVia:     "text-content-3 font-medium lowercase",
       tags:        "block mt-3 -ml-1.5",
-      tag:         "inline-block tag-frost font-base rounded-full px-1.5 py-0.5 text-[0.65rem] uppercase mr-1 mb-1 cursor-pointer",
+      tag:         "inline-block ctrl-frost font-base rounded-full px-1.5 py-0.5 text-[0.65rem] uppercase mr-1 mb-1 cursor-pointer",
       commentary:  "font-base text-sm italic font-light text-content-3 mt-3 leading-snug opacity-85 lowercase",
       // quote text tiers
       qShort:      "font-serif text-lg font-bold text-content-1 leading-tight lowercase",
@@ -130,7 +130,7 @@ const quoteData = rawQuotes.map((q) => ({
     // ── Classifieds ────────────────────────────────────────────────────
 
     function setActive(btn, active) {
-      btn.classList.toggle("btn-glass-active", active);
+      btn.classList.toggle("ctrl-glass-active", active);
     }
 
     function updateFilterButtons() {

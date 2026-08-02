@@ -55,7 +55,7 @@ const artworkItemsWithImports = await Promise.all(
       {
         allTags.map((tag) => (
           <button
-            class="filter-button btn-glass px-2 py-1 rounded-full text-sm font-base font-light lowercase focus-outline"
+            class="filter-button ctrl-glass px-2 py-1 rounded-full text-sm font-base font-light lowercase focus-outline"
             data-tag={tag}
             type="button"
             aria-pressed="false"
@@ -167,7 +167,7 @@ const artworkItemsWithImports = await Promise.all(
         buttons.forEach((b) => {
           const isActive = activeFilter === b.getAttribute("data-tag");
           b.setAttribute("aria-pressed", String(isActive));
-          b.classList.toggle("btn-glass-active", isActive);
+          b.classList.toggle("ctrl-glass-active", isActive);
         });
         // Filter items (works with custom element tags!)
         items.forEach((item) => {
@@ -205,7 +205,7 @@ const artworkItemsWithImports = await Promise.all(
         inspoRow: "mt-2",
         inspo:    "text-sm italic text-content-3 hover:text-content-2 soft-transition focus-outline-rounded",
         tagsWrap: "mt-3 flex flex-wrap gap-1.5 justify-center",
-        tag:      "inline-block tag-frost rounded-full px-1.5 py-0.5 font-base text-[0.65rem] uppercase",
+        tag:      "inline-block ctrl-frost rounded-full px-1.5 py-0.5 font-base text-[0.65rem] uppercase",
       };
 
       function showItem(index: number, animate = false) {

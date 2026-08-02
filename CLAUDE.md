@@ -37,7 +37,7 @@ artwork, design, research, notebook, media, atw, quotes, gratitudes
 - `src/lib/schemas.ts` - Zod schemas for content
 - `tailwind.config.js` - Tailwind configuration
 - `src/styles/tokens.css` - Design tokens (read before touching colors, fonts, spacing)
-- `src/styles/utilities.css` - Custom utility classes (glass, tag-frost, btn-glass, hover-stable, markdown-content, etc.)
+- `src/styles/utilities.css` - Custom utility classes (glass, ctrl-frost, ctrl-glass, hover-stable, markdown-content, etc.)
 - `src/components/ui/GradientBackground.astro` - Shader gradient, used by BaseLayout and home page
 - `src/components/ui/Tag.astro` / `Tag.tsx` - Canonical tag/pill component (Astro and React versions)
 
@@ -46,7 +46,7 @@ artwork, design, research, notebook, media, atw, quotes, gratitudes
 **Always use Tailwind utilities.** Only put things in `<style is:global>` when there is genuinely no utility equivalent: CSS `columns` layout, `@keyframes`, pseudo-elements (`::before`/`::after`), third-party overrides.
 
 **Check existing components before inventing styles.** The canonical styling for common patterns lives in:
-- `src/components/ui/Tag.astro` / `Tag.tsx` — frosted glass pill tag (`tag-frost`)
+- `src/components/ui/Tag.astro` / `Tag.tsx` — frosted glass pill tag (`ctrl-frost`)
 - `src/components/content/QuoteCard.astro` — quote text tiers, attribution style
 - `src/styles/utilities.css` — all custom utility classes; read this before writing new CSS
 
@@ -73,9 +73,9 @@ Apply this to every link that is directly followed by punctuation. Links followe
 | Class | Role | When to use |
 |---|---|---|
 | `glass bg-surface-0/55 border border-pale-grey/10` | Dark glass card | Main content containers, modals, section panels |
-| `.tag-frost-dim` | Dim frosted surface | Non-interactive: image wells, cover placeholders, two-tone card headers |
-| `.tag-frost` | Frosted glass pill | Interactive content tags/chips (use via `Tag` component) |
-| `.btn-glass` / `.btn-glass-active` | Dark glass control | Structural UI: sort/filter buttons, nav controls |
+| `.surface-frost` | Dim frosted surface | Non-interactive: image wells, cover placeholders, two-tone card headers |
+| `.ctrl-frost` | Frosted glass pill | Interactive content tags/chips (use via `Tag` component) |
+| `.ctrl-glass` / `.ctrl-glass-active` | Dark glass control | Structural UI: sort/filter buttons, nav controls |
 
 **Dark glass card** — the canonical container style:
 ```html
@@ -87,22 +87,22 @@ Apply this to every link that is directly followed by punctuation. Links followe
 - `rounded-xl` for dense contexts, `rounded-2xl` for spacious ones (see border-radius convention below)
 - **Hover lightens** — on hover, reduce background opacity: `hover:bg-surface-0/40`. The card becomes more transparent, letting more gradient show through. Always pair with `transition-colors duration-[700ms] ease-in-out` (not `soft-transition` — too fast and overrideable by inline JS transitions). If JS sets `el.style.transition` on the element, add `background-color 700ms ease-in-out` to that string instead of relying on a CSS class.
 
-**`tag-frost-dim`** — non-interactive frosted surface. Use for decorative wells nested inside a glass card (image containers, cover placeholders, inert header strips). No hover response. Already has `border` and `backdrop-filter` built in — do not add extra `glass` or `bg-*` on top of it.
+**`surface-frost`** — non-interactive frosted surface. Use for decorative wells nested inside a glass card (image containers, cover placeholders, inert header strips). No hover response. Already has `border` and `backdrop-filter` built in — do not add extra `glass` or `bg-*` on top of it.
 
-**`tag-frost`** — frosted glass pill for interactive content tags. Use via `Tag.astro` or `Tag.tsx`; do not apply the class manually. Accepts an optional `color` prop (any CSS color value) that sets `--tag-color` to tint the text. Default color is `content-3` (blue). Active/selected state: add `.tag-frost-active`. Usage:
+**`ctrl-frost`** — frosted glass pill for interactive content tags. Use via `Tag.astro` or `Tag.tsx`; do not apply the class manually. Accepts an optional `color` prop (any CSS color value) that sets `--tag-color` to tint the text. Default color is `content-3` (blue). Active/selected state: add `.ctrl-frost-active`. Usage:
 ```astro
 <Tag>machine learning</Tag>
 <Tag color="var(--color-accent-red)">urgent</Tag>
-<Tag as="button" class="tag-frost-active">selected</Tag>
+<Tag as="button" class="ctrl-frost-active">selected</Tag>
 ```
 
-**`btn-glass` / `btn-glass-active`** — dark glass for structural UI controls (sort, filter, nav). Not for content tags. Rest state has a transparent border (prevents layout shift on activation). Active state gets an `ocean-500`-tinted border and lighter text:
+**`ctrl-glass` / `ctrl-glass-active`** — dark glass for structural UI controls (sort, filter, nav). Not for content tags. Rest state has a transparent border (prevents layout shift on activation). Active state gets an `ocean-500`-tinted border and lighter text:
 ```html
-<button class="btn-glass rounded-full px-3 py-1 text-sm font-base font-light">sort</button>
+<button class="ctrl-glass rounded-full px-3 py-1 text-sm font-base font-light">sort</button>
 <!-- activated: -->
-<button class="btn-glass btn-glass-active rounded-full px-3 py-1 ...">sort</button>
+<button class="ctrl-glass ctrl-glass-active rounded-full px-3 py-1 ...">sort</button>
 ```
-Toggle active state in JS with: `btn.classList.toggle("btn-glass-active", isActive)`
+Toggle active state in JS with: `btn.classList.toggle("ctrl-glass-active", isActive)`
 
 **Never use `white` as a color.** Use palette tokens instead. For subtle borders and glass edges, use `pale-grey` (or `ocean-50`); both are acceptable. In Tailwind: `border-pale-grey/10`. In raw CSS: `oklch(90.40% 0.017 264.38 / 0.08)`. Never reach for `border-white`, `text-white`, `bg-white`, etc.
 
