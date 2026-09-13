@@ -88,14 +88,17 @@ const recentCountries = atw
 
 const allNotebook = await getCollection("notebook");
 const featuredMusings = allNotebook
-  .filter((item) => "musings_edition" in item.data)
-  .sort((a, b) => (b.data as any).musings_edition - (a.data as any).musings_edition)
+  .filter(
+    (item): item is typeof item & { data: { musings_edition: number } } =>
+      item.data.musings_edition != null,
+  )
+  .sort((a, b) => b.data.musings_edition - a.data.musings_edition)
   .slice(0, 2)
   .map((item) => ({
     title:   item.data.title,
     date:    item.data.last_modified.toLocaleDateString("en-US", { month: "long", year: "numeric" }),
     href:    `/notebook/${item.id}`,
-    edition: (item.data as any).musings_edition as number,
+    edition: item.data.musings_edition,
   }));
 ---
 

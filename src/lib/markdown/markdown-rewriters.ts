@@ -1,6 +1,6 @@
 // src/utils/markdown-rewriters.ts
 
-import { getCollection, type CollectionEntry } from "astro:content";
+import { getCollection, type CollectionKey } from "astro:content";
 
 // REWRITE IMAGE PATHS SEARCHING AVAILABLE IN PUBLIC
 
@@ -60,18 +60,18 @@ function getBaseSlug(path: string): string {
 }
 
 // Build map: { baseFileName: fullSlug }
-const COLLECTIONS = ["media", "notebook", "atw", "quotes"];
+const COLLECTIONS: CollectionKey[] = ["media", "notebook", "atw", "quotes"];
 let cachedSlugMap: Record<string, string> | null = null;
 
 export async function getBaseSlugMap(
-  collections: string[] = COLLECTIONS,
+  collections: CollectionKey[] = COLLECTIONS,
 ): Promise<Record<string, string>> {
   if (cachedSlugMap) return cachedSlugMap;
 
   const map: Record<string, string> = {};
   for (const collection of collections) {
-    const entries = await (getCollection as any)(collection);
-    entries.forEach((entry: any) => {
+    const entries = await getCollection(collection);
+    entries.forEach((entry) => {
       const baseSlug = getBaseSlug(entry.id); // assuming entry.id is like 'media/beck-shotwell-the-folly-of-purity-politics'
       if (collection === "atw") {
         map[baseSlug] = `/media/around-the-world/${entry.id}`;
