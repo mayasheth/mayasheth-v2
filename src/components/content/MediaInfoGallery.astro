@@ -1,17 +1,15 @@
 ---
 // MediaInfoGallery.astro
 
-import type { CollectionEntry } from "astro:content";
 import { Icon } from "astro-icon/components";
 import {
   isImage,
   formatTag,
   getFormatIcon,
 } from "@/lib/helpers/media-info-helpers";
+import type { MediaEntryProps } from "@/lib/types";
 
-export interface Props {
-  mediaEntry: CollectionEntry<"media">;
-}
+export type Props = MediaEntryProps;
 
 const { mediaEntry } = Astro.props;
 

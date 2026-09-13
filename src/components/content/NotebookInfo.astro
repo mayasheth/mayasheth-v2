@@ -1,11 +1,9 @@
 ---
-import type { CollectionEntry } from "astro:content";
 import { Icon } from "astro-icon/components";
 import Tag from "@/components/ui/Tag.astro";
+import type { NotebookEntryProps } from "@/lib/types";
 
-export interface Props {
-  notebookEntry: CollectionEntry<"notebook">;
-}
+export type Props = NotebookEntryProps;
 
 const { notebookEntry } = Astro.props;
 

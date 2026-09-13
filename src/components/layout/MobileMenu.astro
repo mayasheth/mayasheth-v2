@@ -1,11 +1,7 @@
 ---
 // src/components/MobileMenu.astro
 import { Icon } from "astro-icon/components";
-export interface MenuItem {
-  label: string;
-  icon?: string;
-  children: { label: string; href: string }[];
-}
+import type { MenuItem } from "@/lib/types";
 
 type Props = {
   navItems: MenuItem[];

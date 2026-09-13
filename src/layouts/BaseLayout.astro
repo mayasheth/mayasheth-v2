@@ -5,11 +5,12 @@ import GradientBackground from "@/components/ui/GradientBackground.astro";
 import SearchModal from "@/components/search/SearchModal.astro";
 import Analytics from "@vercel/analytics/astro";
 import "@/styles/index.css";
+import type { GradientVariant } from "@/lib/types";
 
 export type Props = {
   titleShort: string;
   titleFull?: string;
-  gradientVariant?: "subtle" | "full" | "error";
+  gradientVariant?: GradientVariant;
 };
 
 const { titleShort, titleFull, gradientVariant = "subtle" }: Props = Astro.props;

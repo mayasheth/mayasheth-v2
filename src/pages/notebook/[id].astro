@@ -1,9 +1,9 @@
 ---
 // pages/media/[id].astro
-import { getCollection, render, type CollectionEntry } from "astro:content";
+import { getCollection, render } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import NotebookInfo from "@/components/content/NotebookInfo.astro";
-import { type HeadingHierarchy } from "@/components/ui/TOCHeading.astro";
+import { type HeadingHierarchy } from "@/lib/helpers/toc-helpers";
 import TOCHeading from "@/components/ui/TOCHeading.astro";
 import { createHeadingHierarchy } from "@/lib/helpers/toc-helpers";
 import { renderMarkdownWithRewriters } from "@/lib/markdown/markdown-render";
@@ -14,6 +14,7 @@ import {
   walkImages,
   buildImageMap,
 } from "@/lib/markdown/markdown-rewriters";
+import type { NotebookEntryProps } from "@/lib/types";
 
 export const prerender = true;
 
@@ -28,9 +29,7 @@ export async function getStaticPaths() {
 }
 
 // 2. Get the entry directly from the prop
-type Props = {
-  notebookEntry: CollectionEntry<"notebook">;
-};
+type Props = NotebookEntryProps;
 const { notebookEntry } = Astro.props;
 
 // 2.5 Rewrite markdown links
