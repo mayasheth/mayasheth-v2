@@ -1,4 +1,3 @@
-// src/components/ui/ColorSwatchesGrid.tsx
 import { useMemo, useState } from "react";
 
 type ColorToken = { name: string; varName: string };
@@ -21,7 +20,6 @@ function getVarComputed(varName: string): string {
 }
 
 function getOklchLiteral(varName: string): string | null {
-  // If your custom property literally contains 'oklch(...)', show that as-is for documentation.
   const raw = getVarRaw(varName);
   const m = raw.match(/oklch\([^)]*\)/i);
   return m ? m[0] : null;
@@ -46,7 +44,7 @@ function Swatch({
   onCopied: () => void;
   small?: boolean;
 }) {
-  const oklch = getOklchLiteral(token.varName); // expected to exist in your tokens
+  const oklch = getOklchLiteral(token.varName);
   const disabled = !oklch;
 
   return (
@@ -96,7 +94,7 @@ export function ColorSwatchesGrid({
   const isBgMatch = (token: ColorToken) => {
     const tokOKLCH = normOKLCH(getOklchLiteral(token.varName));
     if (bgOKLCH && tokOKLCH) return tokOKLCH === bgOKLCH;
-    // no hex here; only fallback to rgb string compare if ok
+    // fall back to computed RGB-string equality when no OKLCH literal is available
     return getVarComputed(token.varName) === bgRGB;
   };
 

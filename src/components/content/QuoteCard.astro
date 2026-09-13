@@ -2,7 +2,6 @@
 import { getCollection } from "astro:content";
 import Tag from "@/components/ui/Tag.astro";
 
-// Props
 export interface Props {
   id: string;
   include_extra: boolean;
@@ -10,7 +9,6 @@ export interface Props {
 
 const { id, include_extra } = Astro.props;
 
-// Utility (copy from your page)
 function formatTag(tag: string) {
   if (!tag) return "";
   const cleaned = tag.replace(/\/$/, "");
@@ -35,7 +33,6 @@ function getQuoteClass(text: string) {
   return "font-base text-base font-light text-content-1";
 }
 
-// Load all quotes and find the one with matching id
 const quotes = await getCollection("quotes");
 const quote = quotes.find((q) => q.id === id)?.data;
 

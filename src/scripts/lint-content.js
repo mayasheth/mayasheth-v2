@@ -12,7 +12,6 @@ import { fileURLToPath } from "url";
 import matter from "gray-matter";
 import { z } from "zod";
 
-// Import schemas from your existing definitions
 import {
   artworkSchema,
   atwSchema,

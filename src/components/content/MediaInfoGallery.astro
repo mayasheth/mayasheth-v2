@@ -1,6 +1,4 @@
 ---
-// MediaInfoGallery.astro
-
 import type { CollectionEntry } from "astro:content";
 import { Icon } from "astro-icon/components";
 import {
@@ -15,7 +13,6 @@ export interface Props {
 
 const { mediaEntry } = Astro.props;
 
-// Tags (for gallery, just format and maybe type, minimal here)
 const tagsToRemove: string[] = ["type/notes"];
 const otherTags: string[] = [...(mediaEntry.data.tags ?? [])]
   .map(formatTag)

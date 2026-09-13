@@ -1,4 +1,3 @@
-// src/data/navData.ts
 export const NAV_ITEMS = [
   {
     label: "collections",

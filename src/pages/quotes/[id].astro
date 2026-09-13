@@ -1,10 +1,8 @@
 ---
-// pages/quotes/[id].astro
 import { getCollection, render, type CollectionEntry } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import QuoteCard from "@/components/content/QuoteCard.astro";
 
-// 1. Generate a new path for every collection entry
 export async function getStaticPaths() {
   const quote = await getCollection("quotes");
 
@@ -14,13 +12,11 @@ export async function getStaticPaths() {
   }));
 }
 
-// 2. Get the entry directly from the prop
 type Props = {
   quoteEntry: CollectionEntry<"quotes">;
 };
 const { quoteEntry } = Astro.props;
 
-// 3. Set page title
 const titleShort =
   quoteEntry.data.words.slice(0, 48) +
   (quoteEntry.data.words.length > 48 ? "..." : "");

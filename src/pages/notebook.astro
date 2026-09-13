@@ -5,18 +5,15 @@ import { getCollection, type CollectionEntry } from "astro:content";
 const titleShort = "notebook";
 const titleFull = "notebook";
 
-// load collection and sort by date
 const notebook = (await getCollection("notebook")).sort((a, b) => {
   return new Date(b.data.created) > new Date(a.data.created) ? 1 : -1;
 });
 
-// filter to not musings
 const notebookFiltered = notebook.filter(
   (item) =>
     !("musings_edition" in item.data) || item.data.musings_edition === null,
 );
 
-// format and organize tags:
 function removePrefix(tag: string, prefix: string): string {
   if (!tag) return "";
   if (tag.startsWith(prefix + "/")) {
@@ -25,7 +22,7 @@ function removePrefix(tag: string, prefix: string): string {
   return tag;
 }
 
-const tagsToRemove: string[] = []; // Add tags to remove if needed
+const tagsToRemove: string[] = [];
 
 const notebookProcessed = notebookFiltered.map((item) => {
   const tags: string[] = item.data.tags ?? [];
@@ -33,7 +30,6 @@ const notebookProcessed = notebookFiltered.map((item) => {
   const contentTags: string[] = [];
 
   for (const tag of tags) {
-    // skip tags to remove
     if (tagsToRemove.includes(tag)) continue;
 
     if (tag.startsWith("journal/")) {

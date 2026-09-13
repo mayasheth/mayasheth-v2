@@ -40,7 +40,7 @@ const ArticleEntry: React.FC<Props> = ({ article }) => {
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
     if (animatingExpand && showAuthors) {
-      setTypedAuthorString(""); // start fresh
+      setTypedAuthorString("");
 
       // Compose the full string for extra authors (commas included)
       const authorStrings = moreAuthors.map((name, idx) =>
@@ -70,7 +70,7 @@ const ArticleEntry: React.FC<Props> = ({ article }) => {
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
     if (animatingCollapse && !showAuthors) {
-      setTypedAuthors([]); // Extra authors removed instantly!
+      setTypedAuthors([]);
       setTypedOut("");
       let i = 0;
       function typeText() {
@@ -89,18 +89,18 @@ const ArticleEntry: React.FC<Props> = ({ article }) => {
 
   function handleAuthorsClick() {
     if (showAuthors) {
-      setAnimatingCollapse(true); // Start collapse sequence
+      setAnimatingCollapse(true);
       setAnimatingExpand(false);
       setShowAuthors(false);
     } else {
-      setAnimatingExpand(true); // Start expand sequence
+      setAnimatingExpand(true);
       setAnimatingCollapse(false);
       setTypedOut("");
       setShowAuthors(true);
     }
   }
 
-  // Reset animation when authors change (optional, safe cleanup)
+  // Reset animation state when authors change
   useEffect(() => {
     setTypedAuthors([]);
     setTypedOut("");
