@@ -15,9 +15,7 @@ const research = (await getCollection("research")).sort((a, b) => {
 // get unique years and sort ascending, convert to string and add "selected"
 const groups = [
   ...new Set(
-    research.flatMap(
-      (r) => r.data.date_published.getFullYear().toString() || [],
-    ),
+    research.map((r) => r.data.date_published.getFullYear().toString()),
   ),
 ]
   .sort()

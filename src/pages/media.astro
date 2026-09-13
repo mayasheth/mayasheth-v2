@@ -45,7 +45,7 @@ for (const entry of media) {
 }
 
 function getConceptTags(entry: CollectionEntry<"media">): string[] {
-  return (entry.data.tags ?? [])
+  return entry.data.tags
     .map(formatTag)
     .filter((t) => t.startsWith("concept/"))
     .map((t) => t.replace("concept/", ""));

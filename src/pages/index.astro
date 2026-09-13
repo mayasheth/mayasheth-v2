@@ -36,7 +36,7 @@ const featuredArtwork = await Promise.all(
     const imgData = artworkImageImports[globKey]
       ? (await artworkImageImports[globKey]()).default
       : null;
-    return { id, title: item.data.title ?? null, imgData };
+    return { id, title: item.data.title, imgData };
   })
 ).then((items) => items.filter(Boolean));
 
@@ -324,7 +324,7 @@ const featuredMusings = allNotebook
                 {art.imgData && (
                   <Image
                     src={art.imgData}
-                    alt={art.title ?? "artwork"}
+                    alt={art.title}
                     class="w-full h-full object-cover"
                     widths={[240]}
                     sizes="240px"
