@@ -57,13 +57,9 @@ function headingExtractor(
   };
 }
 
-// In hast, a markdown link becomes an <a> element (type "element", tagName
-// "a"), not a "link" node (that's an mdast-only type) — so the anchor text is
-// skipped by matching on tagName, not on a node type that can't occur here.
 function getHeadingText(node: ElementContent): string {
   if (node.type === "text") return node.value;
   if (node.type === "element") {
-    if (node.tagName === "a") return ""; // Skip link text
     return node.children.map(getHeadingText).join("");
   }
   return "";
