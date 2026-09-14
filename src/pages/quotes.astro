@@ -1,36 +1,13 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { getCollection } from "astro:content";
+import { getQuoteListData } from "@/lib/helpers/quote-helpers";
 
 const titleShort = "quotes";
 const titleFull = "words that resonate";
 
-function formatTag(tag: string): string {
-  if (!tag) return "";
-  const parts = tag.replace(/\/$/, "").split("/");
-  const last = parts[parts.length - 1];
-  return last === "quote-inspiration" ? "to illustrate!" : last || tag;
-}
+const quoteData = await getQuoteListData();
 
-const rawQuotes = await getCollection("quotes");
-
-const allTags = [
-  ...new Set(
-    rawQuotes
-      .flatMap((q) => (q.data.tags ?? []).map(formatTag))
-      .filter(Boolean),
-  ),
-].sort();
-
-const quoteData = rawQuotes.map((q) => ({
-  id: q.id,
-  text: q.data.words,
-  source: q.data.primary_source,
-  secondary: q.data.secondary_source ?? null,
-  tags: (q.data.tags ?? []).map(formatTag).filter(Boolean),
-  commentary: q.data.commentary ?? null,
-  date: (q.data.last_modified ?? q.data.created).toISOString(),
-}));
+const allTags = [...new Set(quoteData.flatMap((q) => q.tags))].sort();
 ---
 
 <BaseLayout titleShort={titleShort} titleFull={titleFull}>

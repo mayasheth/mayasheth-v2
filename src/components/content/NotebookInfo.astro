@@ -2,6 +2,7 @@
 import type { CollectionEntry } from "astro:content";
 import { Icon } from "astro-icon/components";
 import Tag from "@/components/ui/Tag.astro";
+import { formatDate } from "@/lib/helpers/media-info-helpers";
 
 export interface Props {
   notebookEntry: CollectionEntry<"notebook">;
@@ -33,14 +34,6 @@ const contentTags: string[] = [];
     contentTags.push(removePrefix(tag, "concept"));
   }
 });
-
-function formatDate(date: Date): string {
-  const newDate = new Date(date);
-  const year = newDate.getFullYear();
-  const month = String(newDate.getMonth() + 1).padStart(2, "0");
-  const day = String(newDate.getDate()).padStart(2, "0");
-  return `${year}/${month}/${day}`;
-}
 ---
 
 <section
