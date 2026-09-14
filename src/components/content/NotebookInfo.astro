@@ -7,7 +7,6 @@ export type Props = NotebookEntryProps;
 
 const { notebookEntry } = Astro.props;
 
-// format and organize tags:
 function removePrefix(tag: string, prefix: string): string {
   if (!tag) return "";
   if (tag.startsWith(prefix + "/")) {
@@ -16,7 +15,7 @@ function removePrefix(tag: string, prefix: string): string {
   return tag;
 }
 
-const tagsToRemove: string[] = []; // Add tags to remove if needed
+const tagsToRemove: string[] = [];
 const typeTags: string[] = [];
 const contentTags: string[] = [];
 

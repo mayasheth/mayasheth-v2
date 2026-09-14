@@ -1,4 +1,3 @@
-// src/data/socials.ts
 export const socials = [
   {
     name: "GitHub",

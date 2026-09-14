@@ -1,8 +1,4 @@
-// src/utils/markdown-rewriters.ts
-
 import { getCollection, type CollectionKey } from "astro:content";
-
-// REWRITE IMAGE PATHS SEARCHING AVAILABLE IN PUBLIC
 
 import { readdir } from "fs/promises";
 import { join, relative } from "path";
@@ -44,8 +40,6 @@ export function buildImageMap(imagePaths: string[]): Map<string, string> {
   return map;
 }
 
-// REWRITERS
-
 // Rewrites image url to public URL
 export function imageRewriterFromMap(imageMap: Map<string, string>) {
   return (url: string, alt: string): string => {
@@ -54,7 +48,6 @@ export function imageRewriterFromMap(imageMap: Map<string, string>) {
   };
 }
 
-// Utility function to get the base filename without extension
 function getBaseSlug(path: string): string {
   return path.split("/").pop()?.replace(/\.md$/, "") ?? "";
 }
@@ -72,7 +65,7 @@ export async function getBaseSlugMap(
   for (const collection of collections) {
     const entries = await getCollection(collection);
     entries.forEach((entry) => {
-      const baseSlug = getBaseSlug(entry.id); // assuming entry.id is like 'media/beck-shotwell-the-folly-of-purity-politics'
+      const baseSlug = getBaseSlug(entry.id); // entry.id looks like "media/some-slug"
       if (collection === "atw") {
         map[baseSlug] = `/media/around-the-world/${entry.id}`;
       } else {
@@ -106,7 +99,7 @@ export function linkRewriterFromBaseSlugMap(slugMap: Record<string, string>) {
     const baseSlug = url.split("/").pop()?.replace(/\.md$/, "") ?? url;
     const absPath = slugMap[baseSlug];
     if (absPath) {
-      return absPath; // use the full Astro route
+      return absPath;
     }
     // Fallback: just strip .md extension and leave as is
     return url.replace(/\.md$/, "");

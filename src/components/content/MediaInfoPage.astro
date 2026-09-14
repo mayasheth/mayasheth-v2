@@ -1,6 +1,4 @@
 ---
-// MediaInfoPage.astro
-
 import { Icon } from "astro-icon/components";
 import {
   isImage,
@@ -15,7 +13,6 @@ export type Props = MediaEntryProps;
 
 const { mediaEntry } = Astro.props;
 
-// Tags logic
 const tagsToRemove: string[] = ["type/notes"];
 const conceptTags: string[] = [];
 const otherTags: string[] = [...(mediaEntry.data.tags ?? [])]

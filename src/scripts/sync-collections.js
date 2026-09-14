@@ -22,7 +22,7 @@ const PUBLIC_DST = join(__dirname, "../../public/collections/300-collections");
 const CACHE_FILE = join(__dirname, "../.sync-cache.json");
 
 // These use Astro <Image /> (images in src/content for import)
-const CONTENT_IMAGE_COLLECTIONS = ["gratitudes", "portfolio"]; // <-- edit as needed
+const CONTENT_IMAGE_COLLECTIONS = ["gratitudes", "portfolio"];
 
 // Collections to aggregate (JSON only)
 const AGGREGATE_COLLECTIONS = ["gratitudes", "quotes"];
@@ -74,7 +74,7 @@ async function copyToContent(absSrc, collectionName) {
   const dstAbs = join(CONTENT_DST, collectionName, relWithinCollection);
   await ensureDir(dstAbs);
   await cp(absSrc, dstAbs, { force: true });
-  return `../${relWithinCollection}`; // Update returned path accordingly
+  return `../${relWithinCollection}`;
 }
 
 async function copyCollectionImagesContent(collection) {
@@ -174,7 +174,7 @@ async function aggregateCollection(collection) {
 
     for (const k of LINKISH_FIELDS) {
       if (data[k] !== undefined) {
-        data[k] = await rewriteFmValue(abs, data[k], collection, target); // <-- add target param
+        data[k] = await rewriteFmValue(abs, data[k], collection, target);
       }
     }
     items.push({
@@ -245,7 +245,7 @@ async function mirrorCollection(collection) {
     }
   }
 
-  // Copy images to public for non-aggregated collections not specified for content images ***
+  // Copy images to public for non-aggregated collections not specified for content images
   if (!CONTENT_IMAGE_COLLECTIONS.includes(collection)) {
     const imgCount = await copyCollectionImagesPublic(collection);
     console.log(`🖼️  copied ${imgCount} images from ${collection} to public`);

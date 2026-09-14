@@ -265,7 +265,6 @@ const dotMusicOtherClass = "bg-content-4/40";
 
 const atw = await getCollection("atw");
 
-// Counts for tagline (mirrors original around-the-world.astro logic)
 const { bothComplete, bookOnlyComplete, bookIdea, bookIncomplete } = atw.reduce(
   (acc, item) => {
     if (item.data.book_status === "DONE" && item.data.music_status === "DONE") {

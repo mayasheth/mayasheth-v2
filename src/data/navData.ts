@@ -1,4 +1,3 @@
-// src/data/navData.ts
 import type { MenuItem } from "@/lib/types";
 
 export const NAV_ITEMS: MenuItem[] = [

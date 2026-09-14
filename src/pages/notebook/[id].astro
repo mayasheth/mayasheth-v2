@@ -1,11 +1,12 @@
 ---
-// pages/media/[id].astro
-import { getCollection, render } from "astro:content";
+import { getCollection } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import NotebookInfo from "@/components/content/NotebookInfo.astro";
-import { type HeadingHierarchy } from "@/lib/helpers/toc-helpers";
+import {
+  type HeadingHierarchy,
+  createHeadingHierarchy,
+} from "@/lib/helpers/toc-helpers";
 import TOCHeading from "@/components/ui/TOCHeading.astro";
-import { createHeadingHierarchy } from "@/lib/helpers/toc-helpers";
 import { renderMarkdownWithRewriters } from "@/lib/markdown/markdown-render";
 import {
   imageRewriterFromMap,
@@ -18,7 +19,6 @@ import type { NotebookEntryProps } from "@/lib/types";
 
 export const prerender = true;
 
-// 1. Generate a new path for every collection entry
 export async function getStaticPaths() {
   const notebook = await getCollection("notebook");
 
@@ -28,31 +28,23 @@ export async function getStaticPaths() {
   }));
 }
 
-// 2. Get the entry directly from the prop
 type Props = NotebookEntryProps;
 const { notebookEntry } = Astro.props;
 
-// 2.5 Rewrite markdown links
 const markdown = notebookEntry.body ?? "";
 
-// Build image and slug maps (sync or async, depending on your setup)
 const imagePaths = await walkImages("public");
 const imageMap = buildImageMap(imagePaths);
 const slugMap = await getBaseSlugMap();
 
-// Init rewriters:
 const imageRewriter = imageRewriterFromMap(imageMap);
 const linkRewriter = linkRewriterFromBaseSlugMap(slugMap);
 
-// Render
 const { html, headings } = await renderMarkdownWithRewriters(markdown, {
   imageRewriter,
   linkRewriter,
 });
 
-//const { Content, headings } = await render(notebookEntry);
-
-// 3. Set up TOC
 const toc: HeadingHierarchy[] = createHeadingHierarchy(headings);
 const hasToC = toc.length > 1;
 ---
@@ -89,7 +81,6 @@ const hasToC = toc.length > 1;
 </BaseLayout>
 
 <script>
-  // Array of heading IDs in order (slugs from your headings)
   const headingIds = [
     ...document.querySelectorAll(
       ".markdown-content h2, .markdown-content h3, .markdown-content h4",
@@ -110,11 +101,9 @@ const hasToC = toc.length > 1;
         }
       }
     });
-    // Remove active from all
     document
       .querySelectorAll(".toc-active")
       .forEach((el) => el.classList.remove("toc-active"));
-    // Add active to closest
     if (closest) {
       const activeLink = document.getElementById(`toc-link-${closest}`);
       if (activeLink) {
@@ -125,7 +114,6 @@ const hasToC = toc.length > 1;
   window.addEventListener("scroll", highlightClosestHeading, { passive: true });
   window.addEventListener("DOMContentLoaded", highlightClosestHeading);
 
-  // --- Your image resizing logic ---
   window.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".markdown-content img[alt]").forEach((img) => {
       const alt = img.getAttribute("alt");

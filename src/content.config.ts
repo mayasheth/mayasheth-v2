@@ -10,7 +10,6 @@ import {
   researchSchema,
 } from "@/lib/schemas";
 
-// collections
 const artwork = defineCollection({
   loader: glob({
     pattern: "*.md",
@@ -69,7 +68,6 @@ const research = defineCollection({
   schema: researchSchema,
 });
 
-// export
 export const collections = {
   artwork,
   atw,

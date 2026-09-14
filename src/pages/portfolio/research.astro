@@ -5,14 +5,12 @@ import { getCollection, type CollectionEntry } from "astro:content";
 
 const title = "research";
 
-// load research collection and sort by descending date
 const research = (await getCollection("research")).sort((a, b) => {
   return new Date(b.data.date_published) > new Date(a.data.date_published)
     ? 1
     : -1;
 });
 
-// get unique years and sort ascending, convert to string and add "selected"
 const groups = [
   ...new Set(
     research.map((r) => r.data.date_published.getFullYear().toString()),

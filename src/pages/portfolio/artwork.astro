@@ -1,5 +1,4 @@
 ---
-// Server-side code, as before
 import { Image } from "astro:assets";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import MasonryGrid from "@/components/ui/MasonryGrid.astro";
@@ -144,7 +143,6 @@ const artworkItemsWithImports = await Promise.all(
   </div>
 
   <script>
-    // Filter logic (same as before)
     const buttons = document.querySelectorAll(".filter-button");
     const items = document.querySelectorAll("masonry-item");
     let activeFilter: string | null = null;
@@ -163,13 +161,12 @@ const artworkItemsWithImports = await Promise.all(
         } else {
           activeFilter = tag;
         }
-        // Update buttons
         buttons.forEach((b) => {
           const isActive = activeFilter === b.getAttribute("data-tag");
           b.setAttribute("aria-pressed", String(isActive));
           b.classList.toggle("ctrl-glass-active", isActive);
         });
-        // Filter items (works with custom element tags!)
+        // items are custom <masonry-item> elements, not standard tags
         items.forEach((item) => {
           const itemTags = item
             .getAttribute("data-tags")
