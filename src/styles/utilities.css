@@ -36,10 +36,6 @@
 
   /* Interactive light frost — content chips, tags, CTA buttons */
   .ctrl-frost {
-    /* inline-block, not inline: a wrapped inline box fragments across lines,
-       and backdrop-filter/border-radius render as one distorted box spanning
-       both fragments instead of clipping per line. */
-    display: inline-block;
     color: var(--tag-color, var(--color-content-3));
     background-color: oklch(90.4% 0.017 264 / 0.10);
     backdrop-filter: blur(16px) saturate(1.8) brightness(1.2);

@@ -36,7 +36,7 @@
 
   h4 {
     font-family: var(--font-header);
-    font-size: var(--text-lg);
+    font-size: var(--text-base);
     font-weight: var(--font-weight-semibold);
     @apply tracking-wider;
     @apply text-content-1;

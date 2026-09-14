@@ -19,7 +19,15 @@ const {
 const caseClass = { uppercase: "uppercase", lowercase: "lowercase", normal: "" }[textCase];
 const focusClass = Element === "button" ? "focus-outline" : "";
 
-const classes = ["ctrl-frost font-base rounded-full px-2 py-1 text-sm", caseClass, focusClass, className]
+const classes = [
+  // inline-block, not the <span>/<a> default of inline: a wrapped inline box
+  // fragments across lines, and border-radius/backdrop-filter render as one
+  // distorted box spanning both fragments instead of clipping per line.
+  "ctrl-frost inline-block font-base rounded-full px-2 py-1 text-sm",
+  caseClass,
+  focusClass,
+  className,
+]
   .filter(Boolean)
   .join(" ");
 

@@ -32,7 +32,11 @@ export function Tag({
 }: TagProps) {
   const focusClass = as !== "span" ? "focus-outline" : "";
   const classes = [
-    "ctrl-frost font-base rounded-full px-2 py-1 text-sm",
+    // inline-block, not the <span>/<a> default of inline: a wrapped inline
+    // box fragments across lines, and border-radius/backdrop-filter render
+    // as one distorted box spanning both fragments instead of clipping per
+    // line.
+    "ctrl-frost inline-block font-base rounded-full px-2 py-1 text-sm",
     caseClasses[textCase],
     focusClass,
     className,

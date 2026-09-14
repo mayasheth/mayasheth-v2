@@ -57,7 +57,11 @@ const tiers = [
   },
   {
     items: designItemsWithImports.filter((item) => item.image_size === "medium"),
-    containerClass: "mx-auto mb-6 grid grid-cols-1 gap-6 md:grid-cols-2",
+    // auto-fit + justify-center (instead of a fixed grid-cols-2) means a
+    // lone leftover item centers itself instead of sitting in the first
+    // cell with empty space where its neighbor would have been.
+    containerClass:
+      "mx-auto mb-6 grid grid-cols-[repeat(auto-fit,minmax(280px,420px))] justify-center gap-6",
     cardClass:
       "glass bg-surface-0/55 border border-pale-grey/10 flex w-full flex-col items-center rounded-xl p-4 text-center md:p-6",
     wellClass:
