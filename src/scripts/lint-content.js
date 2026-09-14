@@ -11,6 +11,7 @@ import { join, dirname, relative, resolve, extname } from "path";
 import { fileURLToPath } from "url";
 import matter from "gray-matter";
 import { z } from "zod";
+import { isHidden, isMd, FILE_REFERENCE_FIELDS } from "./shared/file-helpers.js";
 
 // Import schemas from your existing definitions
 import {
@@ -94,17 +95,6 @@ const COLLECTION_MAPPINGS = [
   { pattern: "quotes", schema: quoteSchema, name: "quotes", depth: "recursive" },
 ];
 
-// Frontmatter fields that reference files
-const FILE_REFERENCE_FIELDS = [
-  "image",
-  "images",
-  "banner",
-  "cover",
-  "thumbnail",
-  "hero",
-  "gallery",
-];
-
 // Track results
 const results = {
   total: 0,
@@ -115,8 +105,6 @@ const results = {
 };
 
 // Helpers
-const isHidden = (name) => name.startsWith(".");
-const isMd = (path) => /\.md$/i.test(path);
 const isUrl = (str) => /^https?:\/\//i.test(str);
 
 async function walk(dir, base, depth = "recursive", out = []) {

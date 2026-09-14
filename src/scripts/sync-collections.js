@@ -12,6 +12,7 @@ import { existsSync, readFileSync } from "fs";
 import { join, dirname, relative, resolve, extname, basename } from "path";
 import { fileURLToPath } from "url";
 import matter from "gray-matter";
+import { isHidden, isMd, FILE_REFERENCE_FIELDS } from "./shared/file-helpers.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const VAULT_ROOT = join(__dirname, "../vault-content");
@@ -28,18 +29,8 @@ const CONTENT_IMAGE_COLLECTIONS = ["gratitudes", "portfolio"]; // <-- edit as ne
 const AGGREGATE_COLLECTIONS = ["gratitudes", "quotes"];
 
 // Frontmatter fields that may contain paths to images
-const LINKISH_FIELDS = [
-  "image",
-  "images",
-  "banner",
-  "cover",
-  "thumbnail",
-  "hero",
-  "gallery",
-];
+const LINKISH_FIELDS = FILE_REFERENCE_FIELDS;
 
-const isHidden = (n) => n.startsWith(".");
-const isMd = (p) => /\.md$/i.test(p);
 const isImg = (p) => /\.(png|jpe?g|gif|webp|svg|avif|heic)$/i.test(p);
 const isHttp = (s) => /^https?:\/\//i.test(s);
 const isAbs = (s) => s.startsWith("/");
