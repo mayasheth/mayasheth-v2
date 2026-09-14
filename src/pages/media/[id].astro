@@ -51,7 +51,7 @@ const { html, headings } = await renderMarkdownWithRewriters(markdown, {
 });
 
 // 3. Set up TOC
-const toc: HeadingHierarchy[] = createHeadingHierarchy(headings ?? []);
+const toc: HeadingHierarchy[] = createHeadingHierarchy(headings);
 const hasToC = headings.length > 1;
 ---
 

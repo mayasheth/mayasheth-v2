@@ -17,9 +17,9 @@ const quoteData = rawQuotes.map((q) => ({
   text: q.data.words,
   source: q.data.primary_source,
   secondary: q.data.secondary_source ?? null,
-  tags: (q.data.tags ?? []).map(formatTag).filter(Boolean),
+  tags: q.data.tags.map(formatTag).filter(Boolean),
   commentary: q.data.commentary ?? null,
-  date: (q.data.last_modified ?? q.data.created).toISOString(),
+  date: q.data.last_modified.toISOString(),
 }));
 ---
 

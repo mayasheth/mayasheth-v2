@@ -28,7 +28,7 @@ function removePrefix(tag: string, prefix: string): string {
 const tagsToRemove: string[] = []; // Add tags to remove if needed
 
 const notebookProcessed = notebookFiltered.map((item) => {
-  const tags: string[] = item.data.tags ?? [];
+  const tags: string[] = item.data.tags;
   const typeTags: string[] = [];
   const contentTags: string[] = [];
 

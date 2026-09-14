@@ -15,7 +15,7 @@ artworkItems.sort((a, b) =>
   new Date(b.created) > new Date(a.created) ? 1 : -1,
 );
 
-const allTags = [...new Set(artworkItems.flatMap((a) => a.art_tags ?? []))]
+const allTags = [...new Set(artworkItems.flatMap((a) => a.art_tags))]
   .map(formatTag)
   .sort();
 
@@ -74,8 +74,8 @@ const artworkItemsWithImports = await Promise.all(
             tabindex="0"
             role="button"
             class="group relative mb-2 h-auto w-full cursor-pointer rounded-md focus-outline-rounded md:mb-3"
-            data-tags={item.art_tags?.map(formatTag).join(",") ?? ""}
-            data-title={item.title ?? ""}
+            data-tags={item.art_tags.map(formatTag).join(",")}
+            data-title={item.title}
             data-description={item.description ?? ""}
             data-year={item.created ? item.created.getFullYear() : ""}
             data-inspiration={item.inspiration ?? ""}

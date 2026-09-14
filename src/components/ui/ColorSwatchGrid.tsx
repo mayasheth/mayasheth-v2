@@ -29,7 +29,9 @@ function getOklchLiteral(varName: string): string | null {
 
 function copy(text: string) {
   if (navigator?.clipboard?.writeText)
-    navigator.clipboard.writeText(text).catch(() => {});
+    navigator.clipboard.writeText(text).catch((err) => {
+      console.error("Failed to copy to clipboard:", err);
+    });
 }
 
 const normOKLCH = (s?: string | null) =>
