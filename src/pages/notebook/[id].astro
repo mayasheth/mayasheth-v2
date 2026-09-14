@@ -6,14 +6,7 @@ import NotebookInfo from "@/components/content/NotebookInfo.astro";
 import { type HeadingHierarchy } from "@/components/ui/TOCHeading.astro";
 import TOCHeading from "@/components/ui/TOCHeading.astro";
 import { createHeadingHierarchy } from "@/lib/helpers/toc-helpers";
-import { renderMarkdownWithRewriters } from "@/lib/markdown/markdown-render";
-import {
-  imageRewriterFromMap,
-  getBaseSlugMap,
-  linkRewriterFromBaseSlugMap,
-  walkImages,
-  buildImageMap,
-} from "@/lib/markdown/markdown-rewriters";
+import { renderVaultMarkdown } from "@/lib/markdown/markdown-render";
 
 export const prerender = true;
 
@@ -33,25 +26,9 @@ type Props = {
 };
 const { notebookEntry } = Astro.props;
 
-// 2.5 Rewrite markdown links
+// 2.5 Rewrite markdown links and render
 const markdown = notebookEntry.body ?? "";
-
-// Build image and slug maps (sync or async, depending on your setup)
-const imagePaths = await walkImages("public");
-const imageMap = buildImageMap(imagePaths);
-const slugMap = await getBaseSlugMap();
-
-// Init rewriters:
-const imageRewriter = imageRewriterFromMap(imageMap);
-const linkRewriter = linkRewriterFromBaseSlugMap(slugMap);
-
-// Render
-const { html, headings } = await renderMarkdownWithRewriters(markdown, {
-  imageRewriter,
-  linkRewriter,
-});
-
-//const { Content, headings } = await render(notebookEntry);
+const { html, headings } = await renderVaultMarkdown(markdown);
 
 // 3. Set up TOC
 const toc: HeadingHierarchy[] = createHeadingHierarchy(headings ?? []);
@@ -89,44 +66,10 @@ const hasToC = toc.length > 1;
   </section>
 </BaseLayout>
 
+<script type="module" src="/scripts/toc-highlight.js"></script>
+
 <script>
-  // Array of heading IDs in order (slugs from your headings)
-  const headingIds = [
-    ...document.querySelectorAll(
-      ".markdown-content h2, .markdown-content h3, .markdown-content h4",
-    ),
-  ].map((e) => e.id);
-
-  function highlightClosestHeading() {
-    // Find which heading is nearest to the top of viewport
-    let closest;
-    let min = Infinity;
-    headingIds.forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) {
-        const rect = el.getBoundingClientRect();
-        if (rect.top >= 0 && rect.top < min) {
-          min = rect.top;
-          closest = id;
-        }
-      }
-    });
-    // Remove active from all
-    document
-      .querySelectorAll(".toc-active")
-      .forEach((el) => el.classList.remove("toc-active"));
-    // Add active to closest
-    if (closest) {
-      const activeLink = document.getElementById(`toc-link-${closest}`);
-      if (activeLink) {
-        activeLink.classList.add("toc-active");
-      }
-    }
-  }
-  window.addEventListener("scroll", highlightClosestHeading, { passive: true });
-  window.addEventListener("DOMContentLoaded", highlightClosestHeading);
-
-  // --- Your image resizing logic ---
+  // --- Notebook-only: resize markdown images whose alt text is a bare number ---
   window.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".markdown-content img[alt]").forEach((img) => {
       const alt = img.getAttribute("alt");

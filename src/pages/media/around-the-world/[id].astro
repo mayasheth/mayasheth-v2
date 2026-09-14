@@ -2,15 +2,8 @@
 // pages/media/[id].astro
 import { getCollection, render, type CollectionEntry } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { renderMarkdownWithRewriters } from "@/lib/markdown/markdown-render";
-import {
-  imageRewriterFromMap,
-  getInternalLink,
-  getBaseSlugMap,
-  linkRewriterFromBaseSlugMap,
-  walkImages,
-  buildImageMap,
-} from "@/lib/markdown/markdown-rewriters";
+import { renderVaultMarkdown } from "@/lib/markdown/markdown-render";
+import { getInternalLink } from "@/lib/markdown/markdown-rewriters";
 import { formatDate } from "@/lib/helpers/media-info-helpers";
 import { Icon } from "astro-icon/components";
 import Tag from "@/components/ui/Tag.astro";
@@ -33,23 +26,9 @@ type Props = {
 };
 const { atwEntry } = Astro.props;
 
-// 2.5 Rewrite markdown links
+// 2.5 Rewrite markdown links and render
 const markdown = atwEntry.body ?? "";
-
-// Build image and slug maps
-const imagePaths = await walkImages("public");
-const imageMap = buildImageMap(imagePaths);
-const slugMap = await getBaseSlugMap();
-
-// Init rewriters:
-const imageRewriter = imageRewriterFromMap(imageMap);
-const linkRewriter = linkRewriterFromBaseSlugMap(slugMap);
-
-// Render
-const { html, headings } = await renderMarkdownWithRewriters(markdown, {
-  imageRewriter,
-  linkRewriter,
-});
+const { html, headings } = await renderVaultMarkdown(markdown);
 
 // Layout flags
 const showBookCard = atwEntry.data.book_status === "DONE" || Boolean(atwEntry.data.book_ideas);

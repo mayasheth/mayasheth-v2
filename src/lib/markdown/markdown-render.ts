@@ -5,6 +5,13 @@ import rehypeSlug from "rehype-slug";
 import rehypeStringify from "rehype-stringify";
 import { visit } from "unist-util-visit";
 import type { Root } from "mdast";
+import {
+  imageRewriterFromMap,
+  getBaseSlugMap,
+  linkRewriterFromBaseSlugMap,
+  walkImages,
+  buildImageMap,
+} from "@/lib/markdown/markdown-rewriters";
 
 function tableWrapper() {
   return (tree: any) => {
@@ -105,4 +112,25 @@ export async function renderMarkdownWithRewriters(
     html: processed.value as string,
     headings,
   };
+}
+
+/**
+ * Renders vault markdown body content with the standard image/link rewriters
+ * wired up (image filenames resolved against /public, internal links resolved
+ * against the collection slug map). This is the same setup previously
+ * duplicated across every detail page (notebook/[id], media/[id],
+ * media/around-the-world/[id]): build the image map, build the slug map,
+ * construct the rewriters, then render.
+ */
+export async function renderVaultMarkdown(
+  markdown: string,
+): Promise<{ html: string; headings: { text: string; depth: number }[] }> {
+  const imagePaths = await walkImages("public");
+  const imageMap = buildImageMap(imagePaths);
+  const slugMap = await getBaseSlugMap();
+
+  const imageRewriter = imageRewriterFromMap(imageMap);
+  const linkRewriter = linkRewriterFromBaseSlugMap(slugMap);
+
+  return renderMarkdownWithRewriters(markdown, { imageRewriter, linkRewriter });
 }
