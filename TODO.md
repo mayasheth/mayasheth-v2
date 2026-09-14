@@ -13,6 +13,8 @@
 
 ## Design & polish
 
+- [ ] `.markdown-content h4` renders larger than `h3` (`src/styles/utilities.css`) — no font-size utility set on either, so sizing falls through to some unintended cascade; h4 should be smaller than h3
+- [ ] `/portfolio/design` medium tier (`grid-cols-1 md:grid-cols-2`) doesn't center a lone item — with only one "medium"-sized entry it sits left with empty space on the right; needs a single-item layout fix
 - [ ] Restyle individual quote pages (`/quotes/[id]`)
 - [x] `quotes/surprise-me.astro` — scramble board glass treatment
 - [ ] Detail pages (`/media/[id]`, `/notebook/[id]`) — prose content area styling
