@@ -8,16 +8,14 @@
 export const isHidden = (name) => name.startsWith(".");
 export const isMd = (path) => /\.md$/i.test(path);
 
-// Frontmatter fields that may contain paths to referenced files (images,
-// covers, etc.). Used by sync-collections.js to know which fields to rewrite
-// to public/content URLs, and by lint-content.js to know which fields to
-// check for broken references.
+// Frontmatter fields that may contain paths or URLs to referenced files
+// (images, covers, etc.) — kept in sync with the image-bearing fields
+// actually declared in src/lib/schemas.ts. Used by sync-collections.js to
+// know which fields to rewrite to public/content URLs, and by
+// lint-content.js to know which fields to check for broken references.
 export const FILE_REFERENCE_FIELDS = [
   "image",
   "images",
-  "banner",
-  "cover",
-  "thumbnail",
-  "hero",
-  "gallery",
+  "book_cover",
+  "link_to_source",
 ];

@@ -4,6 +4,10 @@
 // Usage:
 //   npm run lint:content   - Check src/vault-content (synced content)
 //   npm run lint:vault     - Check Obsidian vault directly (requires OBSIDIAN_VAULT_PATH env var)
+//   Add --check-links to also verify external URLs in FILE_REFERENCE_FIELDS
+//   (e.g. book_cover, link_to_source) are actually reachable. Off by default:
+//   it's a live network check across every published note, so it's slow and
+//   can be flaky offline or under rate limiting.
 
 import { readdir, readFile, stat } from "fs/promises";
 import { existsSync } from "fs";
@@ -30,6 +34,7 @@ const args = process.argv.slice(2);
 const isVaultMode = args.includes("--vault");
 const isQuiet = args.includes("--quiet");
 const isVerbose = args.includes("--verbose");
+const isCheckLinks = args.includes("--check-links");
 
 // Determine source directory
 let SOURCE_ROOT;
@@ -106,6 +111,49 @@ const results = {
 // Helpers
 const isUrl = (str) => /^https?:\/\//i.test(str);
 
+// --check-links: cache results per URL since the same cover/source link can
+// appear on more than one note.
+const urlCheckCache = new Map();
+const BROWSER_USER_AGENT =
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36";
+
+async function checkUrl(url) {
+  if (urlCheckCache.has(url)) return urlCheckCache.get(url);
+
+  const attempt = async (method) =>
+    fetch(url, {
+      method,
+      redirect: "follow",
+      headers: { "User-Agent": BROWSER_USER_AGENT },
+      signal: AbortSignal.timeout(8000),
+    });
+
+  // { message, type } or null if reachable
+  let result = null;
+  try {
+    // Some hosts (e.g. hotlink-protected CDNs) reject HEAD but allow GET.
+    let res = await attempt("HEAD");
+    if (!res.ok) res = await attempt("GET");
+    if (res.status === 403) {
+      // Ambiguous: could be a genuinely dead/hotlink-protected resource
+      // (confirmed by a real browser also getting 403), or a site that
+      // blocks datacenter IPs / bots regardless of UA (e.g. nytimes.com) —
+      // that class isn't actually broken for a real visitor. Flag, don't fail.
+      result = {
+        message: `got HTTP 403 — could be bot-blocking (e.g. news sites) rather than a dead link; check manually`,
+        type: "warning",
+      };
+    } else if (!res.ok) {
+      result = { message: `HTTP ${res.status}`, type: "error" };
+    }
+  } catch (e) {
+    result = { message: `request failed (${e.message})`, type: "error" };
+  }
+
+  urlCheckCache.set(url, result);
+  return result;
+}
+
 async function walk(dir, base, depth = "recursive", out = []) {
   if (!existsSync(dir)) return out;
 
@@ -147,7 +195,7 @@ function getCollectionForPath(relPath) {
   return null;
 }
 
-function checkFileReferences(frontmatter, fileDir) {
+async function checkFileReferences(frontmatter, fileDir) {
   const issues = [];
 
   for (const field of FILE_REFERENCE_FIELDS) {
@@ -158,7 +206,20 @@ function checkFileReferences(frontmatter, fileDir) {
 
     for (const p of paths) {
       if (typeof p !== "string") continue;
-      if (isUrl(p)) continue; // Skip URLs
+
+      if (isUrl(p)) {
+        if (!isCheckLinks) continue; // Only hit the network when asked
+        const result = await checkUrl(p);
+        if (result) {
+          issues.push({
+            field,
+            message: `Broken link (${result.message}): '${p}'`,
+            type: result.type,
+          });
+        }
+        continue;
+      }
+
       if (p.startsWith("/")) continue; // Skip absolute paths (public assets)
 
       // Try resolving relative to vault root first (e.g., "300-collections/...")
@@ -223,7 +284,7 @@ async function validateFile(abs, rel, collection) {
   }
 
   // Check file references
-  const fileIssues = checkFileReferences(frontmatter, dirname(abs));
+  const fileIssues = await checkFileReferences(frontmatter, dirname(abs));
   issues.push(...fileIssues);
 
   return issues;
@@ -231,6 +292,9 @@ async function validateFile(abs, rel, collection) {
 
 async function main() {
   console.log(`\nValidating content in: ${COLLECTIONS_ROOT}\n`);
+  if (isCheckLinks) {
+    console.log("Checking external links too (--check-links) — this hits the network and will take a while.\n");
+  }
 
   if (!existsSync(COLLECTIONS_ROOT)) {
     console.error(`ERROR: Collections directory not found: ${COLLECTIONS_ROOT}`);
