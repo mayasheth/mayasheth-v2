@@ -100,7 +100,7 @@ const { variant = "full" } = Astro.props;
 
   function getFullCfg() {
     const h = new Date().getHours();
-    const period = gradientConfig.timeOfDay.find((p: any) =>
+    const period = gradientConfig.timeOfDay.find((p) =>
       p.from < p.to
         ? h >= p.from && h < p.to
         : h >= p.from || h < p.to   // spans midnight

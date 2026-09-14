@@ -185,8 +185,12 @@ const artworkItemsWithImports = await Promise.all(
     });
 
     (function () {
-      const modal = document.getElementById("gallery-modal");
-      const modalContent = document.getElementById("gallery-modal-content");
+      // Non-null: both ids are always rendered in the static template above
+      // (#gallery-modal, #gallery-modal-content), so this is a real invariant,
+      // not a guess — asserting it once here removes the need for @ts-ignore
+      // at every later usage.
+      const modal = document.getElementById("gallery-modal")!;
+      const modalContent = document.getElementById("gallery-modal-content")!;
       const prevBtn = document.getElementById("modal-prev");
       const nextBtn = document.getElementById("modal-next");
       let lastFocused: Element | null = null;
@@ -219,7 +223,6 @@ const artworkItemsWithImports = await Promise.all(
           const year = item.getAttribute("data-year") || "";
           const inspiration = item.getAttribute("data-inspiration") || "";
 
-          /* @ts-ignore */
           modalContent.innerHTML = `
             <button id="modal-close" aria-label="Close" class="${S.closeBtn}">&times;</button>
             <div class="${S.imgWrap}">
@@ -233,9 +236,7 @@ const artworkItemsWithImports = await Promise.all(
               ${tags.length ? `<div class="${S.tagsWrap}">${tags.map((t: string) => `<span class="${S.tag}">${t}</span>`).join("")}</div>` : ""}
             </div>
           `;
-          /* @ts-ignore */
           modalContent.querySelector("#modal-close")?.addEventListener("click", closeModal);
-          /* @ts-ignore */
           if (animate) modalContent.style.opacity = "";
 
           const showNav = filteredItems.length > 1;
@@ -244,7 +245,6 @@ const artworkItemsWithImports = await Promise.all(
         }
 
         if (animate) {
-          /* @ts-ignore */
           modalContent.style.opacity = "0";
           setTimeout(doUpdate, 130);
         } else {
@@ -257,18 +257,14 @@ const artworkItemsWithImports = await Promise.all(
         currentIndex = filteredItems.indexOf(item);
         lastFocused = item;
         showItem(currentIndex);
-        /* @ts-ignore */
         modal.classList.remove("hide-modal");
-        /* @ts-ignore */
         setTimeout(() => { (modalContent.querySelector("#modal-close") as HTMLElement)?.focus(); }, 100);
       }
 
       function closeModal() {
-        /* @ts-ignore */
         modal.classList.add("hide-modal");
         if (lastFocused) (lastFocused as HTMLElement).focus();
         setTimeout(() => {
-          /* @ts-ignore */
           modalContent.innerHTML = "";
           prevBtn?.classList.add("hidden");
           nextBtn?.classList.add("hidden");
@@ -293,11 +289,9 @@ const artworkItemsWithImports = await Promise.all(
         showItem((currentIndex + 1) % filteredItems.length, true);
       });
 
-      /* @ts-ignore */
       modal.addEventListener("mousedown", (e) => { if (e.target === modal) closeModal(); });
 
       document.addEventListener("keydown", (e) => {
-        /* @ts-ignore */
         if (modal.classList.contains("hide-modal")) return;
         if (e.key === "Escape") closeModal();
         if (e.key === "ArrowLeft" && filteredItems.length > 1)

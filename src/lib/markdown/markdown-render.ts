@@ -4,10 +4,11 @@ import remarkRehype from "remark-rehype";
 import rehypeSlug from "rehype-slug";
 import rehypeStringify from "rehype-stringify";
 import { visit } from "unist-util-visit";
-import type { Root } from "mdast";
+import type { Root as MdastRoot, Text as MdastText } from "mdast";
+import type { Root as HastRoot, ElementContent } from "hast";
 
 function tableWrapper() {
-  return (tree: any) => {
+  return (tree: HastRoot) => {
     visit(tree, "element", (node, index, parent) => {
       if (node.tagName === "table" && parent && typeof index === "number") {
         parent.children[index] = {
@@ -28,7 +29,7 @@ function tableWrapper() {
 function headingExtractor(
   headings: { text: string; depth: number; id?: string }[],
 ) {
-  return (tree: any) => {
+  return (tree: HastRoot) => {
     visit(tree, "element", (node) => {
       if (
         ["h1", "h2", "h3", "h4"].includes(node.tagName) &&
@@ -38,19 +39,26 @@ function headingExtractor(
         headings.push({
           text,
           depth: parseInt(node.tagName[1]),
-          id: node.properties.id, // this is set by rehypeSlug
+          // rehype-slug (node_modules/rehype-slug/lib/index.js) always
+          // assigns a string here (`prefix + slugs.slug(...)`), so this
+          // narrows hast's broader `Properties` value type rather than
+          // guessing at one.
+          id: node.properties.id as string,
         });
       }
     });
   };
 }
 
-function getHeadingText(node: any): string {
+// In hast, a markdown link becomes an <a> element (type "element", tagName
+// "a"), not a "link" node (that's an mdast-only type) — so the anchor text is
+// skipped by matching on tagName, not on a node type that can't occur here.
+function getHeadingText(node: ElementContent): string {
   if (node.type === "text") return node.value;
-  if (node.type === "link") return ""; // Skip link text
-  // For other types, recurse into children
-  if (Array.isArray(node.children))
+  if (node.type === "element") {
+    if (node.tagName === "a") return ""; // Skip link text
     return node.children.map(getHeadingText).join("");
+  }
   return "";
 }
 
@@ -65,12 +73,11 @@ export async function renderMarkdownWithRewriters(
   } = {},
 ): Promise<{ html: string; headings: { text: string; depth: number }[] }> {
   function syncRewritePlugin(options: {
-    imageRewriter: (url: string, alt: string) => string;
-    linkRewriter: (url: string, text: string) => string;
-    headings: { text: string; depth: number; id: string }[];
+    imageRewriter?: (url: string, alt: string) => string;
+    linkRewriter?: (url: string, text: string) => string;
   }) {
-    return (tree: any) => {
-      const { imageRewriter, linkRewriter, headings } = options;
+    return (tree: MdastRoot) => {
+      const { imageRewriter, linkRewriter } = options;
 
       visit(tree, "image", (node) => {
         if (imageRewriter) node.url = imageRewriter(node.url, node.alt ?? "");
@@ -78,8 +85,8 @@ export async function renderMarkdownWithRewriters(
       visit(tree, "link", (node) => {
         if (linkRewriter) {
           const linkText = node.children
-            .filter((n: any) => n.type === "text")
-            .map((n: any) => n.value)
+            .filter((n): n is MdastText => n.type === "text")
+            .map((n) => n.value)
             .join("");
           node.url = linkRewriter(node.url, linkText);
         }
@@ -92,8 +99,7 @@ export async function renderMarkdownWithRewriters(
 
   const processed = await remark()
     .use(remarkParse)
-    // @ts-ignore
-    .use(syncRewritePlugin, { imageRewriter, linkRewriter }) // removing headings from here
+    .use(syncRewritePlugin, { imageRewriter, linkRewriter })
     .use(remarkRehype)
     .use(rehypeSlug)
     .use(headingExtractor, headings)
