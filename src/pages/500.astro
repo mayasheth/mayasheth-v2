@@ -1,74 +1,18 @@
 ---
-import BaseLayout from "@/layouts/BaseLayout.astro";
-import PawMark from "@/components/ui/PawMark.astro";
+import ErrorPage from "@/components/layout/ErrorPage.astro";
+
+const quoteLines = [
+  { text: "Ever tried. Ever failed.", class: "font-serif text-sm font-light text-content-4 tracking-[0.12em] leading-relaxed" },
+  { text: "No matter.", class: "font-header text-xs font-semibold tracking-[0.4em] uppercase text-content-4 mt-6 mb-6" },
+  { text: "Try again.", class: "font-serif text-base font-medium text-content-3 tracking-[0.06em] leading-relaxed" },
+  { text: "Fail again.", class: "font-serif text-lg font-semibold text-content-2 tracking-[0.02em] leading-relaxed mt-1" },
+  { text: "Fail better.", class: "font-serif text-2xl font-bold text-content-1 tracking-[-0.01em] leading-snug mt-1" },
+];
 ---
 
-<BaseLayout titleShort="500" gradientVariant="error">
-  <main class="relative z-10 flex min-h-[88vh] flex-col items-center justify-center px-6 text-center gap-8">
-
-    <!-- PawMark + error identifier -->
-    <div class="flex flex-col items-center gap-4">
-      <div class="paw-breathe">
-        <PawMark size="120px" />
-      </div>
-      <div>
-        <h1 class="error-code font-header text-xl font-semibold tracking-[0.25em] uppercase">
-          Error 500
-        </h1>
-        <p class="font-header text-xs font-light tracking-[0.2em] uppercase text-content-4 mt-1.5">
-          something went wrong
-        </p>
-      </div>
-    </div>
-
-    <!-- Quote card — The Pivot -->
-    <div class="glass bg-surface-0/55 border border-pale-grey/10 rounded-2xl p-8 max-w-md w-full">
-      <p class="font-serif text-sm font-light text-content-4 tracking-[0.12em] leading-relaxed">Ever tried. Ever failed.</p>
-      <p class="font-header text-xs font-semibold tracking-[0.4em] uppercase text-content-4 mt-6 mb-6">No matter.</p>
-      <p class="font-serif text-base font-medium text-content-3 tracking-[0.06em] leading-relaxed">Try again.</p>
-      <p class="font-serif text-lg font-semibold text-content-2 tracking-[0.02em] leading-relaxed mt-1">Fail again.</p>
-      <p class="font-serif text-2xl font-bold text-content-1 tracking-[-0.01em] leading-snug mt-1">Fail better.</p>
-      <p class="font-header text-xs tracking-[0.3em] uppercase text-content-4 mt-5">Samuel Beckett · Worstward Ho</p>
-    </div>
-
-    <!-- Back home -->
-    <a href="/" class="rounded-full btn-frost px-5 py-2 font-header text-sm font-semibold focus-outline-rounded">
-      take me home
-    </a>
-
-  </main>
-</BaseLayout>
-
-<style>
-  @keyframes breathe {
-    0%, 100% { transform: scale(1); }
-    50%       { transform: scale(1.07); }
-  }
-  .paw-breathe {
-    animation: breathe 3.5s ease-in-out infinite;
-  }
-
-  .error-code {
-    color: oklch(69% 0.168 216.2);
-    background: linear-gradient(
-      90deg,
-      oklch(69% 0.168 216.2) 30%,
-      oklch(97% 0.04 185)    50%,
-      oklch(69% 0.168 216.2) 70%
-    );
-    background-size: 300% 100%;
-    background-position: 0 0;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .error-code:hover {
-    animation: text-shimmer 2s ease-in-out forwards;
-  }
-
-  @keyframes text-shimmer {
-    from { background-position: 0 0; }
-    to   { background-position: 100% 0; }
-  }
-</style>
+<ErrorPage
+  code="500"
+  subtitle="something went wrong"
+  quoteLines={quoteLines}
+  attribution="Samuel Beckett · Worstward Ho"
+/>
