@@ -7,14 +7,7 @@ import {
   createHeadingHierarchy,
 } from "@/lib/helpers/toc-helpers";
 import TOCHeading from "@/components/ui/TOCHeading.astro";
-import { renderMarkdownWithRewriters } from "@/lib/markdown/markdown-render";
-import {
-  imageRewriterFromMap,
-  getBaseSlugMap,
-  linkRewriterFromBaseSlugMap,
-  walkImages,
-  buildImageMap,
-} from "@/lib/markdown/markdown-rewriters";
+import { renderVaultMarkdown } from "@/lib/markdown/markdown-render";
 import type { NotebookEntryProps } from "@/lib/types";
 
 export const prerender = true;
@@ -32,18 +25,7 @@ type Props = NotebookEntryProps;
 const { notebookEntry } = Astro.props;
 
 const markdown = notebookEntry.body ?? "";
-
-const imagePaths = await walkImages("public");
-const imageMap = buildImageMap(imagePaths);
-const slugMap = await getBaseSlugMap();
-
-const imageRewriter = imageRewriterFromMap(imageMap);
-const linkRewriter = linkRewriterFromBaseSlugMap(slugMap);
-
-const { html, headings } = await renderMarkdownWithRewriters(markdown, {
-  imageRewriter,
-  linkRewriter,
-});
+const { html, headings } = await renderVaultMarkdown(markdown);
 
 const toc: HeadingHierarchy[] = createHeadingHierarchy(headings);
 const hasToC = toc.length > 1;
@@ -80,40 +62,10 @@ const hasToC = toc.length > 1;
   </section>
 </BaseLayout>
 
+<script type="module" src="/scripts/toc-highlight.js"></script>
+
 <script>
-  const headingIds = [
-    ...document.querySelectorAll(
-      ".markdown-content h2, .markdown-content h3, .markdown-content h4",
-    ),
-  ].map((e) => e.id);
-
-  function highlightClosestHeading() {
-    // Find which heading is nearest to the top of viewport
-    let closest;
-    let min = Infinity;
-    headingIds.forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) {
-        const rect = el.getBoundingClientRect();
-        if (rect.top >= 0 && rect.top < min) {
-          min = rect.top;
-          closest = id;
-        }
-      }
-    });
-    document
-      .querySelectorAll(".toc-active")
-      .forEach((el) => el.classList.remove("toc-active"));
-    if (closest) {
-      const activeLink = document.getElementById(`toc-link-${closest}`);
-      if (activeLink) {
-        activeLink.classList.add("toc-active");
-      }
-    }
-  }
-  window.addEventListener("scroll", highlightClosestHeading, { passive: true });
-  window.addEventListener("DOMContentLoaded", highlightClosestHeading);
-
+  // --- Notebook-only: resize markdown images whose alt text is a bare number ---
   window.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".markdown-content img[alt]").forEach((img) => {
       const alt = img.getAttribute("alt");

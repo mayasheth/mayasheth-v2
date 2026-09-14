@@ -1,0 +1,92 @@
+---
+// Shared shell for the 404 and 500 error pages: PawMark + error code, a quote
+// card, and a "take me home" link. Only the code/subtitle/quote/attribution
+// text differ between the two pages.
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PawMark from "@/components/ui/PawMark.astro";
+
+export interface QuoteLine {
+  text: string;
+  class: string;
+}
+
+export interface Props {
+  code: string;
+  subtitle: string;
+  quoteLines: QuoteLine[];
+  attribution: string;
+}
+
+const { code, subtitle, quoteLines, attribution } = Astro.props;
+---
+
+<BaseLayout titleShort={code} gradientVariant="error">
+  <main class="relative z-10 flex min-h-[88vh] flex-col items-center justify-center px-6 text-center gap-8">
+
+    <!-- PawMark + error identifier -->
+    <div class="flex flex-col items-center gap-4">
+      <div class="paw-breathe">
+        <PawMark size="120px" />
+      </div>
+      <div>
+        <h1 class="error-code font-header text-xl font-semibold tracking-[0.25em] uppercase">
+          Error {code}
+        </h1>
+        <p class="font-header text-xs font-light tracking-[0.2em] uppercase text-content-4 mt-1.5">
+          {subtitle}
+        </p>
+      </div>
+    </div>
+
+    <!-- Quote card -->
+    <div class="glass bg-surface-0/55 border border-pale-grey/10 rounded-2xl p-8 max-w-md w-full">
+      {quoteLines.map((line) => (
+        <p class={line.class}>{line.text}</p>
+      ))}
+      <p class="font-header text-xs tracking-[0.3em] uppercase text-content-4 mt-5">{attribution}</p>
+    </div>
+
+    <!-- Back home -->
+    <a href="/" class="rounded-full btn-frost px-5 py-2 font-header text-sm font-semibold focus-outline-rounded">
+      take me home
+    </a>
+
+  </main>
+</BaseLayout>
+
+<style>
+  @keyframes breathe {
+    0%, 100% { transform: scale(1); }
+    50%       { transform: scale(1.07); }
+  }
+  .paw-breathe {
+    animation: breathe 3.5s ease-in-out infinite;
+  }
+
+  /* Shimmer: animates background-position so a near-white teal highlight
+     sweeps through the text once on hover. Uses hardcoded oklch values
+     because var() tokens fail to resolve inside background-clip:text gradients. */
+  .error-code {
+    color: oklch(69% 0.168 216.2); /* content-3 fallback */
+    background: linear-gradient(
+      90deg,
+      oklch(69% 0.168 216.2) 30%,
+      oklch(97% 0.04 185)    50%,
+      oklch(69% 0.168 216.2) 70%
+    );
+    background-size: 300% 100%;
+    background-position: 0 0;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .error-code:hover {
+    animation: text-shimmer 2s ease-in-out forwards;
+  }
+
+  @keyframes text-shimmer {
+    from { background-position: 0 0; }
+    to   { background-position: 100% 0; }
+  }
+</style>

@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import Tag from "@/components/ui/Tag.astro";
+import { formatQuoteTag } from "@/lib/helpers/quote-helpers";
 
 interface Props {
   id: string;
@@ -8,20 +9,6 @@ interface Props {
 }
 
 const { id, include_extra } = Astro.props;
-
-function formatTag(tag: string) {
-  if (!tag) return "";
-  const cleaned = tag.replace(/\/$/, "");
-  const parts = cleaned.split("/");
-  const lastPart = parts[parts.length - 1];
-
-  let formatted = lastPart;
-  if (lastPart == "quote-inspiration") {
-    formatted = "to illustrate!";
-  }
-
-  return formatted || tag;
-}
 
 function getQuoteClass(text: string) {
   const length = text.length;
@@ -68,7 +55,7 @@ if (!quote) {
     include_extra && quote.tags && quote.tags.length && (
       <div class="mt-4 flex flex-wrap justify-center gap-2">
         {quote.tags.map((tag) => (
-          <Tag>{formatTag(tag)}</Tag>
+          <Tag>{formatQuoteTag(tag)}</Tag>
         ))}
       </div>
     )
