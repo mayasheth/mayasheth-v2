@@ -1,5 +1,7 @@
 // src/data/navData.ts
-export const NAV_ITEMS = [
+import type { MenuItem } from "@/lib/types";
+
+export const NAV_ITEMS: MenuItem[] = [
   {
     label: "collections",
     icon: "mdi--chevron-down",

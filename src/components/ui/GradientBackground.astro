@@ -1,6 +1,8 @@
 ---
+import type { GradientVariant } from "@/lib/types";
+
 interface Props {
-  variant?: "full" | "subtle" | "error";
+  variant?: GradientVariant;
 }
 const { variant = "full" } = Astro.props;
 ---

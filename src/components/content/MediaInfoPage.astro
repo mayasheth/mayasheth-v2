@@ -1,7 +1,6 @@
 ---
 // MediaInfoPage.astro
 
-import type { CollectionEntry } from "astro:content";
 import { Icon } from "astro-icon/components";
 import {
   isImage,
@@ -10,10 +9,9 @@ import {
   getFormatIcon,
 } from "@/lib/helpers/media-info-helpers";
 import Tag from "@/components/ui/Tag.astro";
+import type { MediaEntryProps } from "@/lib/types";
 
-interface Props {
-  mediaEntry: CollectionEntry<"media">;
-}
+export type Props = MediaEntryProps;
 
 const { mediaEntry } = Astro.props;
 
