@@ -5,6 +5,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import MasonryGrid from "@/components/ui/MasonryGrid.astro";
 import { getCollection } from "astro:content";
 import type { ImageMetadata } from "astro";
+import { formatTag } from "@/lib/helpers/tag-format";
 
 const titleShort = "art";
 const titleFull = "artwork";
@@ -18,11 +19,6 @@ artworkItems.sort((a, b) =>
 const allTags = [...new Set(artworkItems.flatMap((a) => a.art_tags ?? []))]
   .map(formatTag)
   .sort();
-
-function formatTag(tag: string): string {
-  if (!tag) return "";
-  return tag.replace(/-/g, " ");
-}
 
 const imageImports = import.meta.glob<{ default: ImageMetadata }>(
   "../../content/300-collections/portfolio/images/*",
@@ -144,16 +140,12 @@ const artworkItemsWithImports = await Promise.all(
   </div>
 
   <script>
+    import { formatTag } from "@/lib/helpers/tag-format";
+
     // Filter logic (same as before)
     const buttons = document.querySelectorAll(".filter-button");
     const items = document.querySelectorAll("masonry-item");
     let activeFilter: string | null = null;
-
-    function formatTag(tag: string): string {
-      if (!tag) return "";
-      const formatted = tag.replace(/-/g, " ");
-      return formatted;
-    }
 
     buttons.forEach((button) => {
       button.addEventListener("click", () => {
