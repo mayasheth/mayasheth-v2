@@ -20,6 +20,14 @@ export type NotebookEntryProps = {
 };
 
 /**
+ * Shared prop shape for any component/page that renders a single "concepts"
+ * collection entry (ConceptInfo and the concepts/[id] page).
+ */
+export type ConceptEntryProps = {
+  conceptEntry: CollectionEntry<"concepts">;
+};
+
+/**
  * Allowed shader gradient background variants. Shared between
  * GradientBackground (which renders the shader) and BaseLayout (which passes
  * the variant through), so the two never drift out of sync.

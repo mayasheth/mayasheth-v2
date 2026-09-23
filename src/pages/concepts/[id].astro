@@ -1,0 +1,65 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import ConceptInfo from "@/components/content/ConceptInfo.astro";
+import {
+  type HeadingHierarchy,
+  createHeadingHierarchy,
+} from "@/lib/helpers/toc-helpers";
+import TOCHeading from "@/components/ui/TOCHeading.astro";
+import { renderConceptMarkdown } from "@/lib/markdown/markdown-render";
+import type { ConceptEntryProps } from "@/lib/types";
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const concepts = await getCollection("concepts");
+
+  return concepts.map((conceptEntry) => ({
+    params: { id: conceptEntry.id },
+    props: { conceptEntry },
+  }));
+}
+
+type Props = ConceptEntryProps;
+const { conceptEntry } = Astro.props;
+
+const markdown = conceptEntry.body ?? "";
+const { html, headings } = await renderConceptMarkdown(markdown);
+
+const toc: HeadingHierarchy[] = createHeadingHierarchy(headings);
+const hasToC = toc.length > 1;
+---
+
+<BaseLayout titleShort={conceptEntry.data.title.toLowerCase()}>
+  <section
+    data-pagefind-title={conceptEntry.data.title}
+    class={`md:grid md:grid-cols-4 ${hasToC ? "mx-auto max-w-7xl" : ""}`}
+  >
+    {
+      hasToC && (
+        <div class="relative mx-auto px-4 xl:pt-10 2xl:px-0">
+          <nav class="md:sticky md:top-20">
+            <ul>
+              {toc.map((heading) => (
+                <TOCHeading heading={heading} />
+              ))}
+            </ul>
+          </nav>
+        </div>
+      )
+    }
+
+    <article
+      class={`mx-auto py-10 items-center ${hasToC ? "md:col-span-3" : "md:col-span-4 max-w-3/4"}`}
+    >
+      <div class=`justify-center mb-10 flex ${hasToC ? "w-full" : ""}`>
+        <ConceptInfo conceptEntry={conceptEntry} />
+      </div>
+
+      <div class="markdown-content px-4 md:px-6" set:html={html} />
+    </article>
+  </section>
+</BaseLayout>
+
+<script type="module" src="/scripts/toc-highlight.js"></script>

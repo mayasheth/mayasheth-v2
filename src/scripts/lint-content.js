@@ -20,6 +20,7 @@ import { isHidden, isMd, FILE_REFERENCE_FIELDS } from "./shared/file-helpers.js"
 import {
   artworkSchema,
   atwSchema,
+  conceptSchema,
   gratitudeSchema,
   mediaSchema,
   notebookSchema,
@@ -90,6 +91,7 @@ const COLLECTION_MAPPINGS = [
   },
   { pattern: "media", schema: mediaSchema, name: "media", depth: "flat" },
   { pattern: "journal", schema: notebookSchema, name: "notebook", depth: "flat" },
+  { pattern: "concepts", schema: conceptSchema, name: "concepts", depth: "flat" },
   {
     pattern: "gratitudes",
     schema: gratitudeSchema,

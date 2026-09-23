@@ -1,0 +1,67 @@
+---
+import Tag from "@/components/ui/Tag.astro";
+import { formatDate } from "@/lib/helpers/media-info-helpers";
+import type { ConceptEntryProps } from "@/lib/types";
+
+export type Props = ConceptEntryProps;
+
+const { conceptEntry } = Astro.props;
+
+function removePrefix(tag: string, prefix: string): string {
+  if (!tag) return "";
+  if (tag.startsWith(prefix + "/")) {
+    return tag.substring(prefix.length + 1);
+  }
+  return tag;
+}
+
+// Concept notes only ever carry concept/* tags (per 000-meta/properties-and-tags.md) —
+// no type/content split needed the way notebook entries have.
+const tags = [...conceptEntry.data.tags].map((tag) => removePrefix(tag, "concept"));
+---
+
+<section
+  class={`concept-info rounded-xl glass bg-surface-0/55 border border-pale-grey/10 px-6 py-4 mx-auto min-w-xs
+            flex flex-col items-stretch max-w-3/4 md:max-w-2/3`}
+>
+  <span
+    data-pagefind-weight="10"
+    class="font-header text-content-1 text-center text-xl font-semibold tracking-wide lowercase"
+  >
+    {conceptEntry.data.title}
+  </span>
+
+  {
+    conceptEntry.data.description && (
+      <span class="font-base text-content-3 text-center text-sm mt-1">
+        {conceptEntry.data.description}
+      </span>
+    )
+  }
+
+  {
+    tags.length > 0 && (
+      <div class="mt-4 flex flex-wrap items-center justify-center gap-y-2 text-center">
+        <span class="font-header text-content-4 py-1 text-sm font-semibold">
+          topics
+        </span>
+        {tags.map((t) => (
+          <Tag class="mx-1">{t}</Tag>
+        ))}
+      </div>
+    )
+  }
+
+  <div class="mt-4 flex flex-col text-center">
+    <span class="font-header text-content-4 text-sm font-semibold">
+      created <span class="text-content-3 font-mono text-sm font-semibold"
+        >{formatDate(conceptEntry.data.created)}</span
+      >
+    </span>
+    <span class="font-header text-content-4 text-sm font-semibold">
+      modified <span class="text-content-3 font-mono text-sm font-semibold"
+        >{formatDate(conceptEntry.data.last_modified)}</span
+      >
+    </span>
+  </div>
+</section>

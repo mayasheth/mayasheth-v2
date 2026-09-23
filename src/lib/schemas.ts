@@ -85,6 +85,11 @@ export const notebookSchema = baseItemSchema.extend({
   musings_edition: z.coerce.number().nullish(),
 });
 
+export const conceptSchema = baseItemSchema.extend({
+  title: z.coerce.string(),
+  description: z.coerce.string().nullish(),
+});
+
 const ratingSchema = z
   .union([z.string(), z.array(z.string())])
   .transform((val) => (Array.isArray(val) ? val[0] : val))

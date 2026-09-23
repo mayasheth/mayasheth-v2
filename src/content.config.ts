@@ -3,6 +3,7 @@ import { glob, file } from "astro/loaders";
 import {
   artworkSchema,
   atwSchema,
+  conceptSchema,
   gratitudeSchema,
   mediaSchema,
   notebookSchema,
@@ -32,6 +33,14 @@ const design = defineCollection({
     base: "./src/content/300-collections/portfolio/design",
   }),
   schema: artworkSchema,
+});
+
+const concepts = defineCollection({
+  loader: glob({
+    pattern: "*.md",
+    base: "./src/content/300-collections/concepts",
+  }),
+  schema: conceptSchema,
 });
 
 const gratitudes = defineCollection({
@@ -71,6 +80,7 @@ const research = defineCollection({
 export const collections = {
   artwork,
   atw,
+  concepts,
   design,
   gratitudes,
   media,

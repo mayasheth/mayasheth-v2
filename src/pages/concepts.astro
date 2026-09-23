@@ -1,0 +1,19 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+
+// Placeholder index until the tree view is built.
+const concepts = (await getCollection("concepts")).sort((a, b) =>
+  a.data.title.localeCompare(b.data.title),
+);
+---
+
+<BaseLayout titleShort="concepts" titleFull="concepts">
+  <section class="w-full max-w-3xl mx-auto px-4">
+    <ul>
+      {concepts.map((c) => (
+        <li><a href={`/concepts/${c.id}`}>{c.data.title.toLowerCase()}</a></li>
+      ))}
+    </ul>
+  </section>
+</BaseLayout>

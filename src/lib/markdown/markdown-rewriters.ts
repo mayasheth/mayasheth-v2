@@ -53,7 +53,13 @@ function getBaseSlug(path: string): string {
 }
 
 // Build map: { baseFileName: fullSlug }
-const COLLECTIONS: CollectionKey[] = ["media", "notebook", "atw", "quotes"];
+const COLLECTIONS: CollectionKey[] = [
+  "media",
+  "notebook",
+  "atw",
+  "quotes",
+  "concepts",
+];
 let cachedSlugMap: Record<string, string> | null = null;
 
 export async function getBaseSlugMap(
