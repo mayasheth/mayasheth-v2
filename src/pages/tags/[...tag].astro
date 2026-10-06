@@ -1,0 +1,103 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { formatDate } from "@/lib/helpers/media-info-helpers";
+import {
+  conceptTagsOf,
+  displayTitle,
+  loadConceptTree,
+  placesOf,
+  tagLabels,
+  taggedNotes,
+} from "@/lib/helpers/concept-tree";
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const [concepts, media, notebook] = await Promise.all([
+    getCollection("concepts"),
+    getCollection("media"),
+    getCollection("notebook"),
+  ]);
+  const tree = loadConceptTree(concepts);
+  const labels = tagLabels(tree);
+  const notes = taggedNotes(media, notebook);
+  const places = { value: placesOf(tree, "value"), subject: placesOf(tree, "subject") };
+  const tags = new Set([...notes.keys(), ...concepts.flatMap((c) => conceptTagsOf(c.data.tags)), ...labels.keys()]);
+  return [...tags].sort().map((tag) => ({
+    params: { tag },
+    props: {
+      tag,
+      label: labels.get(tag) ?? tag.split("/").at(-1)!.replace(/-/g, " "),
+      rows: [
+        { label: "value", path: places.value.get(`tag:${tag}`) },
+        { label: "subject", path: places.subject.get(`tag:${tag}`) },
+      ],
+      pages: concepts
+        .filter((c) => conceptTagsOf(c.data.tags).includes(tag))
+        .map((c) => ({ id: c.id, title: displayTitle(c.data.title) }))
+        .sort((a, b) => a.title.localeCompare(b.title)),
+      notes: notes.get(tag) ?? [],
+    },
+  }));
+}
+
+const { tag, label, rows, pages, notes } = Astro.props;
+const chip = "ctrl-frost inline-block font-base rounded-full px-2 py-1 text-sm no-underline";
+---
+
+<BaseLayout titleShort={label}>
+  <div class="w-full max-w-3xl mx-auto px-4 py-10 flex flex-col gap-8 lowercase">
+    <section class="glass bg-surface-0/55 border border-pale-grey/10 rounded-xl px-5 py-8 flex flex-col items-center gap-4">
+      <div class="flex flex-col items-center gap-1 text-center">
+        <span class="font-mono text-content-3 text-base">#concept/{tag}</span>
+        <h2 class="font-header text-content-1 text-xl font-semibold tracking-wide m-0">{label}</h2>
+      </div>
+      {
+        rows.map(({ label: k, path }) =>
+          path && (
+            <div class="flex flex-wrap items-baseline justify-center gap-x-2 text-center">
+              <span class="font-header text-content-4 text-sm font-semibold">{k}</span>
+              <span class="font-base font-light text-content-2 text-base">{path.map((step, i) => (<>{i > 0 && <span class="font-bold text-ocean-300 mx-1">›</span>}{step.label}</>))}</span>
+            </div>
+          ),
+        )
+      }
+      {
+        pages.length > 0 && (
+          <div class="flex flex-wrap items-center justify-center gap-1.5">
+            <span class="font-header text-content-4 text-sm font-semibold mr-1">related</span>
+            {pages.map((p) => <a class={chip} href={`/concepts/${p.id}`}>{p.title}</a>)}
+          </div>
+        )
+      }
+    </section>
+
+    {
+      notes.length > 0 ? (
+        <ul class="tag-notes list-none m-0 p-0">
+          {notes.map((n) => (
+            <li>
+              <a href={n.href} class="no-underline">
+                <span class:list={["t hover-stable-fw", { italic: n.kind === "media" }]} data-text={n.title}>{n.title}</span>
+                {n.author && <span class="b">{n.author}</span>}
+              </a>
+              <span class="r">{formatDate(n.date)}</span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="text-center text-content-3 text-sm">no published notes carry this tag yet.</p>
+      )
+    }
+  </div>
+
+  <style>
+    .tag-notes li { display: flex; align-items: baseline; gap: 1rem; padding-block: 0.6rem; border-top: 1px solid oklch(69% 0.168 216.2 / 0.28); }
+    .tag-notes a { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+    .tag-notes .t { font-weight: var(--font-weight-light); color: var(--color-content-0); }
+    .tag-notes a:hover .t { font-weight: var(--font-weight-semibold); }
+    .tag-notes .b { font-size: 0.875rem; color: var(--color-content-3); }
+    .tag-notes .r { flex: none; font-family: var(--font-mono); font-size: 0.875rem; color: var(--color-content-3); }
+  </style>
+</BaseLayout>

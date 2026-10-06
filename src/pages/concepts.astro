@@ -1,19 +1,279 @@
 ---
 import { getCollection } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import ConceptTreeNodes from "@/components/content/ConceptTreeNodes.astro";
+import {
+  SORTS,
+  type SortKey,
+  latestEntries,
+  loadConceptTree,
+  pageStats,
+  tagLabels,
+  taggedNotes,
+} from "@/lib/helpers/concept-tree";
 
-// Placeholder index until the tree view is built.
-const concepts = (await getCollection("concepts")).sort((a, b) =>
-  a.data.title.localeCompare(b.data.title),
-);
+const [concepts, media, notebook] = await Promise.all([
+  getCollection("concepts"),
+  getCollection("media"),
+  getCollection("notebook"),
+]);
+
+const tree = loadConceptTree(concepts);
+const titles = new Map(concepts.map((c) => [c.id, c.data.title]));
+const stats = pageStats(concepts);
+const notesByTag = taggedNotes(media, notebook);
+const tagCounts = new Map([...notesByTag].map(([t, list]) => [t, list.length]));
+const latest = latestEntries(concepts, media, tagLabels(tree));
+const sorts = Object.keys(SORTS) as SortKey[];
+
+const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+const when = (d: string) =>
+  d.length > 7 ? `${MONTHS[+d.slice(5, 7) - 1]} ${+d.slice(8)}` : `${MONTHS[+d.slice(5, 7) - 1]} ${d.slice(0, 4)}`;
+const ticks = latest.map((e) => ({ ...e, when: when(e.date) }));
 ---
 
 <BaseLayout titleShort="concepts" titleFull="concepts">
-  <section class="w-full max-w-3xl mx-auto px-4">
-    <ul>
-      {concepts.map((c) => (
-        <li><a href={`/concepts/${c.id}`}>{c.data.title.toLowerCase()}</a></li>
-      ))}
-    </ul>
-  </section>
+  <div class="concepts-page w-full max-w-7xl mx-auto px-4 sm:px-8 pb-16">
+    <p class="intro font-base text-content-1 text-center mx-auto">
+      (collected ideas & notes about everything & anything, sorted two ways)
+    </p>
+
+    <div class="flex items-center justify-between flex-wrap gap-2 py-3 border-b border-surface-4 mb-6">
+      <div class="flex items-center gap-2 flex-wrap" role="group" aria-label="sort">
+        <span class="font-base text-sm font-semibold text-content-0">sort</span>
+        {
+          sorts.map((s, i) => (
+            <button
+              type="button"
+              class:list={["ctrl-glass font-base text-sm font-light px-3 py-1 rounded-full", { "ctrl-glass-active": i === 0 }]}
+              data-sort={s}
+              aria-pressed={i === 0 ? "true" : "false"}
+            >
+              {SORTS[s].toLowerCase()}
+            </button>
+          ))
+        }
+      </div>
+      {
+        ticks.length > 0 && (
+          <div class="ticker" id="ticker" aria-label="latest additions">
+            <span class="font-base text-sm font-semibold text-content-0">latest</span>
+            <a class="tick" id="tick" href={ticks[0].href}>
+              <span class="when">{ticks[0].when}</span>
+              <span class:list={["t", { italic: ticks[0].italic }]}>{ticks[0].text}</span>
+              <span class="where">
+                <span class:list={["d", { tag: ticks[0].whereIsTag }]} />
+                <span class="w">{ticks[0].where}</span>
+              </span>
+            </a>
+            <span class="flex">
+              <button type="button" class="step" data-step="-1" aria-label="previous">‹</button>
+              <button type="button" class="step" data-step="1" aria-label="next">›</button>
+            </span>
+          </div>
+        )
+      }
+    </div>
+
+    {
+      sorts.map((s, i) => (
+        <div class="concept-tree" data-tree={s} hidden={i !== 0} style={`--n: ${tree[s].length}`}>
+          {tree[s].map((t) => (
+            <section class="fac" id={t.anchor} aria-label={t.label}>
+              <div class="fac-head">
+                <span class="v">{t.label.toLowerCase()}</span>
+                {t.subtitle && <span class="s">{t.subtitle}</span>}
+              </div>
+              {t.links.length > 0 && (
+                <nav class="flex flex-wrap gap-1.5" aria-label="elsewhere on the site">
+                  {t.links.map((l) => (
+                    <a class="ctrl-frost font-base text-xs font-light rounded-full px-2.5 py-0.5 no-underline" href={l.href}>
+                      {l.label}
+                      <span class="text-content-4 ml-0.5" aria-hidden="true">↗</span>
+                    </a>
+                  ))}
+                </nav>
+              )}
+              <div class="body">
+                <div class="br" aria-hidden="true">
+                  <svg><path /></svg>
+                </div>
+                <ConceptTreeNodes nodes={t.kids} titles={titles} stats={stats} tagCounts={tagCounts} />
+              </div>
+            </section>
+          ))}
+        </div>
+      ))
+    }
+  </div>
+
+  <script id="concept-ticks" type="application/json" set:html={JSON.stringify(ticks)} />
+
+  <style is:global>
+    .concepts-page .intro { max-width: 58ch; text-wrap: pretty; padding-bottom: 0.75rem; }
+
+    .concepts-page .ticker { display: flex; align-items: center; gap: 0.6rem; min-width: 0; flex: 1 1 18rem; justify-content: flex-end; }
+    .concepts-page .tick { min-width: 0; max-width: 34rem; display: flex; align-items: baseline; gap: 0.5rem; text-decoration: none; text-transform: lowercase; font-size: 0.8rem; color: var(--color-content-1); padding: 0.2rem 0.5rem; border-radius: 999px; transition: opacity 0.4s ease, background-color 0.25s ease; }
+    .concepts-page .tick:hover, .concepts-page .tick:focus-visible { background: oklch(38% 0.135 246.4 / 0.4); }
+    .concepts-page .tick.fading { opacity: 0; }
+    .concepts-page .tick .when { flex: none; font-family: var(--font-mono); font-size: 0.7rem; color: var(--color-content-4); }
+    .concepts-page .tick .t { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .concepts-page .tick .where { flex: none; color: var(--color-content-3); white-space: nowrap; }
+    .concepts-page .tick .where .d { display: inline-block; width: 5px; height: 5px; margin-right: 0.35rem; border-radius: 50%; background: var(--color-content-3); vertical-align: 0.12em; }
+    .concepts-page .tick .where .d.tag { background: none; border: 1.1px solid var(--color-content-3); }
+    .concepts-page .tick:hover .where .d { background: var(--color-accent-teal); border-color: var(--color-accent-teal); }
+    .concepts-page .step { width: 1.4rem; height: 1.4rem; display: grid; place-items: center; border-radius: 50%; color: var(--color-content-3); font-size: 0.95rem; cursor: pointer; }
+    .concepts-page .step:hover { color: var(--color-content-0); background: oklch(38% 0.135 246.4 / 0.4); }
+    @media (max-width: 699px) {
+      .concepts-page .ticker { justify-content: flex-start; flex-basis: 100%; }
+      .concepts-page .tick .where { display: none; }
+    }
+
+    .concept-tree { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2.25rem; align-items: start; }
+    @media (min-width: 1100px) {
+      .concept-tree { grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 0; }
+      .concept-tree .fac { padding-inline: 1.1rem; }
+      .concept-tree .fac:first-child { padding-left: 0; }
+      .concept-tree .fac:last-child { padding-right: 0; }
+      .concept-tree .fac + .fac { border-left: 1px dotted oklch(69% 0.168 216.2 / 0.28); }
+    }
+    .concept-tree .fac { display: flex; flex-direction: column; gap: 0.7rem; min-width: 0; scroll-margin-top: 5rem; }
+    .concept-tree .fac-head { display: flex; flex-direction: column; gap: 0.1rem; }
+    .concept-tree .fac-head .v { font-family: var(--font-serif); font-style: italic; font-size: 1.55rem; line-height: 1.1; color: var(--color-content-0); }
+    .concept-tree .fac-head .s { font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-content-3); }
+
+    .concept-tree .body, .concept-tree .grp { display: grid; grid-template-columns: 14px minmax(0, 1fr); }
+    .concept-tree .br { position: relative; align-self: stretch; }
+    .concept-tree .br svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+    .concept-tree .br path { fill: none; stroke: oklch(69% 0.12 216.2 / 0.5); stroke-width: 1.3; stroke-linecap: round; }
+    .concept-tree .kids { display: flex; flex-direction: column; min-width: 0; }
+    .concept-tree .body > .kids { gap: 0.35rem; }
+    .concept-tree .grp { scroll-margin-top: 5rem; }
+    .concept-tree .grp:target > .lab .en { color: var(--color-accent-teal); }
+    .concept-tree .lab { grid-column: 1 / -1; padding: 0.35rem 0 0.1rem; }
+    .concept-tree .lab .en { font-family: var(--font-header); font-weight: var(--font-weight-semibold); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-ocean-300); }
+    .concept-tree .lab .note-line { display: block; font-size: 0.74rem; color: var(--color-content-3); max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.25s ease, opacity 0.25s ease; }
+    .concept-tree .grp:hover > .lab .note-line, .concept-tree .grp:focus-within > .lab .note-line { max-height: 3em; opacity: 1; }
+    .concept-tree .fold { cursor: pointer; display: inline-flex; align-items: baseline; gap: 0.45rem; border-radius: 4px; }
+    .concept-tree .fold .meta { font-family: var(--font-mono); font-size: 0.72rem; color: var(--color-content-4); }
+    .concept-tree .fold .chev { display: inline-block; transition: transform 0.2s ease; }
+    .concept-tree .grp:not(.collapsed) > .lab .chev { transform: rotate(90deg); }
+    .concept-tree .grp.collapsed > .br, .concept-tree .grp.collapsed > .kids { display: none; }
+
+    .concept-tree .leaf { display: flex; align-items: baseline; gap: 0.5rem; padding: 0.14rem 0.35rem; margin-left: -0.35rem; border-radius: 6px; font-size: 0.9rem; font-weight: var(--font-weight-light); color: var(--color-content-1); text-decoration: none; line-height: 1.3; transition: background-color 0.25s ease, color 0.25s ease; }
+    .concept-tree .leaf .d { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--color-content-3); transform: translateY(-1px); transition: background-color 0.25s ease; }
+    .concept-tree .leaf.tag { color: var(--color-content-2); }
+    .concept-tree .leaf.tag .d { background: none; border: 1.3px solid var(--color-content-3); }
+    .concept-tree .leaf.also { font-style: italic; color: var(--color-content-3); }
+    .concept-tree .leaf.also .d { background: none; border: 1.2px dashed var(--color-content-3); }
+    .concept-tree .leaf .m { margin-left: auto; font-family: var(--font-mono); font-size: 0.72rem; color: var(--color-content-4); white-space: nowrap; }
+    .concept-tree .leaf:hover, .concept-tree .leaf:focus-visible { background: oklch(38% 0.135 246.4 / 0.45); color: var(--color-content-0); }
+    .concept-tree .leaf:hover .n, .concept-tree .leaf:focus-visible .n { font-weight: var(--font-weight-semibold); }
+    .concept-tree .leaf:hover .d, .concept-tree .leaf:focus-visible .d { background: var(--color-accent-teal); border-color: var(--color-accent-teal); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .concepts-page * { transition: none !important; }
+    }
+  </style>
 </BaseLayout>
+
+<script>
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Diderot-style braces, redrawn to fit each group's height.
+  function brace(w: number, h: number) {
+    const m = h / 2, x = w * 0.55, r = Math.min(7, h / 5);
+    return `M${w},0.5 Q${x},0.5 ${x},${r} V${m - r} Q${x},${m} 1,${m} Q${x},${m} ${x},${m + r} V${h - r} Q${x},${h - 0.5} ${w},${h - 0.5}`;
+  }
+  const ro = new ResizeObserver((entries) => entries.forEach((e) => {
+    const { width, height } = e.contentRect;
+    if (height > 0) e.target.querySelector("path")?.setAttribute("d", brace(width, height));
+  }));
+  document.querySelectorAll(".concept-tree .br").forEach((b) => ro.observe(b));
+
+  document.querySelectorAll<HTMLElement>(".concept-tree").forEach((t) => t.addEventListener("click", (e) => {
+    const fold = (e.target as HTMLElement).closest<HTMLButtonElement>(".fold");
+    if (!fold) return;
+    const open = !fold.closest(".grp")!.classList.toggle("collapsed");
+    fold.setAttribute("aria-expanded", String(open));
+  }));
+
+  // Sort switch: pages glide from their spot in one tree to their spot in the other (FLIP).
+  const trees: Record<string, HTMLElement> = Object.fromEntries(
+    [...document.querySelectorAll<HTMLElement>(".concept-tree")].map((t) => [t.dataset.tree!, t]),
+  );
+  const buttons = document.querySelectorAll<HTMLButtonElement>("[data-sort]");
+  function setSort(sort: string, animate: boolean) {
+    const current = Object.values(trees).find((t) => !t.hidden);
+    const next = trees[sort];
+    if (!next || next === current) return;
+    const before = new Map<string, DOMRect>();
+    if (animate && current) {
+      current.querySelectorAll<HTMLElement>(".leaf[data-key]").forEach((l) => before.set(l.dataset.key!, l.getBoundingClientRect()));
+    }
+    Object.values(trees).forEach((t) => (t.hidden = t !== next));
+    buttons.forEach((b) => {
+      const on = b.dataset.sort === sort;
+      b.classList.toggle("ctrl-glass-active", on);
+      b.setAttribute("aria-pressed", String(on));
+    });
+    if (animate) {
+      const url = new URL(location.href);
+      url.searchParams.set("sort", sort);
+      url.hash = "";
+      history.replaceState(null, "", url);
+    }
+    if (!animate || reduced) return;
+    next.querySelectorAll<HTMLElement>(".leaf[data-key]").forEach((l) => {
+      const a = before.get(l.dataset.key!);
+      if (!a) return;
+      const b = l.getBoundingClientRect();
+      l.animate(
+        [{ transform: `translate(${a.left - b.left}px, ${a.top - b.top}px)`, opacity: 0.6 }, { transform: "none", opacity: 1 }],
+        { duration: 650, easing: "cubic-bezier(.3,.1,.2,1)", delay: Math.min(250, Math.abs(a.top - b.top) * 0.15) },
+      );
+    });
+  }
+  buttons.forEach((b) => b.addEventListener("click", () => setSort(b.dataset.sort!, true)));
+
+  // Path chips on concept pages link here as /concepts?sort=subject#anchor.
+  const requested = new URLSearchParams(location.search).get("sort");
+  if (requested) setSort(requested, false);
+  if (location.hash) {
+    const target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    target?.classList.remove("collapsed");
+    target?.querySelector(".fold")?.setAttribute("aria-expanded", "true");
+    target?.scrollIntoView({ block: "start" });
+  }
+
+  // Latest: rotates through the newest entries; pauses on hover or focus, never auto-rotates with reduced motion.
+  type Tick = { when: string; text: string; italic: boolean; href: string; where: string; whereIsTag: boolean };
+  const ticks: Tick[] = JSON.parse(document.getElementById("concept-ticks")?.textContent ?? "[]");
+  const ticker = document.getElementById("ticker");
+  const tick = document.getElementById("tick") as HTMLAnchorElement | null;
+  if (ticker && tick && ticks.length > 1) {
+    let at = 0;
+    let paused = false;
+    const show = (i: number) => {
+      at = (i + ticks.length) % ticks.length;
+      const e = ticks[at];
+      const paint = () => {
+        tick.href = e.href;
+        tick.querySelector(".when")!.textContent = e.when;
+        const t = tick.querySelector(".t")!;
+        t.textContent = e.text;
+        t.classList.toggle("italic", e.italic);
+        tick.querySelector(".w")!.textContent = e.where;
+        tick.querySelector(".where .d")!.classList.toggle("tag", e.whereIsTag);
+        tick.classList.remove("fading");
+      };
+      if (reduced) return paint();
+      tick.classList.add("fading");
+      setTimeout(paint, 400);
+    };
+    ticker.querySelectorAll<HTMLButtonElement>(".step").forEach((b) => b.addEventListener("click", () => show(at + Number(b.dataset.step))));
+    ["mouseenter", "focusin"].forEach((ev) => ticker.addEventListener(ev, () => (paused = true)));
+    ["mouseleave", "focusout"].forEach((ev) => ticker.addEventListener(ev, () => (paused = false)));
+    if (!reduced) setInterval(() => { if (!paused && !document.hidden) show(at + 1); }, 5000);
+  }
+</script>

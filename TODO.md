@@ -34,6 +34,16 @@
 
 ## Ideas
 - [ ] Page for concepts and tags (manually curate which to include?)
+  - [ ] Make art for the /concepts page: one small drawing per value (connection, authenticity, challenge, adventure) for the slots next to each heading. My own drawings, not the Diderot engraving
+  - [ ] "Latest" feed: later, also use `last_modified` for notebook-style concept pages (skipped for now because the bulk publish edit on 2026-09-19 makes it noisy)
+  - [x] Port the /concepts design into Astro (built 2026-10-05; awaiting visual check, commit, push)
+  - [ ] Visual check of /concepts, concept header box and /tags pages at wide and phone widths
+  - [ ] /tags list: add a small type icon to each row (date stays on the right) (book vs journal/musings). Maya is picking icons
+  - [x] Latest ticker: use the lowercase styling for its entries (titles, dates, page names)
+  - [ ] Map concept tags to concept pages for the latest ticker (e.g. `psychology` → psychology-neuroscience)
+  - [ ] Write the /concepts title and intro copy
+  - [ ] Fix typos in vault media notes: Eula Biss, David Foster Wallace, Chiara Marletto
+  - [ ] Decide whether `investing.md` should be published
 - [ ] Implement map page(s) for places lived, places travelled (Flighty)
 - [ ] Add or link to actual CV (need to update/reformat)
 

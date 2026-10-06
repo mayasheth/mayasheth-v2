@@ -1,0 +1,64 @@
+---
+import type { TreeNode, PageStats } from "@/lib/helpers/concept-tree";
+import { displayTitle } from "@/lib/helpers/concept-tree";
+
+interface Props {
+  nodes: TreeNode[];
+  titles: Map<string, string>;
+  stats: Map<string, PageStats>;
+  tagCounts: Map<string, number>;
+}
+
+const { nodes, titles, stats, tagCounts } = Astro.props;
+
+const leafCount = (n: TreeNode): number =>
+  n.kind === "group" ? n.kids.reduce((a, k) => a + leafCount(k), 0) : 1;
+---
+
+<div class="kids">
+  {
+    nodes.map((n) => {
+      if (n.kind === "page") {
+        const s = stats.get(n.id)!;
+        return (
+          <a class:list={["leaf", { also: n.also }]} data-key={n.also ? undefined : n.id} href={`/concepts/${n.id}`}>
+            <span class="d" aria-hidden="true" />
+            <span class="n hover-stable-fw" data-text={displayTitle(titles.get(n.id)!)}>{displayTitle(titles.get(n.id)!)}</span>
+            <span class="m">{n.also ? "also here" : s.notebook ? "" : s.links}</span>
+          </a>
+        );
+      }
+      if (n.kind === "tag") {
+        const count = tagCounts.get(n.tag) ?? 0;
+        return (
+          <a class:list={["leaf tag", { also: n.also }]} data-key={n.also ? undefined : `tag:${n.tag}`} href={`/tags/${n.tag}`}>
+            <span class="d" aria-hidden="true" />
+            <span class="n hover-stable-fw" data-text={n.label}>{n.label}</span>
+            <span class="m">{n.also ? "also here" : `${count} tagged`}</span>
+          </a>
+        );
+      }
+      return (
+        <div class:list={["grp", { collapsed: n.collapsed }]} id={n.anchor}>
+          <div class="lab">
+            {n.collapsed ? (
+              <button type="button" class="fold" aria-expanded="false">
+                <span class="en">{n.label}</span>
+                <span class="meta">
+                  {leafCount(n)} <span class="chev" aria-hidden="true">▸</span>
+                </span>
+              </button>
+            ) : (
+              <span class="en">{n.label}</span>
+            )}
+            {n.note && <span class="note-line">{n.note}</span>}
+          </div>
+          <div class="br" aria-hidden="true">
+            <svg><path /></svg>
+          </div>
+          <Astro.self nodes={n.kids} titles={titles} stats={stats} tagCounts={tagCounts} />
+        </div>
+      );
+    })
+  }
+</div>

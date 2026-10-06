@@ -9,7 +9,8 @@
     "preview": "npm run astro build && npx -y pagefind --site dist --serve",
     "astro": "astro",
     "lint:content": "tsx src/scripts/lint-content.js",
-    "lint:vault": "tsx --env-file=.env src/scripts/lint-content.js --vault"
+    "lint:vault": "tsx --env-file=.env src/scripts/lint-content.js --vault",
+    "preview:tree": "tsx --env-file=.env src/scripts/concept-tree-preview.js"
   },
   "dependencies": {
     "@astrojs/react": "^4.4.0",

@@ -1,0 +1,716 @@
+<title>Two trees</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300..600&family=Schibsted+Grotesk:ital,wght@0,375..700;1,375..600&family=Inconsolata:wght@300..600&family=Playfair:ital,opsz,wght@0,5..1200,300..900;1,5..1200,300..900&display=swap">
+<style>
+  /* Single dark world, matching mayasheth-v2 (the site has no light theme). */
+  :root {
+    color-scheme: dark;
+    --ocean-950: oklch(17.5% 0.124 276);
+    --ocean-900: oklch(23.5% 0.13 266.2);
+    --ocean-800: oklch(27.5% 0.119 256.3);
+    --ocean-700: oklch(38% 0.135 246.4);
+    --content-0: oklch(90.4% 0.017 264.38);
+    --content-1: oklch(91% 0.06 186.8);
+    --content-2: oklch(90% 0.092 196.6);
+    --content-3: oklch(69% 0.168 216.2);
+    --content-4: oklch(57% 0.179 226.3);
+    --line: oklch(69% 0.168 216.2 / 0.3);
+    --ink: oklch(69% 0.12 216.2 / 0.55);   /* braces, branch lines, bars: structure, not accent */
+    --gap: oklch(62% 0.06 250);
+
+    --mem: oklch(78% 0.175 68);    /* amber */
+    --rea: oklch(79% 0.14 172);    /* teal */
+    --ima: oklch(71% 0.2 333);     /* magenta, lifted for the dark ground */
+    --teal: oklch(79% 0.14 172);
+    --amber: oklch(78% 0.175 68);
+    --lime: oklch(84% 0.2 132);
+    --purple: oklch(72% 0.16 303);
+    --magenta: oklch(71% 0.2 333);
+    --red: oklch(71% 0.17 18);
+    --cyan: oklch(80.5% 0.124 206.4);
+
+    --font-base: "Montserrat", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-header: "Schibsted Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-serif: "Playfair", Georgia, "Times New Roman", serif;
+    --font-mono: "Inconsolata", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body {
+    margin: 0;
+    background: radial-gradient(70rem 40rem at 50% -12%, oklch(27.5% 0.119 256.3 / 0.75), transparent 70%), var(--ocean-950);
+    background-attachment: fixed;
+    color: var(--content-1);
+    font-family: var(--font-base);
+    font-weight: 300;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  button { font: inherit; }
+  :focus-visible { outline: 2px solid var(--content-2); outline-offset: 2px; border-radius: 3px; }
+
+  .page { max-width: 1280px; margin: 0 auto; padding-block: 3rem 5rem; padding-inline: 1.25rem; display: flex; flex-direction: column; gap: 1.5rem; }
+
+  /* ---------- masthead ---------- */
+  .masthead { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.7rem; }
+  .eyebrow { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--content-3); }
+  h1 { margin: 0; font-family: var(--font-serif); font-style: italic; font-weight: 500; font-size: clamp(2.1rem, 6vw, 3.6rem); line-height: 1; letter-spacing: 0.06em; color: var(--content-0); text-wrap: balance; }
+  h1 span { display: block; font-family: var(--font-header); font-style: normal; font-weight: 500; font-size: 0.34em; letter-spacing: 0.32em; text-transform: uppercase; color: var(--content-2); margin-top: 0.7rem; }
+  .lede { margin: 0; max-width: 60ch; font-size: 0.98rem; color: var(--content-2); text-wrap: pretty; }
+  .lede a { color: var(--content-0); text-decoration-color: var(--content-4); text-underline-offset: 3px; }
+
+  .controls { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0.6rem 1.6rem; font-size: 0.82rem; color: var(--content-2); }
+  .controls label { display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer; font-family: var(--font-header); }
+  .controls input { accent-color: var(--rea); width: 0.95rem; height: 0.95rem; }
+  .key { display: inline-flex; align-items: center; gap: 0.4rem; }
+
+  /* ---------- the understanding brace ---------- */
+  .understanding { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; margin-top: 0.5rem; }
+  .understanding .word { font-family: var(--font-header); font-weight: 500; letter-spacing: 0.5em; margin-right: -0.5em; text-transform: uppercase; font-size: 0.95rem; color: var(--content-0); }
+  .understanding .fr { font-family: var(--font-base); font-size: 0.82rem; color: var(--content-3); }
+  #hbrace { width: 100%; height: 26px; display: block; }
+
+  /* ---------- faculties ---------- */
+  .faculties { display: grid; grid-template-columns: 1fr; gap: 2.5rem; }
+  @media (min-width: 1180px) {
+    .faculties { grid-template-columns: var(--cols, 1fr 1fr 1fr); gap: 0; }
+    .fac + .fac { border-left: 2px dotted var(--line); }
+    .fac { padding-inline: 1.1rem; }
+    .fac:first-child { padding-left: 0; }
+    .fac:last-child { padding-right: 0; }
+  }
+  .fac { --c: var(--content-2); display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+  .fac-head { text-align: center; display: flex; flex-direction: column; gap: 0.1rem; }
+  .fac-head .fr { font-family: var(--font-serif); font-style: italic; font-size: 1.6rem; letter-spacing: 0.02em; color: var(--content-0); text-wrap: balance; }
+  .fac-head .en { font-family: var(--font-mono); font-size: 0.8rem; color: var(--content-3); }
+  .fac-body { display: grid; grid-template-columns: 1.5rem 16px minmax(0, 1fr); }
+  .fac-body.no-spine { grid-template-columns: 0 16px minmax(0, 1fr); }
+  .fac-body > .spine { writing-mode: vertical-rl; transform: rotate(180deg); align-self: center; text-align: center; font-family: var(--font-header); font-weight: 600; font-size: 0.95rem; letter-spacing: 0.5em; text-transform: uppercase; color: var(--content-3); }
+
+  /* ---------- groups: label, brace, children ---------- */
+  .kids { container-type: inline-size; display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; padding-block: 0.15rem; }
+  .fac-body > .kids { gap: 0.55rem; }
+  .grp { display: grid; grid-template-columns: 14px minmax(0, 1fr); align-items: center; padding-block: 0.1rem; }
+  .grp > .lab { grid-column: 1 / -1; padding: 0.35rem 0 0.1rem; }
+  @media (min-width: 720px) and (max-width: 1179px) {
+    .grp { grid-template-columns: 9rem 14px minmax(0, 1fr); }
+    .grp > .lab { grid-column: auto; padding: 0 0.45rem 0 0; text-align: right; }
+  }
+  .lab .en { display: block; font-family: var(--font-header); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--content-1); text-wrap: balance; }
+  .lab .fr { display: block; font-family: var(--font-base); font-size: 0.74rem; color: var(--content-4); line-height: 1.25; }
+  /* branch notes appear while the pointer is anywhere in that branch */
+  .lab .note-line { max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.2s ease, opacity 0.2s ease; color: var(--content-3); }
+  .grp:hover > .lab .note-line, .grp:focus-within > .lab .note-line { max-height: 3em; opacity: 0.85; }
+  .new { display: inline-block; margin-top: 0.2rem; font-family: var(--font-mono); font-size: 0.66rem; color: var(--mem); border: 1px solid oklch(78% 0.175 68 / 0.45); border-radius: 999px; padding: 0 0.4rem; white-space: nowrap; }
+  .br { align-self: stretch; position: relative; min-height: 1.4rem; }
+  .br svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .br path, #hbrace path { fill: none; stroke: var(--ink); stroke-width: 1.3; stroke-linecap: round; }
+
+  /* ---------- leaves ---------- */
+  .leaf { all: unset; box-sizing: border-box; display: flex; min-width: 0; align-items: baseline; gap: 0.5rem; padding: 0.14rem 0.35rem; margin-left: -0.35rem; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 400; color: var(--content-1); line-height: 1.3; }
+  .leaf:hover { background: oklch(38% 0.135 246.4 / 0.45); color: var(--content-0); }
+  .leaf:focus-visible { outline: 2px solid var(--c); outline-offset: 0; }
+  .leaf .mk { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--c); transform: translateY(-1px); }
+  .leaf .m { margin-left: auto; font-family: var(--font-mono); font-size: 0.74rem; color: var(--content-4); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .leaf.tag { color: var(--content-2); }
+  .grp.collapsed > .kids, .grp.collapsed > .br { display: none; }
+  .grp.collapsed > .lab { grid-column: 1 / -1; text-align: left; padding: 0.3rem 0 0.2rem; }
+  .fold { all: unset; cursor: pointer; display: inline-flex; align-items: baseline; gap: 0.5rem; border-radius: 4px; }
+  .fold:focus-visible { outline: 2px solid var(--c); outline-offset: 2px; }
+  .fold .en { display: inline; }
+  .fold-meta { font-family: var(--font-mono); font-size: 0.72rem; color: var(--content-4); display: inline-flex; gap: 0.3rem; }
+  .fold .chev { display: inline-block; transition: transform 0.15s ease; }
+  .grp:not(.collapsed) > .lab .chev { transform: rotate(90deg); }
+  .fold:hover .en { text-decoration: underline; text-decoration-color: var(--content-3); text-underline-offset: 3px; }
+  .fac-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.35rem; margin-top: 0.55rem; }
+  .fac-links a { font-family: var(--font-header); font-size: 0.78rem; color: var(--content-1); text-decoration: none; border: 1px solid var(--line); border-radius: 999px; padding: 0.12rem 0.65rem; display: inline-flex; gap: 0.3rem; align-items: center; }
+  .fac-links a span { color: var(--content-3); font-size: 0.7rem; }
+  .fac-links a:hover { background: var(--ocean-800); color: var(--content-0); }
+  .leaf.also { font-style: italic; color: var(--content-3); }
+  .leaf.also .mk { background: none; border: 1.2px dashed var(--c); }
+  .leaf.tag .mk { background: none; border: 1.3px solid var(--c); }
+  .leaf.tag .m { color: var(--content-4); }
+  .leaf.gap { cursor: default; font-style: italic; font-weight: 400; color: var(--gap); }
+  .leaf.gap:hover { background: none; color: var(--gap); }
+  .leaf.gap .mk { background: none; border: 1px dashed var(--gap); }
+  .leaf.gap .m { white-space: normal; text-align: right; max-width: 45%; font-family: var(--font-base); color: oklch(52% 0.06 250); font-size: 0.74rem; }
+  body.no-gaps .gap-node { display: none; }
+
+  .key .mk { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--content-2); }
+  .key .mk.tag { background: none; border: 1.3px solid var(--content-2); }
+  .key .mk.gap { background: none; border: 1px dashed var(--gap); }
+
+  .foot { text-align: center; font-family: var(--font-base); font-size: 0.85rem; color: var(--content-4); max-width: 62ch; margin: 1rem auto 0; text-wrap: pretty; }
+  .foot a { color: var(--content-3); }
+
+  /* ---------- drawer: page summary or tag results ---------- */
+  .scrim { position: fixed; inset: 0; background: oklch(12% 0.1 276 / 0.55); z-index: 20; }
+  .drawer {
+    position: fixed; z-index: 21; background: var(--ocean-900); border: 1px solid var(--line);
+    display: flex; flex-direction: column; gap: 0.9rem; overflow-y: auto;
+    right: 1rem; top: calc(env(safe-area-inset-top, 0px) + 1rem); bottom: calc(env(safe-area-inset-bottom, 0px) + 1rem);
+    width: min(27rem, calc(100% - 2rem)); border-radius: 16px; padding: 1.25rem 1.3rem 1.5rem;
+    box-shadow: 0 30px 80px oklch(8% 0.08 276 / 0.6);
+  }
+  @media (max-width: 640px) {
+    .drawer { left: 0.75rem; right: 0.75rem; width: auto; top: auto; max-height: 78vh; bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem); }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .drawer:not([hidden]) { animation: slide 0.22s cubic-bezier(.2,.8,.3,1); }
+    @keyframes slide { from { transform: translateY(12px); opacity: 0.4; } }
+  }
+  .d-top { display: flex; align-items: flex-start; gap: 1rem; }
+  .d-kicker { font-family: var(--font-mono); font-size: 0.78rem; color: var(--content-3); }
+  .drawer h2 { margin: 0.15rem 0 0; font-family: var(--font-header); font-weight: 600; font-size: 1.4rem; color: var(--content-0); text-wrap: balance; }
+  .d-close { all: unset; cursor: pointer; margin-left: auto; font-family: var(--font-mono); font-size: 0.8rem; color: var(--content-3); padding: 0.25rem 0.5rem; border-radius: 6px; border: 1px solid var(--line); }
+  .d-close:hover { color: var(--content-0); }
+  .d-path { font-family: var(--font-base); font-size: 0.86rem; color: var(--content-3); }
+  .d-text { font-size: 0.92rem; color: var(--content-1); margin: 0; }
+  .d-open { align-self: flex-start; font-family: var(--font-header); font-size: 0.88rem; color: var(--ocean-950); background: var(--c); padding: 0.45rem 0.9rem; border-radius: 999px; text-decoration: none; font-weight: 500; }
+  .results { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  .results li { display: grid; grid-template-columns: 1fr auto; gap: 0.1rem 0.8rem; padding-block: 0.6rem; border-top: 1px solid var(--line); }
+  .results .t { font-family: var(--font-base); font-weight: 500; font-size: 0.95rem; color: var(--content-0); }
+  .results .a { grid-column: 1; font-size: 0.8rem; color: var(--content-3); }
+  .results .r { grid-row: 1 / span 2; grid-column: 2; align-self: center; font-family: var(--font-mono); font-size: 0.72rem; color: var(--content-2); border: 1px solid var(--line); border-radius: 999px; padding: 0.05rem 0.5rem; white-space: nowrap; }
+  .results .r.top { color: var(--mem); border-color: oklch(78% 0.175 68 / 0.5); }
+  .seg { display: flex; gap: 2px; padding: 3px; border-radius: 999px; background: var(--ocean-900); border: 1px solid var(--line); }
+  .seg button { all: unset; cursor: pointer; padding: 0.38rem 1rem; border-radius: 999px; font-family: var(--font-header); font-size: 0.84rem; color: var(--content-3); transition: background 0.15s, color 0.15s; }
+  .seg button[aria-pressed="true"] { background: var(--ocean-700); color: var(--content-0); }
+  .seg button:disabled { opacity: 0.35; cursor: not-allowed; }
+  .seg button:focus-visible { outline: 2px solid var(--content-2); }
+  .seg-label { font-family: var(--font-mono); font-size: 0.75rem; color: var(--content-4); }
+  .ctl-row { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0.6rem 1.2rem; }
+
+  .note { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 0.75rem); z-index: 5; background: oklch(23.5% 0.13 266.2 / 0.92); backdrop-filter: blur(8px); border: 1px solid var(--line); border-radius: 14px; padding: 0.75rem 1.1rem; min-height: 4.2rem; display: flex; flex-direction: column; justify-content: center; gap: 0.3rem; margin-bottom: 1rem; }
+  .note-title { display: flex; align-items: center; flex-wrap: wrap; gap: 0.6rem; font-family: var(--font-header); font-weight: 600; font-size: 1.05rem; color: var(--content-0); }
+  .note-meta { font-family: var(--font-mono); font-weight: 400; font-size: 0.8rem; color: var(--content-3); }
+  .note-paths { display: flex; flex-wrap: wrap; gap: 0.2rem 1.6rem; font-size: 0.84rem; color: var(--content-2); }
+  .note-paths i, .d-path i { font-family: var(--font-mono); font-style: normal; font-size: 0.78rem; color: var(--content-4); margin-right: 0.3rem; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--c); flex: none; }
+  .dot.tag { background: none; border: 1.4px solid var(--c); }
+  .legend { display: flex; flex-wrap: wrap; gap: 0.35rem 1.4rem; font-size: 0.82rem; color: var(--content-2); }
+  .legend span { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .legend b { font-family: var(--font-mono); font-weight: 500; color: var(--content-0); }
+
+  .clado-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .clado-col { display: flex; flex-direction: column; gap: 0.9rem; padding-inline: 1.1rem; min-width: 0; }
+  .clado-col + .clado-col { border-left: 2px dotted var(--line); }
+  .clado-col:first-child { padding-left: 0; }
+  .clado-col:last-child { padding-right: 0; }
+  .clado-col svg { display: block; width: 100%; height: auto; overflow: visible; }
+  #clado .sub-label { font-family: var(--font-mono); font-size: 12px; fill: var(--content-3); }
+  #clado .br-head { font-family: var(--font-header); font-weight: 600; font-size: 11.5px; letter-spacing: 0.12em; text-transform: uppercase; }
+  #clado .clade:hover .br-head, #clado .clade:focus-visible .br-head { text-decoration: underline; }
+  #tangle, #clado { overflow-x: auto; }
+  #tangle svg { display: block; width: 100%; height: auto; min-width: 1000px; }
+  #tangle .lnk { fill: none; stroke-width: 1.3; opacity: 0.6; }
+  #tangle .tbrace { fill: none; stroke-width: 1.3; opacity: 0.8; }
+  #tangle .spine { font-family: var(--font-header); font-weight: 600; font-size: 12px; letter-spacing: 0.4em; text-transform: uppercase; }
+  #tangle .clade { cursor: default; outline: none; }
+  #tangle .clade .hit, #tangle .pg .hit { fill: transparent; }
+  #tangle .clade-label { font-family: var(--font-header); font-weight: 600; font-size: 11.5px; }
+  #tangle .clade:hover .clade-label, #tangle .clade:focus-visible .clade-label { text-decoration: underline; }
+  #tangle .pg { cursor: pointer; outline: none; }
+  #tangle .pg text { font-family: var(--font-base); font-size: 12px; font-weight: 400; fill: var(--content-1); }
+  #tangle .pg text.is-tag { fill: var(--content-3); font-style: italic; }
+  #tangle .pg:focus-visible .hit { stroke: var(--content-2); rx: 4; }
+  #tangle .crv.echo, #tangle .lnk.echo { stroke-dasharray: 3 3; }
+  #tangle .crv { stroke: var(--content-3); }
+  #tangle svg.dim .crv.on { stroke: var(--k); }
+  #tangle .crv { fill: none; stroke-width: 1.1; opacity: 0.22; transition: opacity 0.15s, stroke-width 0.15s; }
+  #curves { transition: opacity 0.3s; }
+  #tangle .lineage { fill: none; stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; pointer-events: none; }
+  #tangle svg.dim .crv { opacity: 0.07; }
+  #tangle svg.dim .crv.on { opacity: 1; stroke-width: 2; }
+  #tangle svg.dim .pg text { fill: var(--content-4); }
+  #tangle svg.dim .pg.on text { fill: var(--content-0); }
+  #tangle svg.dim .dots { opacity: 0.3; }
+  #tangle svg.dim .dots.on { opacity: 1; }
+  #tangle svg.dim .lnk { opacity: 0.25; }
+  #tangle svg.dim .lnk.on { opacity: 1; }
+  #clado .lnk { fill: none; stroke-width: 1.3; opacity: 0.6; }
+  #clado .tbrace { fill: none; stroke-width: 1.3; opacity: 0.8; }
+  #clado .spine { font-family: var(--font-header); font-weight: 600; font-size: 12px; letter-spacing: 0.4em; text-transform: uppercase; }
+  #clado .clade { cursor: default; outline: none; }
+  #clado .clade .hit, #clado .pg .hit { fill: transparent; }
+  #clado .clade-label { font-family: var(--font-header); font-weight: 600; font-size: 11.5px; }
+  #clado .clade:hover .clade-label, #clado .clade:focus-visible .clade-label { text-decoration: underline; }
+  #clado .pg { cursor: pointer; outline: none; }
+  #clado .pg text { font-family: var(--font-base); font-size: 12px; font-weight: 400; fill: var(--content-1); }
+  #clado .pg text.is-tag { fill: var(--content-3); font-style: italic; }
+  #clado .pg:focus-visible .hit { stroke: var(--content-2); rx: 4; }
+  #clado .crv { fill: none; stroke-width: 1.1; opacity: 0.38; transition: opacity 0.15s, stroke-width 0.15s; }
+  #curves { transition: opacity 0.3s; }
+  #clado .lineage { fill: none; stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; pointer-events: none; }
+  #clado svg.dim .crv { opacity: 0.07; }
+  #clado svg.dim .crv.on { opacity: 1; stroke-width: 2; }
+  #clado svg.dim .pg text { fill: var(--content-4); }
+  #clado svg.dim .pg.on text { fill: var(--content-0); }
+  #clado svg.dim .dots { opacity: 0.3; }
+  #clado svg.dim .dots.on { opacity: 1; }
+  #clado svg.dim .lnk { opacity: 0.25; }
+  #clado svg.dim .lnk.on { opacity: 1; }
+  .d-path { line-height: 1.6; }
+  .problems { border: 1px solid oklch(71% 0.17 18 / 0.6); background: oklch(30% 0.1 18 / 0.35); border-radius: 12px; padding: 0.8rem 1.1rem; font-size: 0.88rem; color: var(--content-0); }
+  .problems ul { margin: 0.3rem 0 0; padding-left: 1.1rem; }
+  .problems code { font-family: var(--font-mono); color: var(--content-2); }
+</style>
+
+<div class="page">
+  <header class="masthead">
+    <div class="eyebrow">concepts</div>
+    <h1>the tree of things I keep<span>two ways to sort it</span></h1>
+    <p class="lede">The same pages sorted twice: by subject on the left, and by why I keep them on the right. Each line joins a page to its place in both trees. It's a tanglegram, the figure biologists use to compare two family trees of the same species. The branching style comes from Diderot's 1751 <a href="https://quod.lib.umich.edu/d/did/tree.html">map of human knowledge</a>.</p>
+  </header>
+
+  <div class="problems" id="problems" hidden></div>
+
+  <div class="controls">
+    <div class="ctl-row">
+      <div class="seg" role="group" aria-label="View">
+        <button type="button" id="v-both" aria-pressed="true" title="Needs a wide screen">both</button>
+        <button type="button" id="v-subject" aria-pressed="false">by subject</button>
+        <button type="button" id="v-why" aria-pressed="false">by why</button>
+      </div>
+      <div class="ctl-row" id="sort-seg-wrap">
+        <div class="seg" id="sort-seg" role="group" aria-label="List pages in the order of">
+          <button type="button" data-order="subject" aria-pressed="true">list by subject</button>
+          <button type="button" data-order="why" aria-pressed="false">list by why</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note" id="note" aria-live="polite"></div>
+  <div id="tangle-wrap">
+    <div id="tangle"></div>
+  </div>
+  <div id="clado-wrap" hidden>
+    <div id="clado"></div>
+  </div>
+
+  <div id="braces" hidden>
+    <div class="understanding" aria-hidden="true">
+      <span class="word">everything I keep</span>
+      <svg id="hbrace" style="--c: var(--content-3)"></svg>
+    </div>
+    <div class="faculties" id="faculties"></div>
+  </div>
+
+  <p class="foot" id="foot"></p>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" hidden role="dialog" aria-modal="true" aria-labelledby="d-title"></aside>
+
+<script>
+const { P, T, SUBJECT, WHY, SHORT, PROBLEMS, BUILT, NAMES } = /*__DATA__*/null;
+
+// ---------- helpers ----------
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const fmtMonth = ym => ym ? `${MONTHS[+ym.slice(5) - 1]} ${ym.slice(0, 4)}` : "";
+const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+const disp = id => P[id][0].toLowerCase().replace(/\bus\b/, "US").replace(/\bui\b/, "UI");
+const keyOf = n => typeof n === "string" ? n : n.id ? n.id : "tag:" + n.tag;
+const tagLabel = {};
+const fullName = k => k.startsWith("tag:") ? tagLabel[k] : disp(k);
+const shortName = k => k.startsWith("tag:") ? tagLabel[k] : (SHORT[k] || disp(k));
+
+// ---------- build tree objects from the brace-style data ----------
+function toTree(data) {
+  const root = { label: "everything I keep", depth: 0, kids: [] };
+  const byKey = {}, echoes = [];
+  const conv = (n, parent, depth, trunk, branch) => {
+    if (typeof n === "string" || n.tag || n.id) {
+      const k = keyOf(n);
+      if (n.tag) tagLabel[k] = n.l;
+      const leaf = { leaf: true, key: k, parent, depth, trunk, branch, src: n, echo: !!n.also };
+      if (leaf.echo) echoes.push(leaf); else byKey[k] = leaf;
+      return leaf;
+    }
+    const node = { label: n.l || n.fr, gloss: n.l ? n.fr : n.en, spine: n.spine, c: n.c, parent, depth, kids: [] };
+    if (depth === 1) trunk = node;
+    if (depth === 2) branch = node;
+    node.trunk = trunk; node.branch = branch;
+    node.kids = n.kids.map(k => conv(k, node, depth + 1, trunk, branch));
+    return node;
+  };
+  root.kids = data.map(f => conv(f, root, 1, null, null));
+  return { root, byKey, echoes };
+}
+const TREES = { subject: toTree(SUBJECT), why: toTree(WHY) };
+const trailOf = leaf => { const out = []; for (let p = leaf.parent; p && p.depth > 0; p = p.parent) out.unshift(p.label); return out; };
+const trail = (side, key) => trailOf(TREES[side].byKey[key]);
+const alsoTrails = (side, key) => TREES[side].echoes.filter(e => e.key === key).map(e => trailOf(e).join(" › "));
+const alsoHTML = key => { const a = [...alsoTrails("subject", key), ...alsoTrails("why", key)]; return a.length ? `<span><i>also</i> ${esc(a.join("; "))}</span>` : ""; };
+const subjColor = key => { const b = TREES.subject.byKey[key].branch; return `var(--${b.c})`; };
+const whyColor = n => `var(--${n.trunk.c})`;
+const kindOf = key => key.startsWith("tag:") ? "tag" : P[key][3] === "n" ? "nb" : "link";
+
+// ---------- field note panel + drawer ----------
+const note = document.getElementById("note");
+const LEGEND = `<div class="legend">
+  <span><b>left</b> sorted by subject</span><span><b>right</b> sorted ${esc(NAMES.right)}</span>
+  <span><svg width="26" height="12" viewBox="0 0 26 12"><path d="M1,2 C13,2 13,10 25,10" fill="none" stroke="var(--content-2)" stroke-width="1.3"/></svg>each line joins one page to its place in both trees</span>
+  <span>hover a page or a branch · click for details</span></div>`;
+function metaLine(key) {
+  if (key.startsWith("tag:")) { const n = T[key.slice(4)].length; return `${n} tagged note${n > 1 ? "s" : ""}, no page yet`; }
+  const [, links, newest, kind, flag] = P[key];
+  if (flag === "unpublished") return "not published yet";
+  return kind === "n" ? "" : `${links} links${newest ? ` · newest ${fmtMonth(newest)}` : ""}`;
+}
+const LEGEND_ONE = `<div class="legend"><span>sorted by subject</span><span>hover a page or a branch · click for details</span></div>`;
+function showNote(key) {
+  if (!key) { note.innerHTML = view === "subject" ? LEGEND_ONE : LEGEND; return; }
+  note.innerHTML = `<div class="note-title"><span class="dot ${kindOf(key)}" style="--c:${subjColor(key)}"></span>${esc(fullName(key))}<span class="note-meta">${metaLine(key)}</span></div>
+    <div class="note-paths"><span><i>by subject</i> ${esc(trail("subject", key).join(" › "))}</span><span><i>${esc(NAMES.right)}</i> ${esc(trail("why", key).join(" › "))}</span>${alsoHTML(key)}</div>`;
+}
+function showBranchNote(node, side) {
+  const keys = leavesUnder(node);
+  note.innerHTML = `<div class="note-title"><span class="dot" style="--c:${side === "subject" ? `var(--${node.c || node.trunk.c})` : whyColor(node)}"></span>${esc(node.label)}<span class="note-meta">${keys.length} pages and tags</span></div>
+    <div class="note-paths"><span>${node.gloss ? `<i>${esc(node.gloss)}</i>` : `<i>${side === "subject" ? "by subject" : esc(NAMES.right)}</i>`}</span></div>`;
+}
+
+const drawer = document.getElementById("drawer"), scrim = document.getElementById("scrim");
+let opener = null;
+const RATING = { "all-time-influential": "all-time", "fantastic": "fantastic", "good": "good", "okay": "okay", "not-good": "not for me" };
+function openDrawer(key, from) {
+  drawer.style.setProperty("--c", subjColor(key));
+  const paths = `<div class="d-path"><i>by subject</i> ${esc(trail("subject", key).join(" › "))}<br><i>${esc(NAMES.right)}</i> ${esc(trail("why", key).join(" › "))}${alsoHTML(key) ? "<br>" + alsoHTML(key) : ""}</div>`;
+  if (!key.startsWith("tag:")) {
+    const [, links, newest, kind, flag] = P[key];
+    const text = kind === "n" ? "A notebook page: dense notes, tables and outlines rather than a list of links." : `${links} links${newest ? `, most recently added ${fmtMonth(newest)}` : ""}.`;
+    drawer.innerHTML = `<div class="d-top"><div><div class="d-kicker">concept page</div><h2 id="d-title">${esc(disp(key))}</h2></div><button class="d-close" type="button">close</button></div>
+      ${paths}<p class="d-text">${text}${flag === "unpublished" ? " Not published on the site yet." : ""}</p><a class="d-open" href="/concepts/${key}">open the page</a>`;
+  } else {
+    const t = key.slice(4), list = T[t];
+    drawer.innerHTML = `<div class="d-top"><div><div class="d-kicker">#concept/${esc(t)}</div><h2 id="d-title">${esc(tagLabel[key])}</h2></div><button class="d-close" type="button">close</button></div>
+      ${paths}<p class="d-text">${list.length} note${list.length > 1 ? "s" : ""} on the site carry this tag. There's no concept page for it yet.</p>
+      <ul class="results">${list.map(([ti, a, src, r]) => `<li><span class="t">${esc(ti)}</span>${r ? `<span class="r${r === "all-time-influential" ? " top" : ""}">${RATING[r]}</span>` : `<span class="r">${src}</span>`}<span class="a">${esc(a || "Maya's Musings")}</span></li>`).join("")}</ul>`;
+  }
+  drawer.querySelector(".d-open")?.addEventListener("click", e => e.preventDefault());
+  drawer.querySelector(".d-close").addEventListener("click", closeDrawer);
+  opener = from; drawer.hidden = false; scrim.hidden = false; drawer.scrollTop = 0;
+  drawer.querySelector(".d-close").focus();
+}
+function closeDrawer() { drawer.hidden = true; scrim.hidden = true; opener?.focus(); }
+scrim.addEventListener("click", closeDrawer);
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !drawer.hidden) closeDrawer(); });
+
+// ---------- tanglegram ----------
+const W = 1190, ROW = 19, TOP = 14, GAP_T = 20, GAP_B = 9, GAP_S = 4;
+const XL = [196, 220, 250, 290], LEAF = 330; // left tree x by depth; right tree mirrors
+const xAt = (side, d) => side === "subject" ? (d === "leaf" ? LEAF : XL[d]) : W - (d === "leaf" ? LEAF : XL[d]);
+function leavesUnder(n) { return n.leaf ? [n.key] : n.kids.flatMap(leavesUnder); }
+const allEcho = n => n.leaf ? n.echo : n.kids.every(allEcho);
+const leafNodes = n => n.leaf ? [n] : n.kids.flatMap(leafNodes);
+
+function layout(side) {
+  const { root } = TREES[side];
+  let y = TOP, prev = null;
+  const walk = n => {
+    if (n.leaf) {
+      if (prev) y += prev.trunk !== n.trunk ? GAP_T : prev.branch !== n.branch ? GAP_B : prev.parent !== n.parent ? GAP_S : 0;
+      n.y = y; n.x = xAt(side, "leaf"); y += ROW; prev = n; return;
+    }
+    n.kids.forEach(walk);
+    n.y = (n.kids[0].y + n.kids[n.kids.length - 1].y) / 2;
+    n.x = xAt(side, n.depth);
+  };
+  walk(root);
+  return y;
+}
+function wrap(s, max) {
+  const words = s.split(" "), lines = [""];
+  words.forEach(w => { const cur = lines[lines.length - 1]; if (cur && (cur + " " + w).length > max) lines.push(w); else lines[lines.length - 1] = cur ? cur + " " + w : w; });
+  return lines;
+}
+function braceV(w, h) {
+  const m = h / 2, x = w * 0.55, r = Math.min(7, h / 5);
+  return `M${w},0 Q${x},0 ${x},${r} V${m - r} Q${x},${m} 0,${m} Q${x},${m} ${x},${m + r} V${h - r} Q${x},${h} ${w},${h}`;
+}
+
+let order = "subject", tangleSvg, labelEls = {}, H = 0;
+function drawTree(side) {
+  const { root } = TREES[side];
+  const L = side === "subject", col = () => "var(--ink)";
+  let s = "";
+  const walk = n => {
+    if (n.leaf) return;
+    if (n.depth < 2) { n.kids.forEach(walk); return; }
+    n.kids.forEach(k => { s += `<path class="lnk${k.echo || (k.leaf ? false : leavesUnder(k).length && allEcho(k)) ? " echo" : ""}" data-side="${side}" data-key="${k.leaf ? k.key : ""}" d="M${n.x},${n.y}V${k.y}H${k.x}" style="stroke:${col(k)}"/>`; walk(k); });
+  };
+  walk(root);
+  // branch bars + labels in the outer margin, trunk braces + spines further out
+  root.kids.forEach(trunk => {
+    const ys = leafNodes(trunk).map(l => l.y);
+    const top = Math.min(...ys) - 6, h = Math.max(...ys) + 6 - top, c = "var(--content-3)";
+    const bx = L ? 24 : W - 24;
+    s += `<path class="tbrace" d="${braceV(11, h)}" transform="translate(${bx},${top})${L ? "" : " scale(-1,1)"}" style="stroke:${c}"/>`;
+    s += `<text class="spine" transform="translate(${L ? 14 : W - 14},${top + h / 2}) rotate(${L ? -90 : 90})" text-anchor="middle" style="fill:${c}">${esc(trunk.spine || trunk.label)}</text>`;
+    trunk.kids.forEach(br => {
+      const bys = leafNodes(br).map(l => l.y);
+      const t = Math.min(...bys) - 6, b = Math.max(...bys) + 6, bc = "var(--content-1)", bar = "var(--ink)";
+      const lines = wrap(br.label, L ? 20 : 22);
+      const lx = L ? 176 : W - 176, barX = L ? 184 : W - 184;
+      s += `<g class="clade" tabindex="0" data-side="${side}" data-path="${esc(br.label)}">
+        <rect class="hit" x="${L ? 40 : W - 188}" y="${t}" width="148" height="${Math.max(b - t, lines.length * 14 + 4)}"/>
+        <line x1="${barX}" x2="${barX}" y1="${t}" y2="${b}" stroke="${bar}" stroke-width="2" stroke-linecap="round"/>
+        ${lines.map((ln, i) => `<text class="clade-label" x="${lx}" y="${t + 10 + i * 14}" text-anchor="${L ? "end" : "start"}" style="fill:${bc}">${esc(ln)}</text>`).join("")}
+      </g>`;
+    });
+  });
+  return s;
+}
+function mark(key, x, y, echo) {
+  const c = subjColor(key), k = kindOf(key);
+  if (echo) return `<circle cx="${x}" cy="${y}" r="3.2" fill="var(--ocean-950)" stroke="${c}" stroke-width="1.2" stroke-dasharray="2 1.6"/>`;
+  if (k === "tag") return `<circle cx="${x}" cy="${y}" r="3.2" fill="var(--ocean-950)" stroke="${c}" stroke-width="1.3"/>`;
+  return `<circle cx="${x}" cy="${y}" r="3.6" fill="${c}"/>`;
+}
+function buildTangle() {
+  H = Math.max(layout("subject"), layout("why")) + 8;
+  const keys = Object.keys(TREES.subject.byKey);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Two trees of the same pages, by subject and by why, with lines joining each page">`;
+  s += `<g>${drawTree("subject")}${drawTree("why")}</g>`;
+  s += `<g id="curves"></g><path class="lineage" id="lin-l"/><path class="lineage" id="lin-r"/>`;
+  s += keys.map(k => { const l = TREES.subject.byKey[k], r = TREES.why.byKey[k]; return `<g class="dots" data-key="${k}">${mark(k, l.x, l.y)}${mark(k, r.x, r.y)}</g>`; }).join("");
+  s += ["subject", "why"].flatMap(side => TREES[side].echoes.map(e => `<g class="dots" data-key="${e.key}">${mark(e.key, e.x, e.y, true)}</g>`)).join("");
+  s += `<g id="labels">${keys.map(k => `<g class="pg" data-key="${k}" tabindex="0" role="button" aria-label="${esc(fullName(k))}"><rect class="hit"/><text class="${kindOf(k) === "tag" ? "is-tag" : ""}">${esc(shortName(k))}</text></g>`).join("")}</g>`;
+  s += "</svg>";
+  document.getElementById("tangle").innerHTML = s;
+  tangleSvg = document.querySelector("#tangle svg");
+  tangleSvg.querySelectorAll(".pg").forEach(g => { const t = g.querySelector("text"); labelEls[g.dataset.key] = { g, w: t.getComputedTextLength() }; });
+  placeLabels(false);
+  wireTangle();
+}
+function placeLabels(animate) {
+  const curves = tangleSvg.querySelector("#curves");
+  Object.entries(labelEls).forEach(([k, { g, w }]) => {
+    const l = TREES.subject.byKey[k], r = TREES.why.byKey[k];
+    const bySubj = order === "subject";
+    const x = bySubj ? LEAF + 12 : W - LEAF - 12 - w, y = bySubj ? l.y : r.y;
+    g.style.transition = animate ? "transform 0.6s cubic-bezier(.5,0,.2,1)" : "none";
+    g.style.transform = `translate(${x}px, ${y}px)`;
+    const t = g.querySelector("text"); t.setAttribute("y", 4);
+    const hit = g.querySelector(".hit"); hit.setAttribute("x", -4); hit.setAttribute("y", -ROW / 2); hit.setAttribute("width", w + 8); hit.setAttribute("height", ROW);
+  });
+  const draw = () => {
+    curves.innerHTML = Object.entries(labelEls).map(([k, { w }]) => {
+      const l = TREES.subject.byKey[k], r = TREES.why.byKey[k];
+      let x1, y1, x2, y2;
+      if (order === "subject") { x1 = LEAF + 12 + w + 6; y1 = l.y; x2 = W - LEAF - 6; y2 = r.y; }
+      else { x1 = LEAF + 6; y1 = l.y; x2 = W - LEAF - 12 - w - 6; y2 = r.y; }
+      const mx = (x1 + x2) / 2;
+      return `<path class="crv" data-key="${k}" d="M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}" style="--k:${subjColor(k)}"/>`;
+    }).join("") + TREES.why.echoes.map(e => {
+      // second placement on the right: a dashed line from the page's label (or its left dot) to the extra dot
+      const l = TREES.subject.byKey[e.key], w = labelEls[e.key].w;
+      const x1 = order === "subject" ? LEAF + 12 + w + 6 : LEAF + 6, y1 = l.y, x2 = W - LEAF - 6, y2 = e.y, mx = (x1 + x2) / 2;
+      return `<path class="crv echo" data-key="${e.key}" d="M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}" style="--k:${subjColor(e.key)}"/>`;
+    }).join("");
+    curves.style.opacity = 1;
+  };
+  if (animate) { curves.style.opacity = 0; setTimeout(draw, 600); } else draw();
+}
+function lineage(side, key) {
+  const chain = []; for (let q = TREES[side].byKey[key]; q; q = q.parent) chain.unshift(q);
+  let d = `M${chain[0].x},${chain[0].y}`;
+  for (let i = 1; i < chain.length; i++) d += `V${chain[i].y}H${chain[i].x}`;
+  return d;
+}
+function highlight(keys, lineKey) {
+  const set = new Set(keys || []);
+  tangleSvg.classList.toggle("dim", !!keys);
+  tangleSvg.querySelectorAll("[data-key]").forEach(el => el.classList.toggle("on", set.has(el.dataset.key)));
+  const ll = tangleSvg.querySelector("#lin-l"), lr = tangleSvg.querySelector("#lin-r");
+  if (lineKey) {
+    ll.setAttribute("d", lineage("subject", lineKey)); ll.style.stroke = subjColor(lineKey);
+    lr.setAttribute("d", lineage("why", lineKey)); lr.style.stroke = whyColor(TREES.why.byKey[lineKey]);
+  } else { ll.setAttribute("d", ""); lr.setAttribute("d", ""); }
+}
+function wireTangle() {
+  tangleSvg.querySelectorAll(".pg").forEach(g => {
+    const k = g.dataset.key;
+    const on = () => { highlight([k], k); showNote(k); }, off = () => { highlight(null); showNote(null); };
+    g.addEventListener("mouseenter", on); g.addEventListener("focus", on);
+    g.addEventListener("mouseleave", off); g.addEventListener("blur", off);
+    g.addEventListener("click", () => openDrawer(k, g));
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openDrawer(k, g); } });
+  });
+  tangleSvg.querySelectorAll(".clade").forEach(c => {
+    const side = c.dataset.side;
+    const node = TREES[side].root.kids.flatMap(t => t.kids).find(b => b.label === c.dataset.path);
+    const on = () => { highlight(leavesUnder(node)); showBranchNote(node, side); }, off = () => { highlight(null); showNote(null); };
+    c.addEventListener("mouseenter", on); c.addEventListener("focus", on);
+    c.addEventListener("mouseleave", off); c.addEventListener("blur", off);
+  });
+}
+
+// ---------- single subject cladogram: one column per trunk, like Diderot's faculties ----------
+const COLW = 420, BX = 6, SX = 150, LX = 170, CROW = 20;
+function buildClado() {
+  const cols = TREES.subject.root.kids.map(trunk => {
+    let y = 4, svg = "";
+    trunk.kids.forEach((br, bi) => {
+      if (bi) y += 16;
+      const headY = y + 11; y += 22;
+      const kids = br.kids;
+      kids.forEach((k, ki) => {
+        if (k.leaf) { k.cy = y; y += CROW; k.path = `M${BX},${headY + 6}V${k.cy}H${LX}`; return; }
+        if (ki) y += 6;
+        k.kids.forEach(l => { l.cy = y; y += CROW; });
+        k.cy = (k.kids[0].cy + k.kids[k.kids.length - 1].cy) / 2;
+        k.kids.forEach(l => l.path = `M${BX},${headY + 6}V${k.cy}H${SX}V${l.cy}H${LX}`);
+      });
+      const c = `var(--${br.c})`;
+      svg += `<g class="clade" tabindex="0" data-path="${esc(br.label)}"><text class="br-head" x="0" y="${headY}" style="fill:var(--content-1)">${esc(br.label)}</text></g>`;
+      svg += `<path class="lnk" d="M${BX},${headY + 6}V${kids[kids.length - 1].cy}" style="stroke:var(--ink)"/>`;
+      kids.forEach(k => {
+        if (k.leaf) { svg += `<path class="lnk" data-key="${k.key}" d="M${BX},${k.cy}H${LX}" style="stroke:var(--ink)"/>`; return; }
+        svg += `<path class="lnk" d="M${BX},${k.cy}H${SX}V${k.kids[0].cy}M${SX},${k.cy}V${k.kids[k.kids.length - 1].cy}" style="stroke:var(--ink)"/>`;
+        svg += `<text class="sub-label" x="${BX + 8}" y="${k.cy - 5}">${esc(k.label.toLowerCase())}</text>`;
+        k.kids.forEach(l => svg += `<path class="lnk" data-key="${l.key}" d="M${SX},${l.cy}H${LX}" style="stroke:var(--ink)"/>`);
+      });
+      br.kids.flatMap(k => k.leaf ? [k] : k.kids).forEach(l => {
+        svg += `<g class="dots" data-key="${l.key}">${mark(l.key, LX, l.cy)}</g>
+          <g class="pg" data-key="${l.key}" tabindex="0" role="button" aria-label="${esc(fullName(l.key))}"><rect class="hit" x="${LX - 8}" y="${l.cy - CROW / 2}" width="${COLW - LX + 6}" height="${CROW}"/><text x="${LX + 10}" y="${l.cy + 4}" class="${kindOf(l.key) === "tag" ? "is-tag" : ""}">${esc(shortName(l.key))}</text></g>`;
+      });
+    });
+    return `<section class="clado-col">
+      <div class="fac-head" style="--c: var(--content-2)"><span class="fr">${esc(trunk.label)}</span>${trunk.gloss ? `<span class="en">${esc(trunk.gloss)}</span>` : ""}</div>
+      <svg viewBox="0 -2 ${COLW} ${y + 6}" role="img" aria-label="${esc(trunk.label)}">${svg}<path class="lineage"/></svg></section>`;
+  });
+  const el = document.getElementById("clado");
+  el.innerHTML = `<div class="clado-cols">${cols.join("")}</div>`;
+  const svgs = [...el.querySelectorAll("svg")];
+  const lit = (keys, one) => {
+    const set = new Set(keys || []);
+    svgs.forEach(sv => {
+      sv.classList.toggle("dim", !!keys);
+      sv.querySelectorAll("[data-key]").forEach(e => e.classList.toggle("on", set.has(e.dataset.key)));
+      const lin = sv.querySelector(".lineage");
+      const leaf = one && TREES.subject.byKey[one];
+      const mine = leaf && sv.querySelector(`.pg[data-key="${CSS.escape(one)}"]`);
+      lin.setAttribute("d", mine ? leaf.path : "");
+      if (mine) lin.style.stroke = subjColor(one);
+    });
+  };
+  el.querySelectorAll(".pg").forEach(g => {
+    const k = g.dataset.key;
+    const on = () => { lit([k], k); showNote(k); }, off = () => { lit(null); showNote(null); };
+    g.addEventListener("mouseenter", on); g.addEventListener("focus", on);
+    g.addEventListener("mouseleave", off); g.addEventListener("blur", off);
+    g.addEventListener("click", () => openDrawer(k, g));
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openDrawer(k, g); } });
+  });
+  el.querySelectorAll(".clade").forEach(c => {
+    const node = TREES.subject.root.kids.flatMap(t => t.kids).find(b => b.label === c.dataset.path);
+    const on = () => { lit(leavesUnder(node)); showBranchNote(node, "subject"); }, off = () => { lit(null); showNote(null); };
+    c.addEventListener("mouseenter", on); c.addEventListener("focus", on);
+    c.addEventListener("mouseleave", off); c.addEventListener("blur", off);
+  });
+}
+
+// ---------- brace view (one sort at a time) ----------
+const leafCount = n => n.kids ? n.kids.reduce((a, k) => a + leafCount(k), 0) : 1;
+function leafHTML(n) {
+  const k = keyOf(n), kind = kindOf(k);
+  if (n.also) return `<button class="leaf also" data-key="${k}"><span class="mk"></span><span>${esc(k.startsWith("tag:") ? n.l : disp(k))}</span><span class="m">also here</span></button>`;
+  if (kind === "tag") return `<button class="leaf tag" data-key="${k}"><span class="mk"></span><span>${esc(n.l)}</span><span class="m">${T[n.tag].length} tagged</span></button>`;
+  const [, links, , , flag] = P[k];
+  return `<button class="leaf" data-key="${k}"><span class="mk"></span><span>${esc(disp(k))}</span><span class="m">${flag === "unpublished" ? "unpublished" : kind === "nb" ? "" : links}</span></button>`;
+}
+function groupHTML(n) {
+  const count = leafCount(n);
+  const head = n.collapsed
+    ? `<button type="button" class="fold" aria-expanded="false"><span class="en">${esc(n.l)}</span><span class="fold-meta">${count}<span class="chev" aria-hidden="true">▸</span></span></button>`
+    : `<span class="en">${esc(n.l)}</span>`;
+  return `<div class="grp${n.collapsed ? " collapsed" : ""}"${n.c ? ` style="--c: var(--${n.c})"` : ""}>
+    <div class="lab">${head}${n.fr ? `<span class="fr note-line">${esc(n.fr)}</span>` : ""}</div>
+    <div class="br"><svg aria-hidden="true"><path/></svg></div>
+    <div class="kids">${n.kids.map(k => k.kids ? groupHTML(k) : leafHTML(k)).join("")}</div></div>`;
+}
+const ro = new ResizeObserver(entries => {
+  for (const e of entries) {
+    const el = e.target, { width, height } = e.contentRect;
+    if (el.id === "hbrace") {
+      const w = width, h = 26, m = w / 2, y = h * 0.55, r = 14;
+      el.setAttribute("viewBox", `0 0 ${w} ${h}`);
+      el.innerHTML = `<path d="M1,${h} Q1,${y} ${r},${y} H${m - r} Q${m},${y} ${m},1 Q${m},${y} ${m + r},${y} H${w - r} Q${w - 1},${y} ${w - 1},${h}"/>`;
+    } else if (height > 0) {
+      const m = height / 2, x = width * 0.55, r = Math.min(7, height / 5);
+      el.querySelector("path").setAttribute("d", `M${width},0.5 Q${x},0.5 ${x},${r} V${m - r} Q${x},${m} 1,${m} Q${x},${m} ${x},${m + r} V${height - r} Q${x},${height - 0.5} ${width},${height - 0.5}`);
+    }
+  }
+});
+ro.observe(document.getElementById("hbrace"));
+const rows = f => f.kids.reduce((a, k) => a + (k.kids ? rows(k) + 1 : 1), 0);
+function buildBraces(data) {
+  const el = document.getElementById("faculties");
+  el.querySelectorAll(".br").forEach(b => ro.unobserve(b));
+  el.innerHTML = data.map(f => `
+    <section class="fac" style="--c: var(--${f.c})" aria-label="${esc(f.fr)}">
+      <div class="fac-head"><span class="fr">${esc(f.fr)}</span>${f.en ? `<span class="en">${esc(f.en)}</span>` : ""}${f.links?.length ? `<nav class="fac-links" aria-label="Elsewhere on the site">${f.links.map(l => `<a href="${esc(l.site)}">${esc(l.l)}<span aria-hidden="true">↗</span></a>`).join("")}</nav>` : ""}</div>
+      <div class="fac-body${f.spine ? "" : " no-spine"}"><div class="spine">${esc(f.spine)}</div><div class="br"><svg aria-hidden="true"><path/></svg></div>
+        <div class="kids">${f.kids.map(k => k.kids ? groupHTML(k) : leafHTML(k)).join("")}</div></div>
+    </section>`).join("");
+  el.style.setProperty("--cols", `repeat(${data.length}, minmax(0, 1fr))`);
+  el.querySelectorAll(".br").forEach(b => ro.observe(b));
+
+}
+document.getElementById("faculties").addEventListener("click", e => {
+  const fold = e.target.closest("button.fold");
+  if (fold) {
+    const g = fold.closest(".grp"), open = g.classList.toggle("collapsed") === false;
+    fold.setAttribute("aria-expanded", String(open));
+    return;
+  }
+  const b = e.target.closest("button.leaf");
+  if (b) openDrawer(b.dataset.key, b);
+});
+
+// ---------- views ----------
+const views = { both: document.getElementById("v-both"), subject: document.getElementById("v-subject"), why: document.getElementById("v-why") };
+const sortSeg = document.getElementById("sort-seg");
+let view = "both";
+const narrow = () => window.innerWidth < 1100;
+function setView(v) {
+  if (v === "both" && narrow()) v = order;
+  view = v;
+  Object.entries(views).forEach(([k, b]) => b.setAttribute("aria-pressed", String(k === v)));
+  views.both.disabled = narrow();
+  const clado = v === "subject" && !narrow();
+  document.getElementById("tangle-wrap").hidden = v !== "both";
+  document.getElementById("clado-wrap").hidden = !clado;
+  document.getElementById("braces").hidden = v === "both" || clado;
+  note.hidden = v !== "both" && !clado;
+  sortSeg.hidden = v !== "both";
+  if (v === "why" || (v === "subject" && narrow())) buildBraces(v === "subject" ? SUBJECT : WHY);
+  showNote(null);
+}
+Object.entries(views).forEach(([k, b]) => b.addEventListener("click", () => setView(k)));
+document.querySelectorAll("#sort-seg button").forEach(b => b.addEventListener("click", () => {
+  order = b.dataset.order;
+  document.querySelectorAll("#sort-seg button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  placeLabels(true);
+}));
+let lastNarrow = narrow();
+window.addEventListener("resize", () => { if (narrow() !== lastNarrow) { lastNarrow = narrow(); setView(view === "both" && lastNarrow ? order : view); } });
+
+document.getElementById("v-why").textContent = NAMES.right;
+document.querySelector('#sort-seg [data-order="why"]').textContent = `list ${NAMES.right}`;
+if (PROBLEMS.length) {
+  const pr = document.getElementById("problems");
+  pr.innerHTML = `<b>${PROBLEMS.length} thing${PROBLEMS.length > 1 ? "s" : ""} to fix in <code>000-meta/concept-tree.md</code></b><ul>${PROBLEMS.map(p => `<li>${esc(p)}</li>`).join("")}</ul>`;
+  pr.hidden = false;
+}
+document.getElementById("foot").textContent = `Preview built from 000-meta/concept-tree.md at ${BUILT}. Page titles, link counts and tags come from the vault.`;
+buildTangle();
+buildClado();
+showNote(null);
+document.fonts.ready.then(() => { Object.values(labelEls).forEach(o => o.w = o.g.querySelector('text').getComputedTextLength() || o.w); placeLabels(false); });
+setView(narrow() ? "subject" : "both");
+</script>

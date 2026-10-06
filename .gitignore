@@ -36,3 +36,6 @@ src/vault-content
 
 # Local docs/demos
 docs/
+
+# Claude session handovers
+handovers/

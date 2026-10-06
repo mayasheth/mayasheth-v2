@@ -1,67 +1,62 @@
 ---
-import Tag from "@/components/ui/Tag.astro";
+import { getCollection } from "astro:content";
 import { formatDate } from "@/lib/helpers/media-info-helpers";
+import {
+  conceptTagsOf,
+  displayTitle,
+  loadConceptTree,
+  placesOf,
+  type PathStep,
+} from "@/lib/helpers/concept-tree";
 import type { ConceptEntryProps } from "@/lib/types";
 
 export type Props = ConceptEntryProps;
 
 const { conceptEntry } = Astro.props;
 
-function removePrefix(tag: string, prefix: string): string {
-  if (!tag) return "";
-  if (tag.startsWith(prefix + "/")) {
-    return tag.substring(prefix.length + 1);
-  }
-  return tag;
-}
-
-// Concept notes only ever carry concept/* tags (per 000-meta/properties-and-tags.md) —
-// no type/content split needed the way notebook entries have.
-const tags = [...conceptEntry.data.tags].map((tag) => removePrefix(tag, "concept"));
+const concepts = await getCollection("concepts");
+const tree = loadConceptTree(concepts);
+const rows: { label: string; path?: PathStep[] }[] = [
+  { label: "value", path: placesOf(tree, "value").get(conceptEntry.id) },
+  { label: "subject", path: placesOf(tree, "subject").get(conceptEntry.id) },
+];
+const tags = conceptTagsOf(conceptEntry.data.tags);
+const chip = "ctrl-frost inline-block font-base rounded-full px-2 py-1 text-sm no-underline";
 ---
 
 <section
-  class={`concept-info rounded-xl glass bg-surface-0/55 border border-pale-grey/10 px-6 py-4 mx-auto min-w-xs
-            flex flex-col items-stretch max-w-3/4 md:max-w-2/3`}
+  class="concept-info glass bg-surface-0/55 border border-pale-grey/10 rounded-xl mx-auto w-full max-w-3xl px-5 py-8 flex flex-col items-center gap-4 lowercase"
 >
-  <span
-    data-pagefind-weight="10"
-    class="font-header text-content-1 text-center text-xl font-semibold tracking-wide lowercase"
-  >
-    {conceptEntry.data.title}
-  </span>
+  <div class="flex flex-col items-center gap-1 text-center">
+    <h2 data-pagefind-weight="10" class="font-header text-content-1 text-xl font-semibold tracking-wide m-0">
+      {displayTitle(conceptEntry.data.title)}
+    </h2>
+    {conceptEntry.data.description && <p class="font-base text-content-3 text-sm m-0">{conceptEntry.data.description}</p>}
+  </div>
 
-  {
-    conceptEntry.data.description && (
-      <span class="font-base text-content-3 text-center text-sm mt-1">
-        {conceptEntry.data.description}
-      </span>
-    )
-  }
+  <div class="flex flex-col items-center gap-3">
+    {
+      rows.map(({ label, path }) =>
+        path && (
+          <div class="flex flex-wrap items-baseline justify-center gap-x-2 text-center">
+            <span class="font-header text-content-4 text-sm font-semibold">{label}</span>
+            <span class="font-base font-light text-content-2 text-base">{path.map((step, i) => (<>{i > 0 && <span class="font-bold text-ocean-300 mx-1">›</span>}{step.label}</>))}</span>
+          </div>
+        ),
+      )
+    }
+    {
+      tags.length > 0 && (
+        <div class="flex flex-wrap items-center justify-center gap-1.5">
+          <span class="font-header text-content-4 text-sm font-semibold mr-1">tags</span>
+          {tags.map((t) => <a class={chip} href={`/tags/${t}`}>{t.replace(/-/g, " ")}</a>)}
+        </div>
+      )
+    }
+  </div>
 
-  {
-    tags.length > 0 && (
-      <div class="mt-4 flex flex-wrap items-center justify-center gap-y-2 text-center">
-        <span class="font-header text-content-4 py-1 text-sm font-semibold">
-          topics
-        </span>
-        {tags.map((t) => (
-          <Tag class="mx-1">{t}</Tag>
-        ))}
-      </div>
-    )
-  }
-
-  <div class="mt-4 flex flex-col text-center">
-    <span class="font-header text-content-4 text-sm font-semibold">
-      created <span class="text-content-3 font-mono text-sm font-semibold"
-        >{formatDate(conceptEntry.data.created)}</span
-      >
-    </span>
-    <span class="font-header text-content-4 text-sm font-semibold">
-      modified <span class="text-content-3 font-mono text-sm font-semibold"
-        >{formatDate(conceptEntry.data.last_modified)}</span
-      >
-    </span>
+  <div class="flex flex-wrap justify-center gap-x-5 gap-y-1 font-header text-content-4 text-sm font-semibold">
+    <span>created <span class="font-mono text-content-3 ml-1">{formatDate(conceptEntry.data.created)}</span></span>
+    <span>modified <span class="font-mono text-content-3 ml-1">{formatDate(conceptEntry.data.last_modified)}</span></span>
   </div>
 </section>
