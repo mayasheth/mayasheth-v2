@@ -5,6 +5,7 @@ export const NAV_ITEMS: MenuItem[] = [
     label: "collections",
     icon: "mdi--chevron-down",
     children: [
+      { label: "concepts", href: "/concepts" },
       { label: "gratitudes", href: "/gratitudes" },
       { label: "media", href: "/media" },
       { label: "quotes", href: "/quotes" },
