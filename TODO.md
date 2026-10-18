@@ -15,6 +15,7 @@
 
 - [x] `h4` rendered larger than `h3` — both shared `font-size: var(--text-lg)` in `base.css`; stepped h4 down to `--text-base`
 - [x] `/portfolio/design` medium tier didn't center a lone item — switched to `grid-cols-[repeat(auto-fit,minmax(280px,420px))]` + `justify-center`
+- [x] 404/500 "take me home" link rendered unstyled black — `ErrorPage.astro` still used the removed `btn-frost` class; switched to `ctrl-frost`
 - [ ] Restyle individual quote pages (`/quotes/[id]`)
 - [x] `quotes/surprise-me.astro` — scramble board glass treatment
 - [ ] Detail pages (`/media/[id]`, `/notebook/[id]`) — prose content area styling
@@ -43,7 +44,7 @@
   - [ ] Map concept tags to concept pages for the latest ticker (e.g. `psychology` → psychology-neuroscience)
   - [ ] Write the /concepts title and intro copy
   - [ ] Fix typos in vault media notes: Eula Biss, David Foster Wallace, Chiara Marletto
-  - [ ] Decide whether `investing.md` should be published
+  - [x] `investing.md` stays unpublished (publishing is controlled by the `publish` frontmatter flag)
 - [ ] Implement map page(s) for places lived, places travelled (Flighty)
 - [ ] Add or link to actual CV (need to update/reformat)
 
