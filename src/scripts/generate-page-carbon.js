@@ -39,6 +39,7 @@ function fileToRoute(file) {
   let rel = path.relative(DIST, file);
   if (rel === "index.html") return "/";
   if (rel.endsWith("index.html")) rel = rel.replace(/index\.html$/, "");
+  else rel = rel.replace(/\.html$/, "/");
   if (!rel.startsWith("/")) rel = "/" + rel;
   return rel;
 }

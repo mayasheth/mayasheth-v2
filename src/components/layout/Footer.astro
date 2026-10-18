@@ -6,7 +6,7 @@ const navbarClasses =
   "soft-transition hover:font-semibold hover:text-content-2 focus-outline-rounded";
 ---
 
-<footer class="glass bg-surface-0/70 border-t border-pale-grey/10 text-content-2 p-3 md:sticky md:bottom-0 md:z-50">
+<footer data-route={Astro.url.pathname} class="glass bg-surface-0/70 border-t border-pale-grey/10 text-content-2 p-3 md:sticky md:bottom-0 md:z-50">
   <div
     class="mx-auto flex w-full max-w-6xl flex-col gap-4 md:grid md:grid-cols-3 md:items-center md:gap-6"
   >
@@ -65,7 +65,10 @@ const navbarClasses =
 
   <script>
     (async () => {
-      const route = window.location.pathname || "/";
+      // Use the build-time route so error pages (served at any URL) match
+      const footer = document.querySelector("footer[data-route]");
+      const route = (footer?.dataset.route || window.location.pathname || "/")
+        .replace(/\.html$/, "");
       const res = await fetch("/page-carbon.json");
       const pageCarbon = await res.json();
 
