@@ -6,6 +6,7 @@ import {
   displayTitle,
   loadConceptTree,
   placesOf,
+  tagHomeOf,
   type PathStep,
 } from "@/lib/helpers/concept-tree";
 import type { ConceptEntryProps } from "@/lib/types";
@@ -20,7 +21,11 @@ const rows: { label: string; path?: PathStep[] }[] = [
   { label: "value", path: placesOf(tree, "value").get(conceptEntry.id) },
   { label: "subject", path: placesOf(tree, "subject").get(conceptEntry.id) },
 ];
-const tags = conceptTagsOf(conceptEntry.data.tags);
+const homeTag = tagHomeOf(conceptEntry);
+// The page's own tag leads the chip row
+const tags = conceptTagsOf(conceptEntry.data.tags).sort(
+  (a, b) => Number(b === homeTag) - Number(a === homeTag),
+);
 const chip = "ctrl-frost inline-block font-base rounded-full px-2 py-1 text-sm no-underline";
 ---
 
@@ -49,7 +54,15 @@ const chip = "ctrl-frost inline-block font-base rounded-full px-2 py-1 text-sm n
       tags.length > 0 && (
         <div class="flex flex-wrap items-center justify-center gap-1.5">
           <span class="font-header text-content-4 text-sm font-semibold mr-1">tags</span>
-          {tags.map((t) => <a class={chip} href={`/tags/${t}`}>{t.replace(/-/g, " ")}</a>)}
+          {tags.map((t) => (
+            <a
+              class:list={[chip, { "ctrl-frost-home": t === homeTag }]}
+              href={`/tags/${t}`}
+              title={t === homeTag ? "everything tagged with this page's own tag" : undefined}
+            >
+              {t.replace(/-/g, " ")}
+            </a>
+          ))}
         </div>
       )
     }

@@ -162,6 +162,10 @@ export function pageStats(concepts: CollectionEntry<"concepts">[]): Map<string, 
 export const conceptTagsOf = (tags: string[]) =>
   tags.filter((t) => t.startsWith("concept/")).map((t) => t.slice("concept/".length));
 
+// The tag this concept page is the main page for, if marked with tag_home
+export const tagHomeOf = (c: CollectionEntry<"concepts">) =>
+  c.data.tag_home?.replace(/^concept\//, "") || undefined;
+
 export type TaggedNote = { title: string; author?: string; href: string; date: Date; kind: "media" | "notebook" };
 
 // Published media and notebook entries by concept tag (exact tag match).

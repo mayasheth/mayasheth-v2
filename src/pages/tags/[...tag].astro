@@ -6,6 +6,7 @@ import {
   conceptTagsOf,
   displayTitle,
   loadConceptTree,
+  tagHomeOf,
   placesOf,
   tagLabels,
   taggedNotes,
@@ -24,25 +25,29 @@ export async function getStaticPaths() {
   const notes = taggedNotes(media, notebook);
   const places = { value: placesOf(tree, "value"), subject: placesOf(tree, "subject") };
   const tags = new Set([...notes.keys(), ...concepts.flatMap((c) => conceptTagsOf(c.data.tags)), ...labels.keys()]);
-  return [...tags].sort().map((tag) => ({
-    params: { tag },
-    props: {
-      tag,
-      label: labels.get(tag) ?? tag.split("/").at(-1)!.replace(/-/g, " "),
-      rows: [
-        { label: "value", path: places.value.get(`tag:${tag}`) },
-        { label: "subject", path: places.subject.get(`tag:${tag}`) },
-      ],
-      pages: concepts
-        .filter((c) => conceptTagsOf(c.data.tags).includes(tag))
-        .map((c) => ({ id: c.id, title: displayTitle(c.data.title) }))
-        .sort((a, b) => a.title.localeCompare(b.title)),
-      notes: notes.get(tag) ?? [],
-    },
-  }));
+  return [...tags].sort().map((tag) => {
+    const home = concepts.find((c) => tagHomeOf(c) === tag);
+    return {
+      params: { tag },
+      props: {
+        tag,
+        home: home && { id: home.id, title: displayTitle(home.data.title) },
+        label: labels.get(tag) ?? tag.split("/").at(-1)!.replace(/-/g, " "),
+        rows: [
+          { label: "value", path: places.value.get(`tag:${tag}`) },
+          { label: "subject", path: places.subject.get(`tag:${tag}`) },
+        ],
+        pages: concepts
+          .filter((c) => c !== home && conceptTagsOf(c.data.tags).includes(tag))
+          .map((c) => ({ id: c.id, title: displayTitle(c.data.title) }))
+          .sort((a, b) => a.title.localeCompare(b.title)),
+        notes: notes.get(tag) ?? [],
+      },
+    };
+  });
 }
 
-const { tag, label, rows, pages, notes } = Astro.props;
+const { tag, label, home, rows, pages, notes } = Astro.props;
 const chip = "ctrl-frost inline-block font-base rounded-full px-2 py-1 text-sm no-underline";
 ---
 
@@ -53,6 +58,14 @@ const chip = "ctrl-frost inline-block font-base rounded-full px-2 py-1 text-sm n
         <span class="font-mono text-content-3 text-base">#concept/{tag}</span>
         <h2 class="font-header text-content-1 text-xl font-semibold tracking-wide m-0">{label}</h2>
       </div>
+      {
+        home && (
+          <div class="flex flex-wrap items-center justify-center gap-1.5">
+            <span class="font-header text-content-4 text-sm font-semibold mr-1">concept page</span>
+            <a class={`${chip} ctrl-frost-home`} href={`/concepts/${home.id}`}>{home.title}</a>
+          </div>
+        )
+      }
       {
         rows.map(({ label: k, path }) =>
           path && (

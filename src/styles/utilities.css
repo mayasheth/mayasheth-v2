@@ -54,6 +54,22 @@
     filter: brightness(1.1);
   }
 
+  /* ctrl-frost marking a tag's own concept page: ocean border plus the
+     /concepts tree's solid "has a page" dot */
+  .ctrl-frost.ctrl-frost-home {
+    border-color: oklch(57.00% 0.179 226.3 / 0.55);
+    &::before {
+      content: "";
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      margin-right: 0.4em;
+      border-radius: 50%;
+      background: var(--color-content-3);
+      vertical-align: 0.1em;
+    }
+  }
+
   /* Interactive dark glass — sort/filter controls, structural UI */
   .ctrl-glass {
     color: var(--color-content-2);

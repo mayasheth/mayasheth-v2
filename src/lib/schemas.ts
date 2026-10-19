@@ -88,6 +88,7 @@ export const notebookSchema = baseItemSchema.extend({
 export const conceptSchema = baseItemSchema.extend({
   title: z.coerce.string(),
   description: z.coerce.string().nullish(),
+  tag_home: z.coerce.string().nullish(),
 });
 
 const ratingSchema = z

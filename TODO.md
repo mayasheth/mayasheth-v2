@@ -42,6 +42,8 @@
   - [ ] /tags list: add a small type icon to each row (date stays on the right) (book vs journal/musings). Maya is picking icons
   - [x] Latest ticker: use the lowercase styling for its entries (titles, dates, page names)
   - [ ] Map concept tags to concept pages for the latest ticker (e.g. `psychology` → psychology-neuroscience)
+  - [x] `tag_home` frontmatter on concept pages: tag page shows a "concept page" chip, concept header leads with its own tag (`ctrl-frost-home`: ocean border + solid dot)
+  - [ ] Add `tag_home` to vault notes (trial: metascience, humans-animals-nature)
   - [ ] Write the /concepts title and intro copy
   - [ ] Fix typos in vault media notes: Eula Biss, David Foster Wallace, Chiara Marletto
   - [x] `investing.md` stays unpublished (publishing is controlled by the `publish` frontmatter flag)
